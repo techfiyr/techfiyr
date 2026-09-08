@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>TechFiyr | Coming Soon</title>
+	<!-- Stylesheets -->
+	<link href="assets/css/bootstrap.css" rel="stylesheet">
+	<link href="assets/css/font-awesome.css" rel="stylesheet">
+	<link href="assets/css/style.css" rel="stylesheet">
+	<link href="assets/css/responsive.css" rel="stylesheet">
+
+	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+	<link rel="icon" href="assets/images/favicon.png" type="image/x-icon">
+
+	<!-- Responsive -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+	<style>
+		:root {
+			--cs-bg: #070e0a;
+			--cs-card-bg: rgba(255, 255, 255, 0.03);
+			--cs-card-border: rgba(198, 228, 90, 0.12);
+			--cs-card-hover: rgba(198, 228, 90, 0.08);
+			--cs-primary: #237A57;
+			--cs-secondary: #C6E45A;
+			--cs-lime: #C6E45A;
+			--cs-text-muted: #94A3B8;
+			--cs-glow-1: rgba(35, 122, 87, 0.35);
+			--cs-glow-2: rgba(198, 228, 90, 0.22);
+			--cs-glow-3: rgba(35, 122, 87, 0.25);
+		}
+
+		body.cs-body {
+			background-color: var(--cs-bg);
+			color: #FFFFFF;
+			font-family: 'Manrope', sans-serif;
+			overflow-x: hidden;
+			position: relative;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* Background Ambient Glows */
+		.cs-bg-glows {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			pointer-events: none;
+			z-index: 0;
+			overflow: hidden;
+		}
+
+		.cs-glow-circle {
+			position: absolute;
+			border-radius: 50%;
+			filter: blur(100px);
+			opacity: 0.6;
+			animation: floatGlow 12s ease-in-out infinite alternate;
+		}
+
+		.cs-glow-1 {
+			width: 500px;
+			height: 500px;
+			background: var(--cs-glow-1);
+			top: -150px;
+			left: -100px;
+		}
+
+		.cs-glow-2 {
+			width: 600px;
+			height: 600px;
+			background: var(--cs-glow-2);
+			bottom: -150px;
+			right: -100px;
+			animation-delay: -4s;
+		}
+
+		.cs-glow-3 {
+			width: 400px;
+			height: 400px;
+			background: var(--cs-glow-3);
+			top: 40%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			animation-delay: -8s;
+		}
+
+		.cs-grid-overlay {
+			position: absolute;
+			inset: 0;
+			background-image: 
+				linear-gradient(rgba(198, 228, 90, 0.03) 1px, transparent 1px),
+				linear-gradient(90deg, rgba(198, 228, 90, 0.03) 1px, transparent 1px);
+			background-size: 60px 60px;
+			opacity: 0.8;
+		}
+
+		@keyframes floatGlow {
+			0% { transform: translateY(0) scale(1); }
+			50% { transform: translateY(30px) scale(1.08); }
+			100% { transform: translateY(-20px) scale(0.95); }
+		}
+
+		/* Header */
+		.cs-header {
+			position: relative;
+			z-index: 10;
+			padding: 24px 0;
+			border-bottom: 1px solid rgba(198, 228, 90, 0.1);
+			backdrop-filter: blur(12px);
+			background: rgba(7, 14, 10, 0.5);
+		}
+
+		.cs-header .logo img {
+			height: 42px;
+			width: auto;
+			transition: transform 0.3s ease;
+		}
+
+		.cs-header .logo img:hover {
+			transform: scale(1.03);
+		}
+
+		.cs-home-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 24px;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(198, 228, 90, 0.2);
+			border-radius: 50px;
+			color: #FFFFFF;
+			font-size: 14px;
+			font-weight: 600;
+			text-decoration: none;
+			transition: all 0.3s ease;
+			backdrop-filter: blur(10px);
+		}
+
+		.cs-home-btn:hover {
+			background: rgba(35, 122, 87, 0.2);
+			border-color: #C6E45A;
+			color: #C6E45A;
+			transform: translateY(-2px);
+			box-shadow: 0 8px 25px rgba(198, 228, 90, 0.2);
+		}
+
+		.cs-home-btn i {
+			font-size: 12px;
+			transition: transform 0.3s ease;
+		}
+
+		.cs-home-btn:hover i {
+			transform: translateX(-3px);
+		}
+
+		/* Main Hero Section */
+		.cs-main {
+			position: relative;
+			z-index: 5;
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 70px 0 60px;
+		}
+
+		.cs-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 20px;
+			background: rgba(35, 122, 87, 0.15);
+			border: 1px solid rgba(198, 228, 90, 0.35);
+			border-radius: 50px;
+			color: #C6E45A;
+			font-size: 13px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 1.5px;
+			margin-bottom: 24px;
+			box-shadow: 0 0 20px rgba(198, 228, 90, 0.15);
+			animation: badgePulse 3s infinite ease-in-out;
+		}
+
+		.cs-badge-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background-color: #C6E45A;
+			box-shadow: 0 0 10px #C6E45A;
+			animation: blinkDot 1.5s infinite alternate;
+		}
+
+		@keyframes blinkDot {
+			from { opacity: 0.4; }
+			to { opacity: 1; }
+		}
+
+		@keyframes badgePulse {
+			0%, 100% { border-color: rgba(198, 228, 90, 0.35); }
+			50% { border-color: rgba(35, 122, 87, 0.7); }
+		}
+
+		.cs-title {
+			font-family: 'Outfit', sans-serif;
+			font-size: 56px;
+			font-weight: 800;
+			line-height: 1.15;
+			margin-bottom: 20px;
+			letter-spacing: -0.5px;
+			color: #FFFFFF !important;
+		}
+
+		.cs-gradient-text {
+			background: linear-gradient(135deg, #C6E45A 0%, #7FD858 50%, #237A57 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			display: inline-block;
+		}
+
+		.cs-subtitle {
+			font-size: 18px;
+			line-height: 1.65;
+			color: #CBD5E1 !important;
+			max-width: 680px;
+			margin: 0 auto 36px;
+		}
+
+		/* Service Pills */
+		.cs-service-pills {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 12px;
+			margin-bottom: 45px;
+		}
+
+		.cs-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 18px;
+			background: rgba(255, 255, 255, 0.04);
+			border: 1px solid rgba(198, 228, 90, 0.15);
+			border-radius: 30px;
+			font-size: 13px;
+			font-weight: 500;
+			color: #E2E8F0 !important;
+			transition: all 0.3s ease;
+		}
+
+		.cs-pill:hover {
+			background: rgba(35, 122, 87, 0.2);
+			border-color: rgba(198, 228, 90, 0.4);
+			color: #FFFFFF;
+			transform: translateY(-2px);
+		}
+
+		/* Modern Countdown Timer Grid */
+		.cs-countdown-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			max-width: 680px;
+			margin: 0 auto 45px;
+		}
+
+		.cs-countdown-card {
+			position: relative;
+			background: var(--cs-card-bg);
+			border: 1px solid var(--cs-card-border);
+			border-radius: 20px;
+			padding: 24px 15px 20px;
+			text-align: center;
+			backdrop-filter: blur(20px);
+			transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+			overflow: hidden;
+		}
+
+		.cs-countdown-card::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(circle at top, rgba(198, 228, 90, 0.2), transparent 70%);
+			opacity: 0;
+			transition: opacity 0.4s ease;
+		}
+
+		.cs-countdown-card:hover {
+			transform: translateY(-6px);
+			border-color: rgba(198, 228, 90, 0.45);
+			box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(198, 228, 90, 0.18);
+		}
+
+		.cs-countdown-card:hover::before {
+			opacity: 1;
+		}
+
+		.cs-countdown-num {
+			font-family: 'Outfit', sans-serif;
+			font-size: 48px;
+			font-weight: 800;
+			line-height: 1;
+			margin-bottom: 8px;
+			color: #FFFFFF;
+			background: linear-gradient(180deg, #FFFFFF 30%, #C6E45A 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+
+		.cs-countdown-label {
+			font-size: 13px;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			color: var(--cs-lime);
+		}
+
+		/* Subscribe Box */
+		.cs-subscribe-card {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid rgba(198, 228, 90, 0.15);
+			border-radius: 24px;
+			padding: 35px 30px;
+			max-width: 620px;
+			margin: 0 auto;
+			backdrop-filter: blur(20px);
+			box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+		}
+
+		.cs-subscribe-card h3 {
+			font-family: 'Outfit', sans-serif;
+			font-size: 26px;
+			font-weight: 700;
+			margin-bottom: 8px;
+			color: #FFFFFF !important;
+		}
+
+		.cs-subscribe-card p {
+			color: #94A3B8 !important;
+			font-size: 15px;
+			margin-bottom: 22px;
+		}
+
+		.cs-input-group {
+			display: flex;
+			align-items: center;
+			background: rgba(0, 0, 0, 0.4);
+			border: 1px solid rgba(198, 228, 90, 0.2);
+			border-radius: 50px;
+			padding: 6px 6px 6px 20px;
+			transition: all 0.3s ease;
+		}
+
+		.cs-input-group:focus-within {
+			border-color: #C6E45A;
+			box-shadow: 0 0 20px rgba(198, 228, 90, 0.25);
+			background: rgba(0, 0, 0, 0.6);
+		}
+
+		.cs-input-group input {
+			background: transparent;
+			border: none;
+			outline: none;
+			color: #FFFFFF !important;
+			font-size: 15px;
+			width: 100%;
+			padding-right: 10px;
+		}
+
+		.cs-input-group input::placeholder {
+			color: #64748B;
+		}
+
+		.cs-btn-submit {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			background: linear-gradient(135deg, #237A57 0%, #C6E45A 100%);
+			border: none;
+			color: #FFFFFF;
+			padding: 12px 28px;
+			font-size: 14px;
+			font-weight: 700;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			white-space: nowrap;
+			box-shadow: 0 4px 20px rgba(198, 228, 90, 0.3);
+		}
+
+		.cs-btn-submit:hover {
+			transform: scale(1.02);
+			box-shadow: 0 6px 25px rgba(198, 228, 90, 0.45);
+			filter: brightness(1.1);
+		}
+
+		.cs-feedback-msg {
+			margin-top: 12px;
+			font-size: 14px;
+			color: #C6E45A;
+			display: none;
+		}
+
+		/* Contact Quick Strip */
+		.cs-contact-strip {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+			gap: 25px;
+			margin-top: 40px;
+			font-size: 14px;
+			color: #94A3B8 !important;
+		}
+
+		.cs-contact-item {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			color: #CBD5E1 !important;
+			text-decoration: none;
+			transition: color 0.3s ease;
+		}
+
+		.cs-contact-item:hover {
+			color: #C6E45A !important;
+		}
+
+		.cs-contact-item i {
+			color: #C6E45A;
+		}
+
+		.cs-socials {
+			display: flex;
+			gap: 12px;
+			margin-top: 25px;
+			justify-content: center;
+		}
+
+		.cs-social-link {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(198, 228, 90, 0.15);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #FFFFFF;
+			font-size: 14px;
+			text-decoration: none;
+			transition: all 0.3s ease;
+		}
+
+		.cs-social-link:hover {
+			background: linear-gradient(135deg, #237A57 0%, #C6E45A 100%);
+			border-color: #C6E45A;
+			color: #FFFFFF;
+			transform: translateY(-3px);
+			box-shadow: 0 6px 20px rgba(198, 228, 90, 0.35);
+		}
+
+		/* Footer */
+		.cs-footer {
+			position: relative;
+			z-index: 5;
+			border-top: 1px solid rgba(198, 228, 90, 0.1);
+			padding: 20px 0;
+			text-align: center;
+			font-size: 13px;
+			color: #94A3B8 !important;
+			background: rgba(7, 14, 10, 0.7);
+		}
+
+		/* Responsive Adjustments */
+		@media (max-width: 768px) {
+			.cs-title {
+				font-size: 36px;
+			}
+			.cs-subtitle {
+				font-size: 16px;
+			}
+			.cs-countdown-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 14px;
+			}
+			.cs-countdown-num {
+				font-size: 38px;
+			}
+			.cs-subscribe-card {
+				padding: 25px 18px;
+			}
+			.cs-input-group {
+				flex-direction: column;
+				border-radius: 16px;
+				padding: 8px;
+				gap: 10px;
+			}
+			.cs-input-group input {
+				padding: 8px 12px;
+				text-align: center;
+			}
+			.cs-btn-submit {
+				width: 100%;
+				justify-content: center;
+			}
+		}
+	</style>
+</head>
+
+<body class="cs-body">
+
+	<!-- Background Glows & Grid -->
+	<div class="cs-bg-glows">
+		<div class="cs-grid-overlay"></div>
+		<div class="cs-glow-circle cs-glow-1"></div>
+		<div class="cs-glow-circle cs-glow-2"></div>
+		<div class="cs-glow-circle cs-glow-3"></div>
+	</div>
+
+	<!-- Minimal Header -->
+	<header class="cs-header">
+		<div class="container">
+			<div class="d-flex justify-content-between align-items-center">
+				<div class="logo">
+					<a href="index.html">
+						<img src="assets/images/logo-white.svg" alt="TechFiyr Logo" title="TechFiyr">
+					</a>
+				</div>
+				<div>
+					<a href="index.html" class="cs-home-btn">
+						<i class="fa-solid fa-arrow-left"></i>
+						<span>Back to Home</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- Main Coming Soon Content -->
+	<main class="cs-main">
+		<div class="container text-center">
+			
+			<!-- Badge -->
+			<div class="cs-badge">
+				<span class="cs-badge-dot"></span>
+				<span>Under Active Development</span>
+			</div>
+
+			<!-- Title & Subtitle -->
+			<h1 class="cs-title">
+				We Are Crafting The <br>
+				<span class="cs-gradient-text">Future of Tech</span>
+			</h1>
+
+			<p class="cs-subtitle">
+				TechFiyr is engineering a revolutionary digital platform packed with cutting-edge IT consulting, enterprise cloud architecture, and intelligent automation solutions.
+			</p>
+
+			<!-- Service Tags / Pills -->
+			<div class="cs-service-pills">
+				<span class="cs-pill"><i class="fa-solid fa-globe" style="color: #C6E45A;"></i> Web Solutions</span>
+				<span class="cs-pill"><i class="fa-solid fa-mobile-screen-button" style="color: #7FD858;"></i> App Development</span>
+				<span class="cs-pill"><i class="fa-solid fa-pen-nib" style="color: #C6E45A;"></i> App Design</span>
+				<span class="cs-pill"><i class="fa-solid fa-code" style="color: #7FD858;"></i> Web Development</span>
+			</div>
+
+			<!-- Countdown Timer -->
+			<div class="cs-countdown-grid" id="csCountdown">
+				<div class="cs-countdown-card">
+					<div class="cs-countdown-num" id="csDays">00</div>
+					<div class="cs-countdown-label">Days</div>
+				</div>
+				<div class="cs-countdown-card">
+					<div class="cs-countdown-num" id="csHours">00</div>
+					<div class="cs-countdown-label">Hours</div>
+				</div>
+				<div class="cs-countdown-card">
+					<div class="cs-countdown-num" id="csMinutes">00</div>
+					<div class="cs-countdown-label">Minutes</div>
+				</div>
+				<div class="cs-countdown-card">
+					<div class="cs-countdown-num" id="csSeconds">00</div>
+					<div class="cs-countdown-label">Seconds</div>
+				</div>
+			</div>
+
+			<!-- Subscribe Card -->
+			<div class="cs-subscribe-card">
+				<h3>Get Notified On Launch</h3>
+				<p>Be the first to experience our next-generation technology suite.</p>
+				
+				<form id="csNotifyForm" onsubmit="handleNotify(event)">
+					<div class="cs-input-group">
+						<input type="email" id="notifyEmail" placeholder="Enter your business email address..." required>
+						<button type="submit" class="cs-btn-submit">
+							<span>Notify Me</span>
+							<i class="fa-solid fa-paper-plane"></i>
+						</button>
+					</div>
+				</form>
+				<div id="csFeedback" class="cs-feedback-msg">
+					✨ Thank you! We'll notify you as soon as we go live.
+				</div>
+			</div>
+
+			<!-- Quick Contact Info -->
+			<div class="cs-contact-strip">
+				<a href="mailto:info@techfiyr.com" class="cs-contact-item">
+					<i class="fa-solid fa-envelope"></i>
+					<span>info@techfiyr.com</span>
+				</a>
+				<span class="d-none d-md-inline opacity-25">|</span>
+				<a href="tel:01722364642" class="cs-contact-item">
+					<i class="fa-solid fa-phone"></i>
+					<span>01722364642</span>
+				</a>
+				<span class="d-none d-md-inline opacity-25">|</span>
+				<span class="cs-contact-item">
+					<i class="fa-solid fa-location-dot"></i>
+					<span>341/342, Mirpur DOHS, Dhaka</span>
+				</span>
+			</div>
+
+			<!-- Social Icons -->
+			<div class="cs-socials">
+				<a href="https://facebook.com/" class="cs-social-link" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i></a>
+				<a href="https://instagram.com/" class="cs-social-link" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>
+				<a href="https://dribbble.com/" class="cs-social-link" target="_blank" rel="noopener"><i class="fa-brands fa-dribbble"></i></a>
+			</div>
+
+		</div>
+	</main>
+
+	<!-- Footer -->
+	<footer class="cs-footer">
+		<div class="container">
+			<div>TechFiyr &copy; 2026. All Rights Reserved.</div>
+		</div>
+	</footer>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+
+	<!-- Live Countdown Logic -->
+	<script>
+		(function () {
+			// Set launch date: 45 days from now
+			const targetDate = new Date();
+			targetDate.setDate(targetDate.getDate() + 45);
+			targetDate.setHours(targetDate.getHours() + 14);
+
+			const daysEl = document.getElementById('csDays');
+			const hoursEl = document.getElementById('csHours');
+			const minutesEl = document.getElementById('csMinutes');
+			const secondsEl = document.getElementById('csSeconds');
+
+			function updateCountdown() {
+				const now = new Date().getTime();
+				const distance = targetDate.getTime() - now;
+
+				if (distance <= 0) {
+					daysEl.innerText = "00";
+					hoursEl.innerText = "00";
+					minutesEl.innerText = "00";
+					secondsEl.innerText = "00";
+					return;
+				}
+
+				const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				daysEl.innerText = String(days).padStart(2, '0');
+				hoursEl.innerText = String(hours).padStart(2, '0');
+				minutesEl.innerText = String(minutes).padStart(2, '0');
+				secondsEl.innerText = String(seconds).padStart(2, '0');
+			}
+
+			updateCountdown();
+			setInterval(updateCountdown, 1000);
+		})();
+
+		function handleNotify(e) {
+			e.preventDefault();
+			const email = document.getElementById('notifyEmail').value;
+			if (email) {
+				document.getElementById('notifyEmail').value = '';
+				const feedback = document.getElementById('csFeedback');
+				feedback.style.display = 'block';
+				setTimeout(() => {
+					feedback.style.display = 'none';
+				}, 5000);
+			}
+		}
+	</script>
+
+</body>
+
+</html>

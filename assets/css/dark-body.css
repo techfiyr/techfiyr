@@ -1,0 +1,241 @@
+/* ITHUB IT solution & Technology Services HTML-5 Template */
+
+/* Want Sticky Header */
+
+.want-sticky-header .main-header .sticky-header{
+	position:relative;
+	display:none;
+}
+
+/* Dark Version Style CSS Code */
+
+.dark-body .mobile-menu .menu-box,
+.dark-body .instagram-gallery:before,
+.dark-body .instagram-gallery:after,
+.dark-body{
+	background-color: #000000;
+}
+
+.dark-body .about-one_vector{
+	opacity:0.10
+}
+
+.dark-body p{
+	color:var(--white-color);
+}
+
+.dark-body .slider-one{
+	border-color: #000000;
+}
+
+.dark-body .step-block_one-inner:before{
+	display:none;
+}
+
+.dark-body .faq-one_bg,
+.dark-body .offer-one_color{
+	opacity:0.10;
+}
+
+.dark-body .page-title_shape-one,
+.dark-body .page-title_shape-two,
+.dark-body .testimonial-one_carousel-content:before,
+.dark-body .testimonial-one_carousel-content:after{
+	display:none;
+}
+
+.dark-body .offer-one_tags li a{
+	border-color:var(--white-color);
+}
+
+.dark-body .experiance-one h1.light{
+	-webkit-text-stroke-color: rgba(var(--white-color-rgb), 1);
+}
+
+.dark-body .mobile-menu .nav-logo img,
+.dark-body .error-one_image img,
+.dark-body .team-two_phone img,
+.dark-body .news-block_three-content:before,
+.dark-body .shop-item .inner-box .lower-content .cart img,
+.dark-body .clients-two .client-image img,
+.dark-body .news-block_one-meta:before{
+	filter: invert(100%);
+}
+
+.dark-body .faq-one:before{
+	background-color: #2d3049;
+}
+
+.dark-body .cart-totals li,
+.dark-body .cart-total-box,
+.dark-body .item-quantity,
+.dark-body .shipping-list li,
+.dark-body .cart-table tbody tr,
+.dark-body .shop-detail_gallery-column .thumb,
+.dark-body .shop-detail_socials li a,
+.dark-body .cart-table tbody tr .prod-column .column-box .prod-thumb,
+.dark-body .shop-detail .prod-tabs .tab-btns::before,
+.dark-body .shop-section .lower-text .products,
+.dark-body .project-detail_info,
+.dark-body .order-box,
+.dark-body .order-totals li,
+.dark-body .post-widget .post,
+.dark-body .popular-tags a,
+.dark-body .blog-more_posts,
+.dark-body .post-share-options a,
+.dark-body .blog-detail_content:before,
+.dark-body .contact-info_block-icon,
+.dark-body .main-header .mobile-menu .navigation,
+.dark-body .main-header .mobile-menu .navigation li,
+.dark-body .main-header .mobile-menu .navigation li > ul > li:first-child,
+.dark-body .news-block_two:last-child .news-block_two-inner,
+.dark-body .register-one .form-column .inner-column,
+.dark-body .shipping-outer .cart-shipping-box,
+.dark-body .news-block_two-inner{
+	border-color:rgba(255,255,255,0.10);
+}
+
+.dark-body .comments-area,
+.dark-body .contact-two .inner-container,
+.dark-body .shop-detail_gallery-column .thumb,
+.dark-body .shop-detail_gallery-column .image,
+.dark-body .sidebar .related-posts .post .post-thumb,
+.dark-body .about-three{
+	background-color:rgba(255,255,255,0.10);
+}
+
+.dark-body .news-block_two-inner:hover::before{
+	width:auto;
+}
+
+.dark-body .error-one_text,
+.dark-body .error-one h2,
+.dark-body .blog-more_posts h6,
+.dark-body .blog-more_posts .date,
+.dark-body .blog-author-post .text,
+.dark-body .blog-detail .social-links a,
+.dark-body .blog-author-post h5,
+.dark-body .social-links_title,
+.dark-body .post-share-options a,
+.dark-body .post-share-options strong,
+.dark-body .blog-detail h4,
+.dark-body .blog-detail_title,
+.dark-body .blog-detail_text,
+.dark-body .blog-detail_meta li,
+.dark-body .news-block_three-text,
+.dark-body .news-block_three-meta li .icon,
+.dark-body .news-block_three-title a,
+.dark-body .news-block_three-meta li,
+.dark-body .popular-tags a,
+.dark-body .post-widget .post h4 a,
+.dark-body .sidebar-title h4,
+.dark-body .coming-soon .emailed-form .text,
+.dark-body .coming-soon .emailed-form h3,
+.dark-body .main-header .mobile-menu .navigation li > a,
+.dark-body .contact-form .form-group .check-box,
+.dark-body .contact-form .form-group .text,
+.dark-body .register-one h3,
+.dark-body .checkout-section h4,
+.dark-body .order-totals li,
+.dark-body .order-totals li span,
+.dark-body .shipping-list li,
+.dark-body .cart-totals li,
+.dark-body .contact-info_box h3,
+.dark-body .contact-info_block-icon,
+.dark-body .contact-info_block-inner h4,
+.dark-body .contact-info_box .contact-info_text,
+.dark-body .shipping-form .check-box label,
+.dark-body .order-box .order-total,
+.dark-body .shoping-cart-section .check-box label,
+.dark-body .shoping-cart-section .total-column .title-box h6,
+.dark-body .cart-table tbody tr td.sub-total,
+.dark-body .cart-table tbody tr td.price,
+.dark-body .cart-table .prod-text,
+.dark-body .cart-table .prod-title,
+.dark-body .cart-table thead tr th,
+.dark-body .related-products h3,
+.dark-body .comment-box .text,
+.dark-body .comment-box .comment-info,
+.dark-body .prod-tabs .tabs-content .tab .title,
+.dark-body .prod-tabs .tabs-content p,
+.dark-body .quantity-box .item-quantity input.qty-spinner,
+.dark-body .sidebar-page-container .group-title h4,
+.dark-body .comment-form-outer .rating strong,
+.dark-body .sidebar-page-container .comments-area .comment-box .text,
+.dark-body .sidebar-page-container .comments-area .comment-box strong,
+.dark-body .quantity-box .bootstrap-touchspin .glyphicon-chevron-up:before,
+.dark-body .quantity-box .bootstrap-touchspin .glyphicon-chevron-down:before,
+.dark-body .shop-detail_rating .fa-star,
+.dark-body .shop-detail_price,
+.dark-body .shop-detail_socials li a,
+.dark-body .shop-detail_list li span,
+.dark-body .shop-detail_socials .share,
+.dark-body .shop-detail_list li,
+.dark-body .shop-detail_text,
+.dark-body .shop-detail_rating .fa-star.light,
+.dark-body .shop-detail_rating i,
+.dark-body .shop-detail_title,
+.dark-body .shop-section .lower-text .products,
+.dark-body .shop-section .items-sorting .total-items,
+.dark-body .shop-item .inner-box .lower-content h3 a,
+.dark-body .shop-item .inner-box .lower-content .price,
+.dark-body .sidebar .related-posts .post h4 a,
+.dark-body .shop-cat li a,
+.dark-body .sidebar-title h5,
+.dark-body .project-detail_lists li,
+.dark-body .project-detail_info li,
+.dark-body .project-detail_info li span,
+.dark-body .service-detail_list-two li,
+.dark-body .service-detail_list li,
+.dark-body .service-detail_subtitle,
+.dark-body .service-detail_subtitle,
+.dark-body .service-detail_text,
+.dark-body .service-detail_title,
+.dark-body .team-detail_subtext,
+.dark-body .team-detail .lower-box h3,
+.dark-body .team-detail_info li span,
+.dark-body .team-detail_info li,
+.dark-body .team-detail_text,
+.dark-body .team-detail_title,
+.dark-body .team-detail_designation,
+.dark-body .team-block_three-designation,
+.dark-body .team-block_three-title a,
+.dark-body .privacy-section .privacy-list li,
+.dark-body .privacy-section h4,
+.dark-body .privacy-section h3,
+.dark-body .news-block_two-title a,
+.dark-body .news-block_two-meta li a,
+.dark-body .team-two_phone,
+.dark-body .about-three_reviews,
+.dark-body .about-three_text,
+.dark-body .empower-block_one-text,
+.dark-body .empower-block_one-title a,
+.dark-body .default-count-box,
+.dark-body .default-skill-title,
+.dark-body .about-two_text,
+.dark-body .about-two_title,
+.dark-body .news-block_one-title a,
+.dark-body .news-block_one-meta li,
+.dark-body .experiance-one h1,
+.dark-body .team-one_info-text,
+.dark-body .sec-title_text,
+.dark-body .offer-one_tags li a,
+.dark-body .offer-one_heading a,
+.dark-body .news-block_one-meta li .icon,
+.dark-body .step-block_one-inner:hover .step-block_one-number span,
+.dark-body .process-one_content-text,
+.dark-body .step-block_one-heading,
+.dark-body .step-block_one-text,
+.dark-body .review-block_one-info strong,
+.dark-body .review-block_one-text,
+.dark-body .mobile-menu .close-btn,
+.dark-body .about-one_text span,
+.dark-body .about-one_text,
+.dark-body .sec-title_heading{
+	color:var(--white-color);
+}
+
+.dark-body-color-two{
+	color: #ffffff;
+	background-color: #222222;
+}
