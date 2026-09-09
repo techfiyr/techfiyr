@@ -576,7 +576,7 @@
 			</div>
 
 			<!-- Countdown Timer -->
-			<div class="cs-countdown-grid" id="csCountdown">
+			<div class="cs-countdown-grid" id="csCountdown" data-launch-days="45" data-launch-hours="14">
 				<div class="cs-countdown-card">
 					<div class="cs-countdown-num" id="csDays">00</div>
 					<div class="cs-countdown-label">Days</div>
@@ -656,10 +656,12 @@
 	<!-- Live Countdown Logic -->
 	<script>
 		(function () {
-			// Set launch date: 45 days from now
+			const countdown = document.getElementById('csCountdown');
+			const launchDays = Number(countdown.dataset.launchDays || 45);
+			const launchHours = Number(countdown.dataset.launchHours || 14);
 			const targetDate = new Date();
-			targetDate.setDate(targetDate.getDate() + 45);
-			targetDate.setHours(targetDate.getHours() + 14);
+			targetDate.setDate(targetDate.getDate() + launchDays);
+			targetDate.setHours(targetDate.getHours() + launchHours);
 
 			const daysEl = document.getElementById('csDays');
 			const hoursEl = document.getElementById('csHours');

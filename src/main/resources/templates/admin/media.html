@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head('Media library')}"></head>
+<body class="admin-body">
+<aside th:replace="~{fragments/admin :: sidebar('media')}"></aside>
+<main class="admin-main">
+    <header class="page-header"><div><span class="eyebrow dark">Assets</span><h1>Media library</h1><p>Upload imagery, then copy its public path into any page image field.</p></div></header>
+    <div th:replace="~{fragments/admin :: alerts}"></div>
+    <section class="panel upload-panel">
+        <form th:action="@{/admin/media}" method="post" enctype="multipart/form-data">
+            <label><strong>Upload an image</strong><span>JPG, PNG, WebP, or GIF · maximum 10 MB</span><input type="file" name="file" accept="image/jpeg,image/png,image/webp,image/gif" required></label>
+            <button class="primary-button" type="submit">Upload image</button>
+        </form>
+    </section>
+    <section class="media-grid" th:if="${!assets.empty}">
+        <article class="media-card" th:each="asset : ${assets}">
+            <div class="media-thumb"><img th:src="${asset.publicPath}" th:alt="${asset.originalName}" loading="lazy"></div>
+            <div class="media-details">
+                <strong th:text="${asset.originalName}">image.jpg</strong>
+                <small><span th:text="${#numbers.formatDecimal(asset.sizeBytes / 1024.0, 1, 1)}">0</span> KB · <span th:text="${asset.uploadedBy}">admin</span></small>
+                <code th:text="${asset.publicPath}">/uploads/image.jpg</code>
+                <button class="secondary-button" type="button" th:attr="data-copy=${asset.publicPath}">Copy path</button>
+            </div>
+        </article>
+    </section>
+    <section class="empty-state panel" th:if="${assets.empty}"><h2>No uploaded media yet</h2><p>The original theme images remain available under <code>/assets/images/…</code>.</p></section>
+</main>
+<script th:replace="~{fragments/admin :: scripts}"></script>
+</body>
+</html>

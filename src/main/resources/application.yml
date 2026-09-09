@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: techfiyr
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/techfiyr}
+    username: ${DATABASE_USERNAME:techfiyr}
+    password: ${DATABASE_PASSWORD:techfiyr}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  docker:
+    compose:
+      file: compose.local.yml
+      lifecycle-management: start-only
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+  thymeleaf:
+    cache: false
+
+server:
+  port: ${SERVER_PORT:8001}
+  error:
+    whitelabel:
+      enabled: false
+  forward-headers-strategy: framework
+
+app:
+  upload-dir: ${UPLOAD_DIR:./uploads}
+  bootstrap:
+    admin-username: ${ADMIN_USERNAME:admin}
+    admin-password: ${ADMIN_PASSWORD:ChangeMe123!}
+    employee-username: ${EMPLOYEE_USERNAME:employee}
+    employee-password: ${EMPLOYEE_PASSWORD:Employee123!}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head('Overview')}"></head>
+<body class="admin-body">
+<aside th:replace="~{fragments/admin :: sidebar('dashboard')}"></aside>
+<main class="admin-main">
+    <header class="page-header">
+        <div><span class="eyebrow dark">Admin workspace</span><h1>Website overview</h1></div>
+        <a class="primary-button" th:href="@{/admin/pages}">Edit website</a>
+    </header>
+    <div th:replace="~{fragments/admin :: alerts}"></div>
+    <section class="metric-grid">
+        <a class="metric-card" th:href="@{/admin/pages}"><span>Published content</span><strong th:text="${pageCount}">6</strong><small>CMS pages</small></a>
+        <a class="metric-card" th:href="@{/admin/messages}"><span>Needs attention</span><strong th:text="${newMessageCount}">0</strong><small>New messages</small></a>
+        <a class="metric-card" th:href="@{/admin/media}"><span>Media library</span><strong th:text="${mediaCount}">0</strong><small>Uploaded images</small></a>
+        <a class="metric-card" th:href="@{/admin/users}"><span>Access</span><strong th:text="${userCount}">2</strong><small>Admin &amp; employee users</small></a>
+    </section>
+    <section class="panel getting-started">
+        <div>
+            <span class="eyebrow dark">Quick start</span>
+            <h2>Everything visible stays editable.</h2>
+            <p>Choose a page to update its words, numbers, links, form labels, image paths, alt text, and background imagery. Upload new files to the media library first, then paste their path into an image field.</p>
+        </div>
+        <div class="step-list">
+            <a th:href="@{/admin/pages}"><b>01</b><span><strong>Choose a page</strong><small>Search all detected fields</small></span></a>
+            <a th:href="@{/admin/media}"><b>02</b><span><strong>Upload imagery</strong><small>Copy a reusable public path</small></span></a>
+            <a th:href="@{/}" target="_blank"><b>03</b><span><strong>Review live</strong><small>Changes publish immediately</small></span></a>
+        </div>
+    </section>
+</main>
+<script th:replace="~{fragments/admin :: scripts}"></script>
+</body>
+</html>

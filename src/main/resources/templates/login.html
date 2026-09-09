@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login · TechFiyr</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/admin/admin.css}" href="/admin/admin.css">
+</head>
+<body class="auth-body">
+<main class="login-shell">
+    <section class="login-intro">
+        <a th:href="@{/}" class="login-logo"><img th:src="@{/assets/images/logo-white.svg}" alt="TechFiyr"></a>
+        <div>
+            <span class="eyebrow">Secure workspace</span>
+            <h1>One login, the right workspace.</h1>
+            <p>Administrators manage every website field. Employees receive a focused, read-only workspace.</p>
+        </div>
+        <div class="role-notes">
+            <div><strong>Admin</strong><span>Content, media, messages, and users</span></div>
+            <div><strong>Employee</strong><span>Employee dashboard and account access</span></div>
+        </div>
+    </section>
+    <section class="login-card">
+        <a th:href="@{/}" class="back-link">← Back to website</a>
+        <span class="eyebrow dark">Account access</span>
+        <h2>Welcome back</h2>
+        <p class="muted">Use your administrator or employee credentials.</p>
+        <div class="notice error" th:if="${param.error}">The username or password is incorrect, or this account is disabled.</div>
+        <div class="notice success" th:if="${param.logout}">You have been signed out.</div>
+        <form th:action="@{/login}" method="post" class="stack-form">
+            <label>Username
+                <input type="text" name="username" autocomplete="username" autofocus required>
+            </label>
+            <label>Password
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <button class="primary-button full" type="submit">Log in</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

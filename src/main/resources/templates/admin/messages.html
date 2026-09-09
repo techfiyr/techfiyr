@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head('Messages')}"></head>
+<body class="admin-body">
+<aside th:replace="~{fragments/admin :: sidebar('messages')}"></aside>
+<main class="admin-main">
+    <header class="page-header"><div><span class="eyebrow dark">Inbox</span><h1>Contact messages</h1><p>Submissions from the public contact page are stored here.</p></div></header>
+    <div th:replace="~{fragments/admin :: alerts}"></div>
+    <section class="message-list" th:if="${!messages.empty}">
+        <article class="panel message-card" th:each="message : ${messages}">
+            <header><div><span class="status-label" th:classappend="${message.status.name() == 'ARCHIVED'} ? 'off'" th:text="${message.status}">NEW</span><h2 th:text="${message.subject ?: 'Website enquiry'}">Subject</h2></div><time th:text="${#temporals.format(message.createdAt, 'dd MMM yyyy, HH:mm')}">Date</time></header>
+            <p class="message-body" th:text="${message.message}">Message</p>
+            <div class="message-meta"><span><strong th:text="|${message.firstName} ${message.lastName ?: ''}|">Name</strong><a th:href="|mailto:${message.email}|" th:text="${message.email}">email</a></span>
+                <form th:action="@{|/admin/messages/${message.id}/status|}" method="post"><select name="status"><option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${status == message.status}"></option></select><button class="secondary-button" type="submit">Update</button></form></div>
+        </article>
+    </section>
+    <section class="empty-state panel" th:if="${messages.empty}"><h2>No messages yet</h2><p>New contact submissions will appear here.</p></section>
+</main>
+</body>
+</html>

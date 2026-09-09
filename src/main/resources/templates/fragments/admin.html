@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="|${title} · TechFiyr CMS|">TechFiyr CMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/admin/admin.css}" href="/admin/admin.css">
+</head>
+<body>
+<aside class="sidebar" th:fragment="sidebar(active)">
+    <a class="brand" th:href="@{/admin}">
+        <img th:src="@{/assets/images/logo-white.svg}" alt="TechFiyr">
+        <span>Content manager</span>
+    </a>
+    <nav>
+        <a th:href="@{/admin}" th:classappend="${active == 'dashboard'} ? 'active'">Overview</a>
+        <a th:href="@{/admin/pages}" th:classappend="${active == 'pages'} ? 'active'">Website content</a>
+        <a th:href="@{/admin/media}" th:classappend="${active == 'media'} ? 'active'">Media library</a>
+        <a th:href="@{/admin/messages}" th:classappend="${active == 'messages'} ? 'active'">Messages</a>
+        <a th:href="@{/admin/users}" th:classappend="${active == 'users'} ? 'active'">Users &amp; roles</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a th:href="@{/}" target="_blank">View website ↗</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Sign out</button>
+        </form>
+    </div>
+</aside>
+
+<div th:fragment="alerts">
+    <div class="notice success" th:if="${success}" th:text="${success}"></div>
+    <div class="notice error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<script th:fragment="scripts">
+    document.querySelectorAll('[data-copy]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            navigator.clipboard.writeText(button.dataset.copy);
+            var original = button.textContent;
+            button.textContent = 'Copied';
+            setTimeout(function () { button.textContent = original; }, 1200);
+        });
+    });
+</script>
+</body>
+</html>

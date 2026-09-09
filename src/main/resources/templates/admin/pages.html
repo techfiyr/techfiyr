@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head('Website content')}"></head>
+<body class="admin-body">
+<aside th:replace="~{fragments/admin :: sidebar('pages')}"></aside>
+<main class="admin-main">
+    <header class="page-header">
+        <div><span class="eyebrow dark">Content</span><h1>Website pages</h1><p>All public page content is stored in PostgreSQL and managed here.</p></div>
+    </header>
+    <div th:replace="~{fragments/admin :: alerts}"></div>
+    <section class="page-grid">
+        <article class="page-card" th:each="page : ${pages}">
+            <div class="page-card-top"><span class="status-dot" th:classappend="${!page.published} ? 'off'"></span><span th:text="${page.published ? 'Published' : 'Hidden'}">Published</span></div>
+            <h2 th:text="${page.displayName}">Home</h2>
+            <code th:text="${page.route}">/</code>
+            <p>Last changed <span th:text="${#temporals.format(page.updatedAt, 'dd MMM yyyy, HH:mm')}">today</span> by <span th:text="${page.updatedBy}">system</span>.</p>
+            <div class="card-actions">
+                <a class="primary-button" th:href="@{|/admin/pages/${page.slug}/edit|}">Edit content</a>
+                <a class="secondary-button" th:href="${page.route}" target="_blank">Preview ↗</a>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>

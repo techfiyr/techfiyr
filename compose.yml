@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-techfiyr}
+      POSTGRES_USER: ${POSTGRES_USER:-techfiyr}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-techfiyr}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-techfiyr}
+      DATABASE_USERNAME: ${POSTGRES_USER:-techfiyr}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-techfiyr}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      EMPLOYEE_USERNAME: ${EMPLOYEE_USERNAME:-employee}
+      EMPLOYEE_PASSWORD: ${EMPLOYEE_PASSWORD:-Employee123!}
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      UPLOAD_DIR: /app/uploads
+    ports:
+      - "${APP_PORT:-8001}:8001"
+    volumes:
+      - uploaded_media:/app/uploads
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  uploaded_media:

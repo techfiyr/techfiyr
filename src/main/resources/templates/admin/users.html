@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin :: head('Users & roles')}"></head>
+<body class="admin-body">
+<aside th:replace="~{fragments/admin :: sidebar('users')}"></aside>
+<main class="admin-main">
+    <header class="page-header"><div><span class="eyebrow dark">Security</span><h1>Users &amp; roles</h1><p>Administrators manage the website. Employees use the separate employee workspace.</p></div></header>
+    <div th:replace="~{fragments/admin :: alerts}"></div>
+    <section class="two-column">
+        <div class="panel">
+            <h2>Create a user</h2>
+            <form th:action="@{/admin/users}" th:object="${createUserForm}" method="post" class="stack-form compact">
+                <label>Display name<input type="text" th:field="*{displayName}" maxlength="120" required></label>
+                <label>Username<input type="text" th:field="*{username}" minlength="3" maxlength="80" required></label>
+                <label>Temporary password<input type="password" th:field="*{password}" minlength="8" maxlength="72" required></label>
+                <label>Role<select th:field="*{role}"><option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option></select></label>
+                <div class="field-errors" th:if="${#fields.hasAnyErrors()}"><p th:each="err : ${#fields.allErrors()}" th:text="${err}"></p></div>
+                <button class="primary-button" type="submit">Create user</button>
+            </form>
+        </div>
+        <div class="panel role-guide">
+            <h2>Role permissions</h2>
+            <div><span class="type-badge">ADMIN</span><p>Full control of public content, uploaded media, incoming messages, and user accounts.</p></div>
+            <div><span class="type-badge subtle">EMPLOYEE</span><p>Can sign in and use the employee dashboard. Cannot open administration routes.</p></div>
+        </div>
+    </section>
+    <section class="panel table-panel">
+        <div class="panel-heading"><h2>Existing users</h2><span th:text="|${users.size()} accounts|">2 accounts</span></div>
+        <div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Password</th><th></th></tr></thead>
+        <tbody><tr th:each="user : ${users}">
+            <td><strong th:text="${user.displayName}">Name</strong><small th:text="|@${user.username}|">@user</small></td>
+            <td><span class="type-badge" th:text="${user.role}">ADMIN</span></td>
+            <td><span class="status-label" th:classappend="${!user.enabled} ? 'off'" th:text="${user.enabled ? 'Active' : 'Disabled'}">Active</span></td>
+            <td><form class="inline-form" th:action="@{|/admin/users/${user.id}/password|}" method="post"><input type="password" name="password" minlength="8" maxlength="72" placeholder="New password" required><button class="secondary-button" type="submit">Reset</button></form></td>
+            <td><form th:action="@{|/admin/users/${user.id}/toggle|}" method="post"><button class="secondary-button" type="submit" th:text="${user.enabled ? 'Disable' : 'Enable'}">Disable</button></form></td>
+        </tr></tbody></table></div>
+    </section>
+</main>
+</body>
+</html>

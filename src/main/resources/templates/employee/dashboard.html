@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee workspace · TechFiyr</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/admin/admin.css}" href="/admin/admin.css">
+</head>
+<body class="employee-body">
+<header class="employee-nav"><a th:href="@{/}"><img th:src="@{/assets/images/logo-white.svg}" alt="TechFiyr"></a><div><a th:href="@{/}">View website</a><form th:action="@{/logout}" method="post"><button type="submit">Sign out</button></form></div></header>
+<main class="employee-main">
+    <span class="eyebrow">Employee workspace</span>
+    <h1>Welcome, <span th:text="${user.displayName}">Employee</span>.</h1>
+    <p>Your account gives you secure employee access. Website content management is reserved for administrators.</p>
+    <section class="employee-card"><div class="avatar" th:text="${#strings.substring(user.displayName, 0, 1)}">E</div><div><small>Signed in as</small><strong th:text="${user.displayName}">Employee</strong><span th:text="|@${user.username} · ${user.role}|">@employee · EMPLOYEE</span></div></section>
+    <a class="primary-button" th:href="@{/}">Return to public website</a>
+</main>
+</body>
+</html>
