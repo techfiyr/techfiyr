@@ -188,6 +188,11 @@
 		line-height: 60px;
 		font-size: 50px;
 	}
+
+	.sec-title_heading {
+		line-height: 50px;
+		font-size: 40px;
+	}
 	
 	.footer-two_bg{
 		border-radius:0px;
@@ -460,6 +465,11 @@
 		line-height: 50px;
 		font-size: 40px;
 	}
+
+	.sec-title_heading {
+		line-height: 44px;
+		font-size: 34px;
+	}
 	
 	.offer-one_tags li{
 		margin-bottom:5px;
@@ -673,11 +683,10 @@
 		margin-top:30px;
 	}
 
-	.offer-one_image.active{
-		position:relative;
-		left:15px;
+	.offer-one_image-outer{
+		max-width:100%;
 	}
-	
+
 	.offer-one_content-column{
 		order:1;
 		margin-bottom:45px;
@@ -887,8 +896,8 @@
 
 	.experiance-one_years-inner{
 		width:100%;
-		padding:40px 50px;
-		margin-top:50px;
+		padding:40px 35px;
+		margin-top:0px;
 	}
 	
 	.experiance-one_text{
@@ -1066,6 +1075,10 @@
 		padding-bottom: 0px;
 	}
 
+	.offer-one_image-outer {
+		height: 380px;
+	}
+
 	.header-top_list-two,
 	.incredible-one_pattern{
 		display:none !important;
@@ -1111,7 +1124,25 @@
 		border:none;
 		border-radius:0px;
 	}
-	
+
+	.video-box_content{
+		left:25px;
+		right:25px;
+		bottom:25px;
+	}
+
+	.video-box_heading{
+		font-size:24px;
+		line-height:32px;
+		margin-bottom:10px;
+	}
+
+	.video-box_text{
+		font-size:14px;
+		line-height:22px;
+		margin-bottom:18px;
+	}
+
 	.news-one .sec-title .right-box{
 		margin-top:25px;
 	}
@@ -1138,8 +1169,8 @@
 	}
 	
 	.experiance-one_text{
-		font-size: 34px;
-		line-height: 44px;
+		font-size: 22px;
+		line-height: 32px;
 	}
 	
 	.footer-type_title {
@@ -1336,6 +1367,11 @@
 		font-size: 26px;
 	}
 
+	.sec-title_heading {
+		line-height: 36px;
+		font-size: 26px;
+	}
+
 	.about-one_text{
 		font-size: 16px;
 		line-height: 30px;
@@ -1345,27 +1381,31 @@
 		font-size: 50px;
 	}
 	
-	.experiance-one_years-inner{
-		padding:30px 25px;
-	}
-	
-	.news-block_one-meta li,
-	.footer-contact_list li{
-		font-size:15px;
-	}
-	
-	.footer-type_title {
-		font-size: 60px;
-	}
-	
 	.incredible-one{
 		overflow:hidden;
-		padding:100px 0px 100px;
+		padding:45px 0px 45px;
+	}
+
+	.incredible-one .sec-title {
+		margin-bottom: 12px;
 	}
 
 	.incredible-one_title {
-		font-size: 50px;
-		line-height: 60px;
+		font-size: 36px;
+		line-height: 40px;
+		margin-bottom: 15px;
+	}
+
+	.experiance-one_years-inner{
+		padding:24px 20px;
+		margin-top: 15px;
+		border-radius: 20px;
+	}
+
+	.experiance-one_text{
+		font-size: 17px;
+		line-height: 26px;
+		margin-bottom: 20px;
 	}
 	
 	.testimonial-block_one-author{
