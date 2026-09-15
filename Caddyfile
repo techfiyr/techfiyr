@@ -1,0 +1,21 @@
+techfiyr.com, www.techfiyr.com {
+    encode zstd gzip
+
+    handle_path /assets/images/* {
+        root * /srv-assets
+        file_server
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+
+    header {
+        Cache-Control "no-store, max-age=0"
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+}

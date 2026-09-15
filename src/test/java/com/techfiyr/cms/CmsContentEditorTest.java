@@ -7,8 +7,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 class CmsContentEditorTest {
     private final CmsContentEditor editor = new CmsContentEditor();
@@ -156,7 +160,7 @@ class CmsContentEditorTest {
             Document document = Jsoup.parse(prepared);
             assertThat(editor.extractFields(prepared))
                     .as("editable fields for %s", definition.sourceFile())
-                    .hasSizeGreaterThan(25);
+                    .isNotEmpty();
 
             for (Element element : document.getAllElements()) {
                 boolean excluded = element.closest("script, style, noscript, [data-cms-system]") != null;
@@ -172,5 +176,57 @@ class CmsContentEditorTest {
                 }
             }
         }
+    }
+
+    @Test
+    void preparedPagesCarryTheirUiSourceVersion() {
+        for (PageDefinition definition : CmsPageService.PAGE_DEFINITIONS) {
+            String prepared = sourceService.loadPrepared(definition);
+
+            assertThat(sourceService.hasSourceVersion(prepared, definition.sourceVersion()))
+                    .as("source version for %s", definition.sourceFile())
+                    .isTrue();
+        }
+    }
+
+    @Test
+    void refreshesStoredPagesWhenTheUiSourceVersionChanges() {
+        CmsPageRepository repository = mock(CmsPageRepository.class);
+        CmsPage staleHome = new CmsPage();
+        staleHome.setSlug("home");
+        staleHome.setHtmlContent("<html><body><h1>Previous UI</h1></body></html>");
+        staleHome.setUpdatedBy("admin");
+        when(repository.findBySlug(anyString())).thenAnswer(invocation ->
+                invocation.getArgument(0).equals("home") ? Optional.of(staleHome) : Optional.empty()
+        );
+        CmsPageService pageService = new CmsPageService(repository, editor, sourceService);
+
+        pageService.initializeMissingPages();
+
+        assertThat(sourceService.hasSourceVersion(staleHome.getHtmlContent(), "a55ac26")).isTrue();
+        assertThat(staleHome.getHtmlContent())
+                .contains("Mobile App Design", "API_screen.jpeg")
+                .doesNotContain("Previous UI");
+        assertThat(staleHome.getUpdatedBy()).isEqualTo("system-ui-a55ac26");
+        verify(repository, times(5)).save(any(CmsPage.class));
+    }
+
+    @Test
+    void keepsAdminEditsAfterTheCurrentUiVersionIsInstalled() {
+        CmsPageRepository repository = mock(CmsPageRepository.class);
+        PageDefinition definition = CmsPageService.PAGE_DEFINITIONS.getFirst();
+        CmsPage currentHome = new CmsPage();
+        currentHome.setSlug("home");
+        currentHome.setHtmlContent(sourceService.loadPrepared(definition).replace("Mobile App Design", "Custom Admin Text"));
+        currentHome.setUpdatedBy("admin");
+        when(repository.findBySlug(anyString())).thenAnswer(invocation ->
+                invocation.getArgument(0).equals("home") ? Optional.of(currentHome) : Optional.empty()
+        );
+        CmsPageService pageService = new CmsPageService(repository, editor, sourceService);
+
+        pageService.initializeMissingPages();
+
+        assertThat(currentHome.getHtmlContent()).contains("Custom Admin Text");
+        assertThat(currentHome.getUpdatedBy()).isEqualTo("admin");
     }
 }

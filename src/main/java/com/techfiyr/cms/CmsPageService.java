@@ -9,12 +9,12 @@ import java.util.List;
 @Service
 public class CmsPageService {
     public static final List<PageDefinition> PAGE_DEFINITIONS = List.of(
-            new PageDefinition("home", "Home", "/", "index.html"),
-            new PageDefinition("about", "About", "/about", "about.html"),
-            new PageDefinition("contact", "Contact", "/contact", "contact.html"),
-            new PageDefinition("team", "Team Detail", "/team", "team-detail.html"),
-            new PageDefinition("coming-soon", "Coming Soon", "/coming-soon", "coming-soon.html"),
-            new PageDefinition("not-found", "Not Found", "/not-found", "not-found.html")
+            new PageDefinition("home", "Home", "/", "index.html", "a55ac26"),
+            new PageDefinition("about", "About", "/about", "about.html", "a55ac26"),
+            new PageDefinition("contact", "Contact", "/contact", "contact.html", "a55ac26"),
+            new PageDefinition("team", "Team Detail", "/team", "team-detail.html", "a55ac26"),
+            new PageDefinition("coming-soon", "Coming Soon", "/coming-soon", "coming-soon.html", "a55ac26"),
+            new PageDefinition("not-found", "Not Found", "/not-found", "not-found.html", "a55ac26")
     );
 
     private final CmsPageRepository repository;
@@ -32,6 +32,11 @@ public class CmsPageService {
         for (PageDefinition definition : PAGE_DEFINITIONS) {
             CmsPage existing = repository.findBySlug(definition.slug()).orElse(null);
             if (existing != null) {
+                if (!sourceService.hasSourceVersion(existing.getHtmlContent(), definition.sourceVersion())) {
+                    existing.setHtmlContent(sourceService.loadPrepared(definition));
+                    existing.setUpdatedBy("system-ui-" + definition.sourceVersion());
+                    continue;
+                }
                 String upgradedHtml = sourceService.upgradeStoredContent(existing.getHtmlContent(), definition.slug());
                 String synchronizedHtml = editor.synchronizeEditableMarkers(upgradedHtml);
                 if (!synchronizedHtml.equals(existing.getHtmlContent())) {

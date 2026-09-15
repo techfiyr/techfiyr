@@ -30,10 +30,15 @@ public class PageSourceService {
         try {
             ClassPathResource resource = new ClassPathResource("cms-pages/" + definition.sourceFile());
             String html = resource.getContentAsString(StandardCharsets.UTF_8);
-            return editor.prepareForCms(addApplicationFeatures(html, definition.slug()));
+            return editor.prepareForCms(addApplicationFeatures(html, definition));
         } catch (IOException exception) {
             throw new IllegalStateException("Could not load " + definition.sourceFile(), exception);
         }
+    }
+
+    public boolean hasSourceVersion(String html, String expectedVersion) {
+        Element root = Jsoup.parse(html).selectFirst("html");
+        return root != null && expectedVersion.equals(root.attr("data-cms-source-version"));
     }
 
     public String upgradeStoredContent(String html, String slug) {
@@ -77,14 +82,16 @@ public class PageSourceService {
         return changed ? document.outerHtml() : html;
     }
 
-    private String addApplicationFeatures(String html, String slug) {
+    private String addApplicationFeatures(String html, PageDefinition definition) {
         Document document = Jsoup.parse(html);
         document.outputSettings().prettyPrint(false);
         document.documentType();
-        document.selectFirst("html").attr("xmlns:th", "http://www.thymeleaf.org");
+        document.selectFirst("html")
+                .attr("xmlns:th", "http://www.thymeleaf.org")
+                .attr("data-cms-source-version", definition.sourceVersion());
 
         makeNonApplicationFormsSafe(document);
-        if (slug.equals("contact")) {
+        if (definition.slug().equals("contact")) {
             connectContactForm(document);
         }
         return document.outerHtml();

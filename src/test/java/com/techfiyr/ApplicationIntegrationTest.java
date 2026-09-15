@@ -26,6 +26,8 @@ class ApplicationIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("text/html"))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("TechFiyr")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Mobile App Design")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("API_screen.jpeg")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(
                         org.hamcrest.Matchers.containsString("cms-account-controls")
                 )));
