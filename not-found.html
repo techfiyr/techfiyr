@@ -1,321 +1,242 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
 	<meta charset="utf-8">
-	<title>TechFiyr | 404 Not Found</title>
-	<!-- Stylesheets -->
-	<link href="assets/css/bootstrap.css" rel="stylesheet">
-	<link href="assets/css/style.css" rel="stylesheet">
-	<link href="assets/css/meanmenu.min.css" rel="stylesheet">
-	<link href="assets/css/responsive.css" rel="stylesheet">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="robots" content="noindex, nofollow">
+	<title>TechFiyr | Page Not Found</title>
+	<!-- Root-relative paths: a 404 page is served at whatever URL was missing -->
+	<link rel="icon" href="/assets/images/favicon.png" type="image/png">
+	<style>
+		:root {
+			color-scheme: dark;
+			--ink: #f5f8f4;
+			--muted: #aebbb2;
+			--green: #237a57;
+			--lime: #c6e45a;
+			--night: #07110b;
+		}
 
-	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
-		rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap"
-		rel="stylesheet">
+		* {
+			box-sizing: border-box;
+		}
 
-	<!-- Color Switcher Mockup -->
-	<link href="assets/css/color-switcher-design.css" rel="stylesheet">
+		html,
+		body {
+			min-height: 100%;
+		}
 
-	<link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
-	<link rel="icon" href="assets/images/favicon.png" type="image/x-icon">
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+			overflow-x: hidden;
+			padding: 32px 16px 80px;
+			color: var(--ink);
+			background:
+				radial-gradient(circle at 18% 12%, rgba(35, 122, 87, .38), transparent 34rem),
+				radial-gradient(circle at 86% 86%, rgba(198, 228, 90, .16), transparent 30rem),
+				var(--night);
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		}
 
-	<!-- Responsive -->
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<style id="clock-animations"></style>
+		body::before {
+			content: "";
+			position: fixed;
+			inset: 0;
+			pointer-events: none;
+			opacity: .28;
+			background-image:
+				linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+				linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+			background-size: 56px 56px;
+			mask-image: linear-gradient(to bottom, black, transparent 88%);
+		}
+
+		main {
+			position: relative;
+			z-index: 1;
+			width: min(760px, 100%);
+			text-align: center;
+		}
+
+		.logo {
+			display: block;
+			width: 190px;
+			max-width: 52vw;
+			height: auto;
+			margin: 0 auto 56px;
+		}
+
+		.status {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			padding: 9px 15px;
+			border: 1px solid rgba(198, 228, 90, .24);
+			border-radius: 999px;
+			background: rgba(198, 228, 90, .07);
+			color: #dcec9f;
+			font-size: 12px;
+			font-weight: 750;
+			letter-spacing: .12em;
+			text-transform: uppercase;
+		}
+
+		.status::before {
+			content: "";
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--lime);
+			box-shadow: 0 0 18px var(--lime);
+		}
+
+		h1 {
+			margin: 30px 0 20px;
+			font-size: clamp(58px, 11vw, 112px);
+			line-height: .92;
+			letter-spacing: -.07em;
+		}
+
+		h1 span {
+			color: transparent;
+			background: linear-gradient(110deg, var(--lime), #63c68d);
+			background-clip: text;
+			-webkit-background-clip: text;
+		}
+
+		p {
+			max-width: 590px;
+			margin: 0 auto;
+			color: var(--muted);
+			font-size: clamp(17px, 2.3vw, 21px);
+			line-height: 1.7;
+		}
+
+		.actions {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 14px;
+			margin-top: 40px;
+		}
+
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 52px;
+			padding: 0 28px;
+			border-radius: 999px;
+			font-size: 15px;
+			font-weight: 700;
+			text-decoration: none;
+			transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+		}
+
+		.btn:hover {
+			transform: translateY(-2px);
+		}
+
+		.btn:focus-visible,
+		.links a:focus-visible {
+			outline: 2px solid var(--lime);
+			outline-offset: 3px;
+		}
+
+		.btn-primary {
+			color: #ffffff;
+			background: linear-gradient(110deg, var(--green), #63c68d 60%, var(--lime));
+		}
+
+		.btn-ghost {
+			color: var(--ink);
+			border: 1px solid rgba(255, 255, 255, .18);
+			background: rgba(255, 255, 255, .04);
+		}
+
+		.btn-ghost:hover {
+			border-color: rgba(198, 228, 90, .5);
+			background: rgba(198, 228, 90, .07);
+		}
+
+		.links {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 8px 22px;
+			margin: 36px 0 0;
+			padding: 0;
+			list-style: none;
+			font-size: 14px;
+		}
+
+		.links a {
+			color: var(--muted);
+			text-decoration: none;
+			border-bottom: 1px solid transparent;
+			transition: color .2s ease, border-color .2s ease;
+		}
+
+		.links a:hover {
+			color: var(--lime);
+			border-color: currentColor;
+		}
+
+		footer {
+			position: fixed;
+			bottom: 25px;
+			left: 0;
+			right: 0;
+			color: rgba(255, 255, 255, .42);
+			text-align: center;
+			font-size: 12px;
+		}
+
+		@media (max-height: 760px) {
+			.logo {
+				margin-bottom: 28px;
+			}
+
+			footer {
+				display: none;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.btn,
+			.links a {
+				transition: none;
+			}
+
+			.btn:hover {
+				transform: none;
+			}
+		}
+	</style>
 </head>
 
 <body>
-
-	<div class="page-wrapper">
-
-		<!-- Cursor -->
-		<div class="cursor"></div>
-		<div class="cursor-follower"></div>
-		<!-- Cursor End -->
-		
-		<!-- Preloader -->
-		<div class="preloader"></div>
-		<!-- End Preloader -->
-		
-		<header class="main-header header-style-one">
-			
-			<!-- Header Top -->
-			<div class="header-top">
-				<div class="auto-container">
-					<div class="inner-container">
-						<div class="d-flex justify-content-between align-items-center flex-wrap">
-							<div class="left-box d-flex align-items-center flex-wrap">
-								<div class="info-list_outer">
-									<!-- Info List -->
-									<ul class="header-top_list d-flex flex-wrap">
-										<li><span class="icon fa-classic fa-solid fa-envelope fa-fw"></span><a href="mailto:info@techfiyr.com">info@techfiyr.com</a></li>
-										<li><span class="icon fa-classic fa-solid fa-location-dot fa-fw"></span>341/342, Mirpur DOHS, Dhaka</li>
-									</ul>
-								</div>
-							</div>
-							<div class="right-box d-flex align-items-center flex-wrap">
-								
-								<!-- Social Box -->
-								<div class="header-top_socials">
-									<div class="social-inner">
-										<a href="https://facebook.com/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-										<a href="https://linkedin.com/" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-										<a href="https://github.com/" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-									</div>
-								</div>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			<!-- Header Lower -->
-			<div class="header-lower">
-				<div class="auto-container">
-					<div class="inner-container">
-						<div class="d-flex justify-content-between align-items-center flex-wrap">
-							
-							<div class="logo-box">
-								<div class="logo"><a href="index.html"><img src="assets/images/logo.svg" alt="TechFiyr Logo" title="TechFiyr"></a></div>
-							</div>
-							
-							<div class="nav-outer d-flex flex-wrap">
-								<!-- Main Menu -->
-								<nav class="main-menu navbar-expand-md">
-									<div class="navbar-header">
-										<!-- Toggle Button -->    	
-										<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-											<span class="icon-bar"></span>
-											<span class="icon-bar"></span>
-											<span class="icon-bar"></span>
-										</button>
-									</div>
-									
-									<div class="navbar-collapse scroll-nav collapse clearfix" id="navbarSupportedContent">
-										<ul class="navigation clearfix">
-											<li><a href="index.html">Home</a></li>
-											<li><a href="about.html">About us</a></li>
-											<li><a href="index.html#services">Services</a></li>
-											<li><a href="team-detail.html">Team</a></li>
-											<li><a href="contact.html">Contact</a></li>
-										</ul>
-									</div>
-								</nav>
-							</div>
-
-							<!-- Main Menu End-->
-							<div class="outer-box d-flex align-items-center flex-wrap">
-
-								<!-- Search Btn -->
-								<div class="search-box-btn search-box-outer"><span class="icon fa fa-search"></span></div>
-
-								<!-- About Widget -->
-								<span class="about-widget">
-									<span class="hamburger">
-										<span class="top-bun"></span>
-										<span class="meat"></span>
-										<span class="bottom-bun"></span>
-									</span>
-								</span>
-								
-								<!-- Button Box -->
-								<div class="main-header_button">
-									<a href="about.html" class="theme-btn btn-style-one">
-										<span class="btn-wrap">
-											<span class="text-one">Get Started</span>
-											<span class="text-two">Get Started</span>
-										</span>
-									</a>
-								</div>
-								
-								<!-- Mobile Navigation Toggler -->
-								<div class="mobile-nav-toggler"><span class="icon fa-classic fa-solid fa-bars fa-fw"></span></div>
-
-							</div>
-							
-						</div>
-					</div>
-				</div>
-			</div>
-			<!--End Header Lower-->
-			
-			<!-- Mobile Menu  -->
-			<div class="mobile-menu">
-				<div class="menu-backdrop"></div>
-				<div class="close-btn"><span class="icon fa-xmark"></span></div>
-				
-				<nav class="menu-box">
-					<div class="nav-logo"><a href="index.html"><img src="assets/images/mobile-logo.svg" alt="" title=""></a></div>
-					<div class="menu-outer"><!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header--></div>
-				</nav>
-			</div>
-			<!-- End Mobile Menu -->
-		
-		</header>
-		<!-- End Of Main Header -->
-
-		<!-- About Sidebar -->
-		<div class="about-sidebar">
-			<div class="gradient-layer"></div>
-			<!-- Close Button -->
-			<div class="close-sidebar-widget close-button">
-				<span class="fa-solid fa-xmark fa-fw"></span>
-			</div>
-			<div class="sidebar-inner">
-				<div class="upper-box">
-					<div class="image">
-						<img src="assets/images/resource/about-1.jpg" alt="About TechFiyr">
-					</div>
-					<div class="content-box">
-						<h3>About <span>TechFiyr</span></h3>
-						<div class="text">Partnering with TechFiyr Consulting ensures peace of mind, knowing that your
-							books are accurately updated in real time, and taxes are filed and paid on schedule.</div>
-						<ul class="about-sidebar_list">
-							<li>Discover the Project</li>
-							<li>Strategy Development</li>
-							<li>Implementation the solution</li>
-							<li>Monitoring Progress</li>
-						</ul>
-					</div>
-				</div>
-				<!-- Social Box -->
-				<div class="social-box">
-					<a href="https://facebook.com/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-					<a href="https://linkedin.com/" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-					<a href="https://github.com/" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-				</div>
-			</div>
+	<main>
+		<a href="/index.html"><img class="logo" src="/assets/images/logo-white.svg" alt="TechFiyr"></a>
+		<div class="status">Error 404</div>
+		<h1>Page <span>not found.</span></h1>
+		<p>The page you’re looking for has moved or never existed. Let’s get you back on track.</p>
+		<div class="actions">
+			<a class="btn btn-primary" href="/index.html">Back to Home</a>
+			<a class="btn btn-ghost" href="/contact.html">Get a Free Quote</a>
 		</div>
-		<!-- End About Sidebar -->
-
-		<!-- Page Title -->
-		<section class="page-title">
-			<div class="page-title_big-title">Error 404</div>
-			<div class="page-title_bg-image" style="background-image:url(assets/images/background/3.jpg)"></div>
-			<div class="page-title_shape-one" style="background-image:url(assets/images/background/page-title-1.png)">
-			</div>
-			<div class="page-title_shape-two" style="background-image:url(assets/images/background/page-title-2.png)">
-			</div>
-			<div class="auto-container">
-				<h1>Error 404</h1>
-				<ul class="bread-crumb clearfix">
-					<li><a href="index.html">Home</a></li>
-					<li>404</li>
-				</ul>
-			</div>
-		</section>
-		<!-- End Page Title -->
-
-		<!-- Error One -->
-		<section class="error-one">
-			<div class="auto-container">
-				<h1 class="error-one_heading"><span>Error</span>404</h1>
-				<div class="error-one_image">
-					<img src="assets/images/resource/error.png" alt="error-img">
-				</div>
-				<div class="error-one_content">
-					<h2>Oops! Page Not found.</h2>
-					<div class="error-one_text">Sorry, we could not find the page you are looking for</div>
-					<div class="error-one_button">
-						<a href="index.html" class="theme-btn btn-style-one">
-							<span class="btn-wrap">
-								<span class="text-one">Back To Home Page</span>
-								<span class="text-two">Back To Home Page</span>
-							</span>
-						</a>
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- End Error One -->
-
-
-		<!-- Main Footer -->
-		<footer class="main-footer">
-			<div class="main-footer_bg-color"></div>
-			<div class="main-footer_vector" style="background-image:url(assets/images/icons/vector-3.png)"></div>
-			<div class="auto-container">
-				<div class="inner-container">
-					<div class="footer-logo"><a href="index.html"><img src="assets/images/footer-logo.svg" alt="" title=""></a></div>
-					<div class="d-flex justify-content-between align-items-center flex-wrap">
-						<div class="footer-text">Empowering Startups & Global Enterprises <br> With High-Performance Mobile & Web Engineering</div>
-						<!-- Social Box -->
-						<div class="footer-social_box">
-							<a href="https://facebook.com/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-							<a href="https://linkedin.com/" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-							<a href="https://github.com/" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-						</div>
-					</div>
-					<div class="footer-discuss"><span class="up-down_animation">let’s discuss!</span></div>
-					<ul class="footer-contact_list d-flex justify-content-end">
-						<li><a href="mailto:info@techfiyr.com">info@techfiyr.com</a></li>
-						<li><a href="tel:01722364642">01722364642</a></li>
-					</ul>
-					<div class="footer-type_title variable-text"></div>
-				</div>
-
-			</div>
-		
-			<div class="footer-bottom">
-				<div class="auto-container">
-					<!-- Copyright -->
-					<div class="main-footer_copyright">TechFiyr&copy; 2026. All Rights Reserved.</div>
-				</div>
-			</div>
-		</footer>
-		<!-- End Of Main Footer -->
-		
-		<!-- Search Popup -->
-		<div class="search-popup">
-			<div class="color-layer"></div>
-			<button class="close-search"><span class="fa-xmark"></span></button>
-			<form method="post" action="#">
-				<div class="form-group">
-					<input type="search" name="search-field" value="" placeholder="Search Here" required="">
-					<button class="fa fa-solid fa-magnifying-glass fa-fw" type="submit"></button>
-				</div>
-			</form>
-		</div>
-		<!-- End Search Popup -->
-
-	</div>
-	<!-- End PageWrapper -->
-
-
-<script src="assets/js/jquery.js"></script>
-<script src="assets/js/popper.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/appear.js"></script>
-<script src="assets/js/parallax.min.js"></script>
-<script src="assets/js/tilt.jquery.min.js"></script>
-<script src="assets/js/jquery.paroller.min.js"></script>
-<script src="assets/js/wow.js"></script>
-<script src="assets/js/swiper.min.js"></script>
-<script src="assets/js/backtotop.js"></script>
-<script src="assets/js/odometer.js"></script>
-<script src="assets/js/jquery.countdown.js"></script>
-<script src="assets/js/parallax-scroll.js"></script>
-
-<script src="assets/js/gsap.min.js"></script>
-<script src="assets/js/SplitText.min.js"></script>
-<script src="assets/js/ScrollTrigger.min.js"></script>
-<script src="assets/js/ScrollToPlugin.min.js"></script>
-<script src="assets/js/ScrollSmoother.min.js"></script>
-
-<script src="assets/js/typeit.js"></script>
-<script src="assets/js/jquery.marquee.min.js"></script>
-<script src="assets/js/magnific-popup.min.js"></script>
-<script src="assets/js/nav-tool.js"></script>
-<script src="assets/js/jquery-ui.js"></script>
-<script src="assets/js/element-in-view.js"></script>
-<script src="assets/js/color-settings.js"></script>
-<script src="assets/js/pagenav.js"></script>
-<script src="assets/js/script.js"></script>
-
+		<ul class="links">
+			<li><a href="/index.html#services">Services</a></li>
+			<li><a href="/index.html#about">About us</a></li>
+			<li><a href="/index.html#testimonial">Reviews</a></li>
+			<li><a href="/index.html#team">Team</a></li>
+		</ul>
+	</main>
+	<footer>&copy; 2026 TechFiyr. All rights reserved.</footer>
 </body>
+
 </html>

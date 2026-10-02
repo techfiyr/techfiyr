@@ -302,13 +302,15 @@
 
 	
 	// Main Slider
+	var mainSlideCount = $('.main-slider .swiper-slide').length;
 	var slider = new Swiper('.main-slider', {
 		slidesPerView: 1,
 		spaceBetween: 0,
-		loop: true,
+		loop: mainSlideCount > 1,
+		allowTouchMove: mainSlideCount > 1,
 		autoplay: {
 			enabled: true,
-			delay: 60000,
+			delay: 30000,
 		},
 		// Navigation arrows
 		navigation: {
@@ -821,9 +823,9 @@
 	if ($('.variable-text').length) {
 		
 		$('.variable-text').typeIt({
-			 strings: ["TechFiyr"],
-			 speed: 450,
-			 breakLines: true,
+			 strings: ["Mobile Apps", "Web & SaaS", "CI/CD", "TechFiyr"],
+			 speed: 120,
+			 breakLines: false,
 			 loop:true,
 			 autoStart: true
 		});	
