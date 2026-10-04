@@ -1,0 +1,6 @@
+# Netlify response headers
+# CSS/JS links in the HTML carry ?v=..., so bump that number whenever a file changes.
+# Images have no version: give a changed image a new file name, or visitors keep the old one for up to a year.
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
