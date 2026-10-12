@@ -8,7 +8,7 @@
 		content="Tell TechFiyr about your mobile app, web software, UI/UX, or CI/CD project. Email info@techfiyr.com, call +880 1722364642, or visit us at Mirpur DOHS, Dhaka.">
 	<!-- Stylesheets -->
 	<link href="assets/css/bootstrap.css?v=20261003" rel="stylesheet">
-	<link href="assets/css/style.css?v=20261005" rel="stylesheet">
+	<link href="assets/css/style.css?v=20261013.4" rel="stylesheet">
 	<link href="assets/css/meanmenu.min.css?v=20261003" rel="stylesheet">
 	<link href="assets/css/responsive.css?v=20261003" rel="stylesheet">
 
@@ -102,6 +102,7 @@
 											<li><a href="index.html">Home</a></li>
 											<li><a href="index.html#services">Services</a></li>
 											<li><a href="index.html#about">About us</a></li>
+											<li><a href="projects.html">Projects</a></li>
 											<li><a href="index.html#testimonial">Reviews</a></li>
 											<li><a href="index.html#process">Process</a></li>
 											<li><a href="index.html#team">Team</a></li>
@@ -186,70 +187,121 @@
 								<span></span>
 								<span></span>
 							</div>
-							Get a Free Quote
+							Book a Free Call
 							<div class="sec-title_dots">
 								<span></span>
 								<span></span>
 								<span></span>
 							</div>
 						</div>
-						<h2 class="sec-title_heading">Tell us about <br> your project</h2>
+						<h2 class="sec-title_heading">Pick a time that <br> works for you</h2>
 					</div>
 
-					<!-- Contact Form: opens the visitor's email app with the details filled in -->
-					<div class="contact-form">
-						<form id="quote-form" method="post" action="mailto:info@techfiyr.com">
-							<div class="row clearfix">
-
-								<div class="form-group col-lg-6 col-md-6 col-sm-12">
-									<input type="text" name="name" placeholder="Your Name" autocomplete="name" required>
-								</div>
-
-								<div class="form-group col-lg-6 col-md-6 col-sm-12">
-									<input type="email" name="email" placeholder="Email Address" autocomplete="email"
-										required>
-								</div>
-
-								<div class="form-group col-lg-6 col-md-6 col-sm-12">
-									<select name="service" required>
-										<option value="" disabled selected>What do you need?</option>
-										<option>Mobile App Design & Development</option>
-										<option>Custom Web Software & SaaS</option>
-										<option>UI/UX & Product Prototyping</option>
-										<option>Backend, Cloud & CI/CD Pipelines</option>
-										<option>Something else</option>
-									</select>
-								</div>
-
-								<div class="form-group col-lg-6 col-md-6 col-sm-12">
-									<select name="budget">
-										<option value="" disabled selected>Estimated budget (optional)</option>
-										<option>Under $1,000</option>
-										<option>$1,000 - $5,000</option>
-										<option>$5,000 - $15,000</option>
-										<option>$15,000+</option>
-										<option>Not sure yet</option>
-									</select>
-								</div>
-
-								<div class="form-group col-lg-12 col-md-12 col-sm-12">
-									<textarea name="message"
-										placeholder="Tell us about your project: goals, platforms, timeline..."
-										required></textarea>
-								</div>
-
-								<div class="form-group text-center">
-									<!-- Button Box -->
-									<button type="submit" class="theme-btn btn-style-one">
-										<span class="btn-wrap">
-											<span class="text-one">Send Message</span>
-											<span class="text-two">Send Message</span>
-										</span>
-									</button>
-								</div>
-
+					<!-- Booking widget: availability and logic live in assets/js/booking.js -->
+					<div class="booking" id="booking">
+						<aside class="booking-info">
+							<img class="booking-info_logo" src="assets/images/logo.svg" alt="TechFiyr">
+							<span class="booking-info_host">Saurav Wahid · TechFiyr</span>
+							<ul class="booking-info_meta">
+								<li><i class="fa-regular fa-clock fa-fw"></i> 30 min</li>
+								<li><i class="fa-solid fa-video fa-fw"></i> Google Meet link sent after confirmation</li>
+								<li><i class="fa-solid fa-earth-asia fa-fw"></i> <span data-booking-tz>Your time zone</span></li>
+							</ul>
+							<p class="booking-info_text">Tell us about your app or web idea. We'll talk scope, tech
+								stack, and timeline, and you'll leave with clear next steps. No commitment.</p>
+							<div class="booking-info_picked" data-booking-picked hidden>
+								<i class="fa-regular fa-calendar-check fa-fw"></i> <span></span>
 							</div>
-						</form>
+						</aside>
+
+						<div class="booking-main">
+
+							<!-- Step 1: date and time -->
+							<div class="booking-step booking-step_pick" data-step="pick">
+								<div class="booking-cal">
+									<h4 class="booking-heading">Select a Date &amp; Time</h4>
+									<div class="booking-cal_nav">
+										<button type="button" class="booking-cal_arrow" data-cal-prev
+											aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+										<span class="booking-cal_month" data-cal-month aria-live="polite"></span>
+										<button type="button" class="booking-cal_arrow" data-cal-next
+											aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+									</div>
+									<div class="booking-cal_week">
+										<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+									</div>
+									<div class="booking-cal_days" data-cal-days></div>
+									<p class="booking-cal_note">Available daily, 7:30 – 11:30 PM Dhaka time
+										(<span data-booking-local-range></span>).</p>
+								</div>
+								<div class="booking-times">
+									<h4 class="booking-times_date" data-times-date>Choose a day</h4>
+									<div class="booking-times_list" data-times-list>
+										<p class="booking-times_empty">Pick a highlighted date to see open times.</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Step 2: details (Netlify Forms collects submissions) -->
+							<div class="booking-step booking-step_details contact-form" data-step="details" hidden>
+								<button type="button" class="booking-back" data-booking-back><i
+										class="fa-solid fa-arrow-left"></i> Back</button>
+								<h4 class="booking-heading">Enter Details</h4>
+								<form name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field"
+									data-booking-form>
+									<input type="hidden" name="form-name" value="booking">
+									<input type="hidden" name="slot_dhaka_time">
+									<input type="hidden" name="slot_visitor_time">
+									<input type="hidden" name="visitor_timezone">
+									<input type="hidden" name="slot_utc">
+									<p hidden><label>Leave this empty: <input name="bot-field"></label></p>
+									<div class="row clearfix">
+										<div class="form-group col-lg-6 col-md-6 col-sm-12">
+											<input type="text" name="name" placeholder="Your Name" autocomplete="name"
+												required>
+										</div>
+										<div class="form-group col-lg-6 col-md-6 col-sm-12">
+											<input type="email" name="email" placeholder="Email Address"
+												autocomplete="email" required>
+										</div>
+										<div class="form-group col-lg-12 col-md-12 col-sm-12">
+											<select name="service" required>
+												<option value="" disabled selected>What do you need?</option>
+												<option>Mobile App Design &amp; Development</option>
+												<option>Custom Web Software &amp; SaaS</option>
+												<option>UI/UX &amp; Product Prototyping</option>
+												<option>Backend, Cloud &amp; CI/CD Pipelines</option>
+												<option>Something else</option>
+											</select>
+										</div>
+										<div class="form-group col-lg-12 col-md-12 col-sm-12">
+											<textarea name="message"
+												placeholder="Anything we should know before the call? (optional)"></textarea>
+										</div>
+										<div class="form-group col-lg-12 col-md-12 col-sm-12">
+											<button type="submit" class="theme-btn btn-style-one" data-booking-submit>
+												<span class="btn-wrap">
+													<span class="text-one">Schedule Call</span>
+													<span class="text-two">Schedule Call</span>
+												</span>
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+
+							<!-- Step 3: done -->
+							<div class="booking-step booking-step_done" data-step="done" hidden>
+								<div class="booking-done_icon"><i class="fa-solid fa-check"></i></div>
+								<h4 class="booking-heading">Request sent!</h4>
+								<p class="booking-done_text" data-done-text></p>
+								<div class="booking-done_slot" data-done-slot></div>
+								<a class="booking-done_gcal" data-done-gcal href="#" target="_blank" rel="noopener"><i
+										class="fa-brands fa-google"></i> Add to Google Calendar</a>
+								<button type="button" class="booking-back" data-booking-restart>Book another time</button>
+							</div>
+
+						</div>
 					</div>
 
 					<div class="contact-info_box">
@@ -407,21 +459,7 @@
 	<script src="assets/js/pagenav.js?v=20261003"></script>
 	<script src="assets/js/script.js?v=20261003.2"></script>
 
-	<script>
-		// No backend yet: turn the form into a pre-filled email to info@techfiyr.com
-		document.getElementById('quote-form').addEventListener('submit', function (e) {
-			e.preventDefault();
-			var f = this.elements;
-			var subject = 'Project inquiry: ' + f.service.value + ' (' + f.name.value + ')';
-			var body = 'Name: ' + f.name.value + '\n' +
-				'Email: ' + f.email.value + '\n' +
-				'Service: ' + f.service.value + '\n' +
-				'Budget: ' + (f.budget.value || 'Not specified') + '\n\n' +
-				f.message.value;
-			window.location.href = 'mailto:info@techfiyr.com?subject=' + encodeURIComponent(subject) +
-				'&body=' + encodeURIComponent(body);
-		});
-	</script>
+	<script src="assets/js/booking.js?v=20261013"></script>
 
 </body>
 
