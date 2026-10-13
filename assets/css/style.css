@@ -31553,3 +31553,502 @@ div.slider-one_heading {
     min-height: calc(100svh - 50px);
   }
 }
+
+/* ==========================================================================
+   Legal pages (privacy-policy.html, cookie-policy.html, content-policy.html)
+   Builds on the template's .privacy-section
+   ========================================================================== */
+
+.privacy-section h2 {
+  margin-bottom: 20px;
+  font-size: 32px;
+  line-height: 42px;
+}
+
+.privacy-section h3 {
+  margin: 10px 0 14px;
+  font-size: 22px;
+  line-height: 32px;
+}
+
+.privacy-section p a,
+.privacy-section li a,
+.privacy-section td a {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.privacy-section .privacy-list {
+  margin-bottom: 20px;
+}
+
+.privacy-section .privacy-list li {
+  font-size: 16px;
+  color: #555f59;
+}
+
+.privacy-summary {
+  margin-bottom: 40px;
+  padding: 30px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(var(--main-color-rgb), 0.06), rgba(198, 228, 90, 0.08));
+}
+
+.privacy-summary h2 {
+  font-size: 24px;
+  line-height: 34px;
+}
+
+.privacy-summary p:last-child,
+.privacy-summary ul:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-toc {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 8px 24px;
+  margin: 0 0 40px;
+  padding: 0;
+  counter-reset: toc;
+}
+
+.privacy-toc li {
+  counter-increment: toc;
+  font-size: 16px;
+}
+
+.privacy-toc li::before {
+  content: counter(toc, decimal-leading-zero) " ";
+  font-weight: 700;
+  color: var(--main-color);
+}
+
+.privacy-toc a {
+  color: var(--black-color);
+}
+
+.privacy-toc a:hover {
+  color: var(--main-color);
+}
+
+.privacy-section [id] {
+  scroll-margin-top: 120px;
+}
+
+.privacy-table_wrap {
+  margin-bottom: 20px;
+  overflow-x: auto;
+  border: 1px solid rgba(var(--main-color-rgb), 0.15);
+  border-radius: 20px;
+}
+
+.privacy-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.privacy-table th,
+.privacy-table td {
+  padding: 14px 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(var(--main-color-rgb), 0.12);
+  color: #555f59;
+}
+
+.privacy-table th {
+  font-family: "Outfit", serif;
+  font-weight: 700;
+  color: var(--black-color);
+  background-color: rgba(var(--main-color-rgb), 0.06);
+}
+
+.privacy-table tr:last-child td {
+  border-bottom: none;
+}
+
+.privacy-table code {
+  font-size: 14px;
+  color: var(--main-color);
+}
+
+@media (max-width: 767.98px) {
+  .privacy-section {
+    padding: 70px 0;
+  }
+
+  .privacy-section h2 {
+    font-size: 26px;
+    line-height: 34px;
+  }
+}
+
+/* Footer legal links (all pages) */
+.footer-legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 22px;
+  margin-top: 14px;
+}
+
+.footer-legal a,
+.footer-legal button {
+  padding: 4px 0;
+  font-size: 15px;
+  color: rgba(var(--white-color-rgb), 0.75);
+  background: none;
+}
+
+.footer-legal a:hover,
+.footer-legal button:hover {
+  color: var(--color-two);
+}
+
+.footer-legal a:focus-visible,
+.footer-legal button:focus-visible {
+  outline: 2px solid var(--white-color) !important;
+  outline-offset: 3px;
+}
+
+/* Booking form privacy note (contact.html) */
+.booking-privacy {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b7a72;
+}
+
+.booking-privacy a {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Cookie consent (assets/js/consent.js)
+   ========================================================================== */
+
+.consent-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 100000;
+  width: calc(100% - 48px);
+  max-width: 1080px;
+  transform: translateX(-50%);
+  animation: consent-in 0.4s ease both;
+}
+
+.consent-banner[hidden] {
+  display: none;
+}
+
+@keyframes consent-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+}
+
+.consent-banner_inner {
+  display: flex;
+  align-items: center;
+  gap: 24px 36px;
+  padding: 26px 30px;
+  border: 1px solid rgba(var(--main-color-rgb), 0.18);
+  border-radius: 28px;
+  background-color: var(--white-color);
+  box-shadow: 0 30px 70px rgba(var(--black-color-rgb), 0.18);
+}
+
+.consent-banner_title {
+  margin-bottom: 6px;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.consent-banner_title i {
+  margin-right: 6px;
+  color: var(--main-color);
+}
+
+.consent-banner_text p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #555f59;
+}
+
+.consent-banner_text a,
+.consent-dialog_intro a {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.consent-banner_actions,
+.consent-dialog_actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  flex-shrink: 0;
+}
+
+/* Accept and Reject are deliberately the same size: rejecting must be as easy as accepting */
+.consent-btn {
+  min-height: 48px;
+  padding: 12px 26px;
+  border-radius: 50px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.consent-btn_accept {
+  background-color: var(--main-color);
+  background-image: linear-gradient(90deg, rgba(35, 122, 87, 1) 0%, rgba(32, 140, 92, 1) 100%);
+}
+
+.consent-btn_reject {
+  background-color: var(--black-color);
+}
+
+.consent-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(35, 122, 87, 0.25);
+}
+
+.consent-link {
+  padding: 8px 4px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--main-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  cursor: pointer;
+}
+
+.consent-btn:focus-visible,
+.consent-link:focus-visible,
+.consent-switch:focus-visible,
+.consent-dialog_close:focus-visible {
+  outline: 2px solid var(--main-color) !important;
+  outline-offset: 3px;
+}
+
+.consent-dialog {
+  /* the template's "* { margin: 0 }" reset stops <dialog> from centring itself */
+  margin: auto;
+  width: calc(100% - 32px);
+  max-width: 580px;
+  max-height: calc(100vh - 32px);
+  padding: 36px;
+  border: none;
+  border-radius: 28px;
+  color: #555f59;
+  background-color: var(--white-color);
+  box-shadow: 0 30px 80px rgba(var(--black-color-rgb), 0.3);
+}
+
+.consent-dialog::backdrop {
+  background-color: rgba(var(--black-color-rgb), 0.6);
+}
+
+.consent-dialog_close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--black-color);
+  background-color: rgba(var(--main-color-rgb), 0.08);
+  cursor: pointer;
+}
+
+.consent-dialog_title {
+  margin-bottom: 8px;
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.consent-dialog_intro {
+  margin-bottom: 22px;
+  font-size: 15px;
+}
+
+.consent-option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(var(--main-color-rgb), 0.12);
+}
+
+.consent-option h3 {
+  margin-bottom: 4px;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+.consent-option p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b7a72;
+}
+
+.consent-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 30px;
+  margin-top: 2px;
+  border-radius: 30px;
+  background-color: #c9d1cc;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background-color 0.2s ease;
+}
+
+.consent-switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  content: '';
+  border-radius: 50%;
+  background-color: var(--white-color);
+  box-shadow: 0 2px 6px rgba(var(--black-color-rgb), 0.2);
+  transition: transform 0.2s ease;
+}
+
+.consent-switch:checked {
+  background-color: var(--main-color);
+}
+
+.consent-switch:checked::after {
+  transform: translateX(22px);
+}
+
+.consent-switch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.consent-dialog_actions {
+  margin-top: 10px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(var(--main-color-rgb), 0.12);
+}
+
+/* Placeholder shown instead of a blocked embed (contact.html map) */
+.consent-embed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 450px;
+  padding: 40px 24px;
+  border-radius: 20px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(var(--main-color-rgb), 0.06), rgba(198, 228, 90, 0.1));
+}
+
+.consent-embed[hidden] {
+  display: none;
+}
+
+.consent-embed_icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 26px;
+  color: var(--white-color);
+  background-image: linear-gradient(180deg, #237A57, #C6E45A);
+}
+
+.consent-embed h2 {
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.consent-embed p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.consent-embed_actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 18px;
+}
+
+@media (max-width: 991.98px) {
+  .consent-banner_inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .consent-banner {
+    bottom: 12px;
+    width: calc(100% - 24px);
+  }
+
+  .consent-banner_inner {
+    padding: 22px 20px;
+    border-radius: 24px;
+  }
+
+  .consent-banner_actions .consent-btn,
+  .consent-dialog_actions .consent-btn {
+    flex: 1 1 100%;
+  }
+
+  .consent-banner_actions .consent-link,
+  .consent-dialog_actions .consent-link {
+    margin: 0 auto;
+  }
+
+  .consent-dialog {
+    padding: 28px 22px;
+  }
+
+  .consent-embed {
+    min-height: 360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consent-banner {
+    animation: none;
+  }
+
+  .consent-btn:hover {
+    transform: none;
+  }
+}

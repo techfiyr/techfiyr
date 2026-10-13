@@ -83,7 +83,7 @@
 	</script>
 	<!-- Stylesheets -->
 	<link href="assets/css/bootstrap.css?v=20261003" rel="stylesheet">
-	<link href="assets/css/style.css?v=20261014.4" rel="stylesheet">
+	<link href="assets/css/style.css?v=20261014.5" rel="stylesheet">
 	<link href="assets/css/meanmenu.min.css?v=20261003" rel="stylesheet">
 	<link href="assets/css/responsive.css?v=20261003" rel="stylesheet">
 
@@ -360,6 +360,10 @@
 												</span>
 											</button>
 										</div>
+										<div class="form-group col-lg-12 col-md-12 col-sm-12">
+											<p class="booking-privacy">We use your details only to arrange and hold this call. See our
+												<a href="privacy-policy.html">Privacy Policy</a>.</p>
+										</div>
 									</div>
 								</form>
 							</div>
@@ -460,9 +464,21 @@
 		<!-- Map One -->
 		<section class="map-one">
 			<div class="auto-container">
-				<iframe title="TechFiyr office location: Mirpur DOHS, Dhaka"
-					src="https://www.google.com/maps?q=341%2F342%2C+Mirpur+DOHS%2C+Dhaka+1216%2C+Bangladesh&z=16&output=embed"
-					loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen=""></iframe>
+				<!-- Google Maps sets cookies, so it loads only after consent (assets/js/consent.js) -->
+				<div class="consent-embed" data-consent-placeholder="embedded">
+					<div class="consent-embed_icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></div>
+					<h2>Find us in Mirpur DOHS, Dhaka</h2>
+					<p>341/342, Mirpur DOHS, Dhaka 1216, Bangladesh. The map is provided by Google Maps, which sets
+						cookies. Load it only if you're happy with that. See our <a href="cookie-policy.html">Cookie Policy</a>.</p>
+					<div class="consent-embed_actions">
+						<button type="button" class="consent-btn consent-btn_accept" data-consent-allow="embedded">Load map</button>
+						<a class="consent-link" href="https://www.google.com/maps/search/?api=1&amp;query=341%2F342%2C+Mirpur+DOHS%2C+Dhaka+1216%2C+Bangladesh"
+							target="_blank" rel="noopener">Open in Google Maps</a>
+					</div>
+				</div>
+				<iframe title="TechFiyr office location: Mirpur DOHS, Dhaka" data-consent="embedded"
+					data-src="https://www.google.com/maps?q=341%2F342%2C+Mirpur+DOHS%2C+Dhaka+1216%2C+Bangladesh&z=16&output=embed"
+					loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen="" hidden></iframe>
 			</div>
 		</section>
 		<!-- End Map One -->
@@ -502,6 +518,12 @@
 					<!-- Copyright -->
 					<div class="main-footer_copyright">TechFiyr &copy; 2026. All Rights Reserved. Mobile App & Web
 						Software Agency.</div>
+					<ul class="footer-legal">
+						<li><a href="privacy-policy.html">Privacy Policy</a></li>
+						<li><a href="cookie-policy.html">Cookie Policy</a></li>
+						<li><a href="content-policy.html">Content Policy</a></li>
+						<li><button type="button" data-consent-open>Cookie settings</button></li>
+					</ul>
 				</div>
 			</div>
 		</footer>
@@ -532,6 +554,7 @@
 	<script src="assets/js/jquery.marquee.min.js?v=20261003"></script>
 	<script src="assets/js/pagenav.js?v=20261003"></script>
 	<script src="assets/js/script.js?v=20261014"></script>
+	<script src="assets/js/consent.js?v=20261014"></script>
 
 	<script src="assets/js/booking.js?v=20261013"></script>
 

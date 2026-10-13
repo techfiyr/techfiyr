@@ -31,6 +31,9 @@ Key facts:
 - [Home](https://techfiyr.com/): services, about, track record, client reviews, process and team
 - [Projects](https://techfiyr.com/projects.html): portfolio of shipped mobile apps and websites
 - [Contact](https://techfiyr.com/contact.html): book a free discovery call, email, phone and office address
+- [Privacy Policy](https://techfiyr.com/privacy-policy.html): what personal data TechFiyr collects, why, who it is shared with, and your GDPR/CCPA rights
+- [Cookie Policy](https://techfiyr.com/cookie-policy.html): no tracking or advertising cookies; Google Maps loads only with consent
+- [Content Policy & Terms of Use](https://techfiyr.com/content-policy.html): how website content may be quoted, including by AI assistants (with attribution and a link)
 
 ## Projects
 

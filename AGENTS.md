@@ -417,6 +417,15 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
   - Resize photos to the size they display at (about 2× the card width, e.g. ≤ 640px for team photos) and compress them (JPEG quality ~82, progressive) before committing.
 - Every page must remain usable with JavaScript disabled for its core text and links.
 
+### 7.5 Privacy, cookies and consent (mandatory)
+
+- `assets/js/consent.js` (loaded on every page after `script.js`) shows the cookie banner and the **Cookie settings** dialog, and stores the choice in `localStorage` (`techfiyr-consent`, 12 months). Global Privacy Control counts as "reject".
+- **Nothing that sets non-essential cookies or sends data to a third party may load before consent.** For an embed use `data-consent="embedded" data-src="..." hidden` plus a `data-consent-placeholder="embedded"` element with a "Load" button (see the map on `contact.html`).
+- Adding analytics, a chat widget, video embeds, pixels or any new third-party service: add a category in `consent.js` (and bump its `VERSION`), gate the script on it, and update `cookie-policy.html` (table) and `privacy-policy.html` (what data, purpose, legal basis, provider) **in the same change**.
+- Any new form must say what the data is used for and link to `privacy-policy.html` (see `.booking-privacy` on `contact.html`).
+- Every page's footer keeps the legal links: Privacy Policy, Cookie Policy, Content Policy and the `data-consent-open` "Cookie settings" button.
+- When a policy changes, update its "Last updated" date, its `<lastmod>` in `sitemap.xml`, and `dateModified` in its JSON-LD.
+
 ### SEO files and where they live (keep them in sync)
 
 | File | Purpose | Update when |
