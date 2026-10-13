@@ -4,6 +4,9 @@ Instructions for any AI coding agent (Claude Code, Cursor, Copilot, Codex, etc.)
 
 TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Bangladesh. This repo is the company's marketing website.
 
+> **Non-negotiable: every page and every piece of content must be SEO, AEO and GEO optimised.**
+> Whenever you add a page, a section, a project, a service, an FAQ, or change any copy, follow the workflow in **section 7.0** in the same change: Google Search, ChatGPT, Claude, Perplexity, Gemini and other AI crawlers must be able to find, read, understand and quote it. A change that skips this is not finished, even if it looks right in the browser.
+
 ---
 
 ## 1. Project at a glance
@@ -251,6 +254,52 @@ When you add a page, also: add it to the main nav (all pages) if it is a top-lev
 
 All three come from the same base: clear facts, structured data, and crawlable HTML.
 
+### 7.0 Workflow: run this for every new page and every content change
+
+**A. Before writing: plan the page around a search question**
+
+1. Pick **one primary query** the page should rank and be cited for, phrased the way a client would type or ask it (e.g. "Flutter app development company in Bangladesh", "how much does a Flutter app cost"). Add 3–5 related secondary queries.
+2. Check that no existing page already targets the same query. If one does, improve that page instead of creating a competing one.
+3. Decide the search intent (learn, compare, hire, contact) and make the page answer exactly that.
+4. Choose a short, lower-case, hyphenated file name that contains the main keyword (`flutter-app-development.html`).
+
+**B. While writing: on-page SEO, AEO and GEO**
+
+1. **Title** (≤ 60 chars, primary query first, `| TechFiyr` last), **meta description** (150–160 chars with a proof point), **`<h1>`** and **URL** all target the same primary query, worded naturally.
+2. **Answer first**: the first paragraph under the `<h1>`, and under every `<h2>`, is a direct 40–60 word answer that can be quoted on its own. Then add detail.
+3. Phrase `<h2>`/`<h3>` headings as the questions people ask, covering the secondary queries.
+4. Use **specific, verifiable facts**: tech names (Flutter, React Native, Next.js, Codemagic), numbers that already appear on the site (20 clients, 5.0 Fiverr rating, 2+ years), real project names, real locations. Never invent stats, clients or reviews.
+5. Use the right semantic HTML: lists, `<table>` for comparisons and pricing, `<dl>` for specs, `<figure>`/`<figcaption>`, `<time datetime>`, `<address>`.
+6. Add a visible **FAQ** of 3–6 real questions on service, pricing and contact pages, and mark it up with `FAQPage`.
+7. **Internal links**: link **to** the new page from at least 2 relevant existing pages or sections, and **from** it to at least 2 related pages (a service, a project, contact). Use descriptive anchor text.
+8. **Images**: descriptive file name, meaningful `alt`, compressed, `loading="lazy"` below the fold. Add a 1200×630 OG image in `assets/images/og/` for important pages.
+9. Keep company facts (name, address, phone, email, founder, rating) **identical** to `index.html` JSON-LD and `llms.txt`.
+
+**C. Head and structured data (section 7.1 and 7.2)**
+
+1. Full head block: canonical, robots, Open Graph, Twitter, `llms.txt` alternate link, the combined Google Fonts link.
+2. JSON-LD `@graph` with the page type (`WebPage`, `Service`, `ContactPage`, `CollectionPage`, `Article`, `FAQPage`), the shared `ProfessionalService` node (`@id` `https://techfiyr.com/#organization`), and `BreadcrumbList` on inner pages. Everything in it must be visible on the page.
+
+**D. Discovery files: update in the same change**
+
+1. `sitemap.xml`: add the URL (with its main images) and set `<lastmod>` to today. When you edit an existing page's content, update its `<lastmod>` too.
+2. `llms.txt`: add the page under **Pages** (or **Projects**/**Services**) with a one-line summary. Update any changed facts.
+3. `robots.txt`: no change normally. Never block a public page; use `noindex` for pages that must stay out of results.
+4. New project: also follow the project steps in section 7.4.
+
+**E. Before you finish: verify**
+
+1. **Read the page without JavaScript** (view-source or disable JS): the `<h1>`, main copy and links must be in the HTML.
+2. JSON-LD parses and passes the Schema.org validator and Google Rich Results Test.
+3. Lighthouse (Chrome DevTools) scores 100 for SEO and at least 90 for Accessibility and Best Practices on mobile.
+4. Exactly one `<h1>`, no broken links, and no duplicate title or description across the site.
+
+**F. After deploy (tell the owner if you can't do it yourself)**
+
+1. Google Search Console: inspect the new URL and request indexing; resubmit `sitemap.xml` if it changed.
+2. Bing Webmaster Tools: submit the URL. Bing powers ChatGPT search and Copilot.
+3. Ask ChatGPT, Claude and Perplexity the page's primary query a few weeks later and note whether TechFiyr is cited.
+
 ### 7.1 Required `<head>` for every indexable page
 
 Order and format to follow (tabs, same stylesheet/font links and `?v=` values as other pages):
@@ -360,6 +409,12 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 - Clean, lower-case, hyphenated file names (`mobile-app-development.html`).
 - Images: compressed WebP/JPG, explicit `width`/`height`, `loading="lazy"` below the fold, `fetchpriority="high"` on the hero/LCP image only. Descriptive file names.
 - Keep Core Web Vitals healthy: no new render-blocking third-party scripts, no layout shift from late-loading content, `font-display: swap` (already in the Google Fonts URLs).
+- **Performance rules (keep them):**
+  - The `.preloader` hides on DOM ready (`script.js`), with a CSS fallback after 2.5s. Never tie it to `window.load` again; that made visitors stare at the gradient until every image had downloaded.
+  - Load Google Fonts with the single combined URL used on every page (`Manrope 300..800`, `Outfit 100..900`, `Raleway 800`). Don't add separate font links or unused weights.
+  - Every `<img>` below the fold gets `loading="lazy" decoding="async"`; the header logos and the hero don't.
+  - Preload the LCP image when it's a CSS background (see the hero preload in `index.html`).
+  - Resize photos to the size they display at (about 2× the card width, e.g. ≤ 640px for team photos) and compress them (JPEG quality ~82, progressive) before committing.
 - Every page must remain usable with JavaScript disabled for its core text and links.
 
 ### SEO files and where they live (keep them in sync)
@@ -393,5 +448,8 @@ The homepage has exactly one `<h1>` (the first hero slide). Hero slides 2–3 us
 - [ ] Header, nav and footer identical across pages; new page linked in nav and in `sitemap.xml`.
 - [ ] One `<h1>`, ordered headings, skip link, `<main>`, labelled controls, `alt` text, visible focus, 4.5:1 contrast, works at 320px wide and 200% zoom, keyboard-only navigation tested, reduced-motion respected.
 - [ ] Unique title and description, canonical, OG tags, valid JSON-LD matching visible content.
+- [ ] Section 7.0 workflow done: one primary query per page, answer-first paragraphs, question-style headings, FAQ where it fits, at least 2 internal links in and 2 out.
+- [ ] `sitemap.xml` (URL and `<lastmod>`) and `llms.txt` updated in the same change.
+- [ ] Main content readable with JavaScript off; Lighthouse SEO 100 on mobile.
 - [ ] Copy is real and specific: no placeholders, invented numbers or fake reviews.
 - [ ] Open the page in a browser at desktop, tablet and mobile widths and compare it side by side with `contact.html` / `index.html`. If it looks like it came from a different website, it is wrong.

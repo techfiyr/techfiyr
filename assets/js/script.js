@@ -6,7 +6,7 @@
 	//Hide Loading Box (Preloader)
 	function handlePreloader() {
 		if($('.preloader').length){
-			$('.preloader').delay(200).fadeOut(500);
+			$('.preloader').fadeOut(300);
 		}
 	}
 	
@@ -1338,8 +1338,18 @@
    When document is loading, do
    ========================================================================== */
 	
+	// Hide the preloader as soon as the DOM is ready; waiting for window load meant waiting for every image
+	$(handlePreloader);
+
+	// Lazy images change the layout when they arrive; re-measure GSAP scroll triggers (debounced)
+	var lazyRefreshTimer;
+	document.addEventListener('load', function(e) {
+		if (e.target.tagName !== 'IMG' || !window.ScrollTrigger) return;
+		clearTimeout(lazyRefreshTimer);
+		lazyRefreshTimer = setTimeout(function() { ScrollTrigger.refresh(); }, 200);
+	}, true);
+
 	$(window).on('load', function() {
-		handlePreloader();
 		enableMasonry();
 	});	
 
