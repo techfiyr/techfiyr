@@ -31518,3 +31518,38 @@ div.slider-one_heading {
     bottom: 20px;
   }
 }
+
+/* ==========================================================================
+   Hero fits the screen on desktop (992px+)
+   The slide fills the viewport (minus the 25px white frame above 1500px),
+   content is centred between the header and the bottom edge, and the
+   headline scales with screen height so short laptop screens still show
+   the buttons and the Client Reviews card without scrolling.
+   ========================================================================== */
+
+@media (min-width: 992px) {
+  .slider-one .swiper-wrapper .swiper-slide {
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 225px 0 80px;
+  }
+
+  .slider-one .swiper-wrapper .swiper-slide > .auto-container {
+    width: 100%;
+  }
+
+  .slider-one .swiper-wrapper .slider-one_heading {
+    font-size: clamp(46px, 7.4vh, 72px);
+    line-height: 1.2em;
+    margin-bottom: 28px;
+  }
+}
+
+@media (min-width: 1501px) {
+  .slider-one .swiper-wrapper .swiper-slide {
+    min-height: calc(100vh - 50px);
+    min-height: calc(100svh - 50px);
+  }
+}
