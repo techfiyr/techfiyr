@@ -13,16 +13,32 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 
 | Item | Value |
 |---|---|
-| Stack | Plain static HTML + CSS + jQuery/vanilla JS. No framework and no package manager. The only build step is `scripts/build-config.mjs` (writes `/firebase-config.js` from env vars); one Netlify Function powers the visitor counter. |
+| Stack | Plain static HTML + CSS + jQuery/vanilla JS. No framework and no package manager. The only build step is `scripts/build-config.mjs` (writes `public/firebase-config.js` from env vars); one Netlify Function powers the visitor counter. |
+| Website root | `public/` is deployed as the site root. **Site paths in this file (`index.html`, `assets/...`) are relative to `public/`.** |
 | Base template | "iThub" multipurpose business HTML template, customised for TechFiyr |
 | Hosting | Netlify (Netlify Forms for the booking form; `_headers` sets cache rules) |
 | Production domain | `https://techfiyr.com` (use it for canonical, Open Graph and JSON-LD URLs) |
 | Pages | `index.html`, `projects.html`, `project.html?p=<slug>` (project details, rendered by JS), `contact.html`, `404.html`, `coming-soon.html` |
-| Main stylesheet | `assets/css/style.css` (template CSS with `global.css`, `header.css`, `footer.css` etc. already **inlined** into it) |
-| Other loaded CSS | `bootstrap.css`, `meanmenu.min.css`, `responsive.css` |
+| Main stylesheet | `assets/css/style.css` (template CSS plus all TechFiyr additions at the end) and `assets/css/responsive.css` (template breakpoints) |
+| Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. |
 | Portfolio data | `assets/js/projects-data.js` (single source of truth for projects) |
 
-Files under `assets/css/` such as `global.css`, `header.css`, `footer.css`, `dark-body.css`, `rtl.css`, and `color-switcher-design.css` are **not loaded by any page**. Editing them changes nothing. Edit `style.css`.
+### Repository layout
+
+```text
+public/                 website root (deployed)
+  *.html                pages
+  assets/css/           style.css, responsive.css (our styles)
+  assets/js/            our scripts
+  assets/vendor/<lib>/  third-party libraries, untouched
+  assets/fonts/         Font Awesome webfonts
+  assets/images/        brand/ hero/ backgrounds/ services/ about/ team/ icons/ projects/<slug>/ og/
+netlify/functions/      serverless API (visitor counter)
+scripts/                build scripts (Netlify build command)
+.github/assets/         README artwork, not deployed
+```
+
+Rules: our code goes in `assets/css` and `assets/js`; libraries in `assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid.jpg`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
 
 ---
 
@@ -324,7 +340,7 @@ Order and format to follow (tabs, same stylesheet/font links and `?v=` values as
 	<meta property="og:locale" content="en_US">
 	<meta name="twitter:card" content="summary_large_image">
 
-	<link rel="icon" href="assets/images/favicon.png" type="image/png">
+	<link rel="icon" href="assets/images/brand/favicon.png" type="image/png">
 
 	<!-- Stylesheets (same as every page) -->
 	…
@@ -363,7 +379,7 @@ Canonical organisation facts (keep identical everywhere: page copy, JSON-LD, foo
 	"@id": "https://techfiyr.com/#organization",
 	"name": "TechFiyr",
 	"url": "https://techfiyr.com/",
-	"logo": "https://techfiyr.com/assets/images/logo.svg",
+	"logo": "https://techfiyr.com/assets/images/brand/logo.svg",
 	"email": "info@techfiyr.com",
 	"telephone": "+8801722364642",
 	"address": {
@@ -421,7 +437,7 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 
 | Piece | File | Notes |
 |---|---|---|
-| Netlify build | `netlify.toml`, `scripts/build-config.mjs` | Build command writes `/firebase-config.js` (git-ignored) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
+| Netlify build | `netlify.toml`, `scripts/build-config.mjs` | Build command writes `public/firebase-config.js` (git-ignored, served at `/firebase-config.js`) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
 | Google Analytics 4 | `assets/js/analytics.js` | Loads Firebase Analytics (SDK 13.0.0 from gstatic) **only after "analytics" consent**; sets `ga-disable-<ID>` and deletes `_ga` cookies when consent is withdrawn. |
 | Visitor counter API | `netlify/functions/visits.mjs` → `/api/visits` | No npm dependencies. POST counts a visit for the Netlify geo country, GET returns totals. Firestore document `stats/visits`. Only counts browsers on our own origins, skips bots. GET is edge-cached 60s. |
 | Footer counter + map | `assets/js/visitors.js`, `assets/vendor/jsvectormap/` (v1.7.0, MIT) | Counts a visit only on arrival from another site or a typed URL (not reloads or internal clicks). No cookies or storage. Map library loads when the footer is near view. Block stays hidden if the API fails. |

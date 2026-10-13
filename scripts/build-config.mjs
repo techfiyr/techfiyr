@@ -1,5 +1,5 @@
 /*
- * Netlify build step (see netlify.toml): writes /firebase-config.js from environment variables,
+ * Netlify build step (see netlify.toml): writes public/firebase-config.js from environment variables,
  * so the Firebase web config is not stored in the Git repository.
  * The generated file is git-ignored. Without the variables (e.g. local preview) it sets
  * window.TECHFIYR_FIREBASE = null and Google Analytics stays off.
@@ -8,6 +8,9 @@
  * project by restricting the API key to the site's domains in Google Cloud Console.
  */
 import { writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const OUT = fileURLToPath(new URL('../public/firebase-config.js', import.meta.url));
 
 const env = process.env;
 const config = {
@@ -21,7 +24,7 @@ const config = {
 };
 const ok = Boolean(config.apiKey && config.projectId && config.appId && config.measurementId);
 
-writeFileSync('firebase-config.js',
+writeFileSync(OUT,
 	'/* Generated at build time by scripts/build-config.mjs from Netlify environment variables. Do not edit or commit. */\n' +
 	'window.TECHFIYR_FIREBASE = ' + (ok ? JSON.stringify(config) : 'null') + ';\n');
 

@@ -3,7 +3,7 @@
 Thumbs.db
 
 # Generated at build time from Netlify environment variables (scripts/build-config.mjs)
-firebase-config.js
+public/firebase-config.js
 
 # Local secrets and Netlify CLI state
 .env

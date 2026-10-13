@@ -1,0 +1,9 @@
+Copyright (c) 2026 TechFiyr. All rights reserved.
+
+This repository contains the source of the techfiyr.com website. The website's text, design,
+graphics, logos, photographs and code are proprietary to TechFiyr and may not be copied,
+modified, distributed or reused without prior written permission, except as allowed by the
+Content Policy at https://techfiyr.com/content-policy.html.
+
+Third-party libraries in public/assets/vendor/ remain under their own licenses; see
+THIRD_PARTY_NOTICES.md.

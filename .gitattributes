@@ -1,0 +1,17 @@
+# Normalise line endings to LF in the repository
+* text=auto eol=lf
+
+# Binary files
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary
+*.ico  binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary
+
+# Third-party code is not ours to diff or count in language stats
+public/assets/vendor/** linguist-vendored
+public/assets/vendor/** -diff

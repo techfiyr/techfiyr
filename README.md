@@ -2,14 +2,14 @@
 
 <a href="https://techfiyr.com">
 	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="assets/images/logo-white.svg">
-		<img src="assets/images/logo.svg" alt="TechFiyr" width="200">
+		<source media="(prefers-color-scheme: dark)" srcset="public/assets/images/brand/logo-white.svg">
+		<img src="public/assets/images/brand/logo.svg" alt="TechFiyr" width="200">
 	</picture>
 </a>
 
 <br><br>
 
-<a href="https://techfiyr.com"><img src="assets/images/readme/banner.svg" alt="TechFiyr: we build high-performance mobile apps and web software" width="100%"></a>
+<a href="https://techfiyr.com"><img src=".github/assets/banner.svg" alt="TechFiyr: we build high-performance mobile apps and web software" width="100%"></a>
 
 <br><br>
 
@@ -107,7 +107,7 @@ flowchart LR
 
 <table>
 	<tr>
-		<td width="45%"><a href="https://techfiyr.com/project.html?p=matmaps"><img src="assets/images/projects/matmaps/cover.jpg" alt="MatMaps app screens"></a></td>
+		<td width="45%"><a href="https://techfiyr.com/project.html?p=matmaps"><img src="public/assets/images/projects/matmaps/cover.jpg" alt="MatMaps app screens"></a></td>
 		<td valign="top">
 			<h3>MatMaps</h3>
 			<p>A UK combat sports platform that helps athletes find clubs and events, and gives gym owners the tools to run their club, on Android and the web.</p>
@@ -140,7 +140,7 @@ flowchart LR
 
 <div align="center">
 
-| <img src="assets/images/resource/saurav.jpg" width="96" alt="Saurav Wahid"> | <img src="assets/images/resource/viswajit.jpg" width="96" alt="Viswajit Roy"> | <img src="assets/images/resource/ponir.jpg" width="96" alt="Ponir Saha"> | <img src="assets/images/resource/masud.jpg" width="96" alt="Md Masud Parvez"> | <img src="assets/images/resource/awon.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
+| <img src="public/assets/images/team/saurav-wahid.jpg" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
 |:---:|:---:|:---:|:---:|:---:|
 | **[Saurav Wahid](https://www.linkedin.com/in/sauravwahid/)** | **[Viswajit Roy](https://www.linkedin.com/in/viswajitroy)** | **[Ponir Saha](https://www.linkedin.com/in/ponirsaha/)** | **[Md Masud Parvez](https://www.linkedin.com/in/masudparvez11/)** | **[Md. Awon-Uz-Zaman](https://www.linkedin.com/in/awonuzzaman/)** |
 | <sub>Founder & Mobile DevOps Lead</sub> | <sub>Co-Founder & Lead UI/UX Designer</sub> | <sub>Co-Founder & Lead DevOps</sub> | <sub>Lead Android & iOS Developer</sub> | <sub>Android & iOS Developer</sub> |
@@ -162,7 +162,7 @@ This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a fas
 ```bash
 git clone git@github.com:techfiyr/techfiyr.git
 cd techfiyr
-python3 -m http.server 8000   # or: npx serve .
+python3 -m http.server 8000 --directory public   # or: npx serve public
 # open http://localhost:8000
 ```
 
@@ -172,24 +172,33 @@ Netlify features (booking form submissions, `_headers`, Google Analytics, the fo
 
 ```text
 .
-├── index.html            # Home: services, about, reviews, process, team
-├── projects.html         # Portfolio catalog (rendered from projects-data.js)
-├── project.html          # Project details: project.html?p=<slug>
-├── contact.html          # Booking calendar, contact details, map
-├── 404.html · coming-soon.html
-├── assets/
-│   ├── css/style.css     # All site styles (template + TechFiyr additions at the end)
-│   ├── js/projects-data.js   # ← add or edit portfolio projects here
-│   ├── js/projects.js    # Renders the catalog and details pages, sets per-project SEO
-│   ├── js/booking.js     # Discovery-call booking widget (Netlify Forms)
-│   └── images/
-├── privacy-policy.html · cookie-policy.html · content-policy.html
-├── netlify/functions/visits.mjs   # /api/visits: footer visitor counter (Firestore)
-├── scripts/build-config.mjs       # Netlify build: writes firebase-config.js from env vars
-├── sitemap.xml · robots.txt · llms.txt   # Search engine and AI crawler discovery
-├── .well-known/security.txt
-├── _headers              # Netlify cache and content-type rules
-└── AGENTS.md             # Design system and rules for contributors and AI agents
+├── public/                          # The website, deployed as-is (Netlify publish directory)
+│   ├── index.html                   # Home: services, about, reviews, process, team
+│   ├── projects.html                # Portfolio catalog
+│   ├── project.html                 # Project details: project.html?p=<slug>
+│   ├── contact.html                 # Booking calendar, contact details, map
+│   ├── privacy-policy.html · cookie-policy.html · content-policy.html
+│   ├── 404.html · coming-soon.html
+│   ├── assets/
+│   │   ├── css/                     # style.css (site styles), responsive.css (breakpoints)
+│   │   ├── js/                      # Site scripts: script.js, booking.js, consent.js,
+│   │   │                            #   analytics.js, visitors.js, projects.js,
+│   │   │                            #   projects-data.js  ← add or edit portfolio projects here
+│   │   ├── vendor/                  # Third-party libraries, one folder each (see THIRD_PARTY_NOTICES.md)
+│   │   ├── fonts/                   # Font Awesome webfonts
+│   │   └── images/                  # brand/ hero/ backgrounds/ services/ about/ team/
+│   │                                #   icons/ projects/<slug>/ og/
+│   ├── .well-known/security.txt
+│   ├── robots.txt · sitemap.xml · llms.txt   # Search engine and AI crawler discovery
+│   └── _headers                     # Netlify cache and content-type rules
+├── netlify/functions/visits.mjs     # /api/visits: footer visitor counter (Firestore)
+├── scripts/build-config.mjs         # Netlify build: writes public/firebase-config.js from env vars
+├── .github/assets/                  # README artwork (not deployed)
+├── netlify.toml                     # Build, publish and functions settings
+├── .editorconfig · .gitattributes   # Editor and line-ending conventions
+├── AGENTS.md                        # Design system, code style, accessibility and SEO rules
+├── THIRD_PARTY_NOTICES.md           # Bundled libraries and their licenses
+└── LICENSE
 ```
 
 ### Brand palette

@@ -1,10 +1,10 @@
 # Netlify configuration.
-# The site is static HTML; the build command only writes /firebase-config.js from environment
-# variables (scripts/build-config.mjs). netlify/functions holds the visitor-counter API.
-# Environment variables are listed in AGENTS.md, section 7.6.
+# public/ is the website as visitors see it. The build command only writes
+# public/firebase-config.js from environment variables (scripts/build-config.mjs), and
+# netlify/functions holds the visitor-counter API. Environment variables: AGENTS.md, section 7.6.
 
 [build]
-  publish = "."
+  publish = "public"
   command = "node scripts/build-config.mjs"
 
 [functions]
