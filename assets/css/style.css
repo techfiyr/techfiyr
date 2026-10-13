@@ -32062,3 +32062,119 @@ div.slider-one_heading {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   Footer visitor counter and world map (assets/js/visitors.js)
+   ========================================================================== */
+
+.footer-visitors {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 40px;
+  margin-top: 30px;
+  padding: 36px;
+  border: 1px solid rgba(var(--white-color-rgb), 0.08);
+  border-radius: 40px;
+  background-color: rgba(var(--white-color-rgb), 0.03);
+}
+
+.footer-visitors[hidden] {
+  display: none;
+}
+
+.footer-visitors_label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-two);
+}
+
+.footer-visitors_total {
+  display: block;
+  margin: 6px 0 4px;
+  font-family: "Outfit", serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--white-color);
+}
+
+.footer-visitors_sub {
+  display: block;
+  font-size: 15px;
+  color: rgba(var(--white-color-rgb), 0.7);
+}
+
+.footer-visitors_sub b {
+  color: var(--white-color);
+}
+
+.footer-visitors_heading {
+  margin: 26px 0 10px;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--white-color);
+}
+
+.footer-visitors_top {
+  margin: 0;
+  padding: 0;
+}
+
+.footer-visitors_top li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  font-size: 15px;
+  color: rgba(var(--white-color-rgb), 0.75);
+  border-bottom: 1px solid rgba(var(--white-color-rgb), 0.08);
+}
+
+.footer-visitors_top li b {
+  color: var(--color-two);
+}
+
+.footer-visitors_map {
+  width: 100%;
+  height: 340px;
+}
+
+.jvm-tooltip {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: var(--black-color);
+  background-color: var(--color-two);
+}
+
+@media (max-width: 991.98px) {
+  .footer-visitors {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .footer-visitors_map {
+    height: 260px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .footer-visitors {
+    padding: 26px 20px;
+    border-radius: 28px;
+  }
+
+  .footer-visitors_total {
+    font-size: 44px;
+  }
+
+  .footer-visitors_map {
+    height: 200px;
+  }
+}

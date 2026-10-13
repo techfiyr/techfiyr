@@ -153,7 +153,7 @@ flowchart LR
 
 ## ⚙️ About this repository
 
-This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a fast, static website with no build step, hosted on Netlify.
+This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a fast, static website hosted on Netlify, with one tiny build step (Firebase config from environment variables) and one Netlify Function (visitor counter).
 
 <img src="https://img.shields.io/badge/HTML5-191919?style=flat-square&logo=html5&logoColor=C6E45A" alt="HTML5"> <img src="https://img.shields.io/badge/CSS3-191919?style=flat-square&logo=css&logoColor=C6E45A" alt="CSS3"> <img src="https://img.shields.io/badge/JavaScript-191919?style=flat-square&logo=javascript&logoColor=C6E45A" alt="JavaScript"> <img src="https://img.shields.io/badge/Bootstrap-191919?style=flat-square&logo=bootstrap&logoColor=C6E45A" alt="Bootstrap"> <img src="https://img.shields.io/badge/GSAP-191919?style=flat-square&logo=greensock&logoColor=C6E45A" alt="GSAP"> <img src="https://img.shields.io/badge/Netlify-237A57?style=flat-square&logo=netlify&logoColor=white" alt="Netlify">
 
@@ -166,7 +166,7 @@ python3 -m http.server 8000   # or: npx serve .
 # open http://localhost:8000
 ```
 
-Netlify features (booking form submissions, `_headers`) only work on the deployed site.
+Netlify features (booking form submissions, `_headers`, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.
 
 ### Project structure
 
@@ -183,6 +183,9 @@ Netlify features (booking form submissions, `_headers`) only work on the deploye
 │   ├── js/projects.js    # Renders the catalog and details pages, sets per-project SEO
 │   ├── js/booking.js     # Discovery-call booking widget (Netlify Forms)
 │   └── images/
+├── privacy-policy.html · cookie-policy.html · content-policy.html
+├── netlify/functions/visits.mjs   # /api/visits: footer visitor counter (Firestore)
+├── scripts/build-config.mjs       # Netlify build: writes firebase-config.js from env vars
 ├── sitemap.xml · robots.txt · llms.txt   # Search engine and AI crawler discovery
 ├── .well-known/security.txt
 ├── _headers              # Netlify cache and content-type rules

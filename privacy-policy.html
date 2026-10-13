@@ -86,7 +86,7 @@
 
 	<!-- Stylesheets -->
 	<link href="assets/css/bootstrap.css?v=20261003" rel="stylesheet">
-	<link href="assets/css/style.css?v=20261014.6" rel="stylesheet">
+	<link href="assets/css/style.css?v=20261014.8" rel="stylesheet">
 	<link href="assets/css/meanmenu.min.css?v=20261003" rel="stylesheet">
 	<link href="assets/css/responsive.css?v=20261003" rel="stylesheet">
 
@@ -257,7 +257,7 @@
 						<h2>In short</h2>
 						<ul class="privacy-list">
 							<li>We collect only what you give us (for example when you book a call) and basic technical data our hosting provider needs to run the site.</li>
-							<li>We use it to reply to you, arrange calls and deliver projects. We never sell it and we don't use advertising or tracking cookies.</li>
+							<li>We use it to reply to you, arrange calls and deliver projects. We never sell it and never use advertising cookies. Google Analytics runs only if you allow it.</li>
 							<li>You can ask us to see, correct or delete your data at any time by emailing <a href="mailto:info@techfiyr.com">info@techfiyr.com</a>.</li>
 						</ul>
 					</div>
@@ -299,8 +299,10 @@
 							<li><b>Font requests</b>: our pages load fonts from Google Fonts, so your browser sends your IP address to Google when it downloads them. Google Fonts does not set cookies.</li>
 							<li><b>Your cookie choice</b>, stored in your own browser. See our <a href="cookie-policy.html">Cookie Policy</a>.</li>
 							<li><b>Google Maps</b> on our contact page loads only if you allow embedded content. Google may then set cookies and receive your IP address.</li>
+							<li><b>Google Analytics</b> (through Google Firebase) runs only if you allow analytics. It records the pages you view, how you arrived, your device and browser type and your approximate location (city or country), using the cookies listed in our <a href="cookie-policy.html">Cookie Policy</a>. Google Analytics 4 does not log or store IP addresses.</li>
+							<li><b>Visitor counter</b>: the counter in our footer adds one to a total and to your country when you arrive at the site. Your country is worked out by our host from your IP address at that moment; we don't store your IP address, set cookies or keep anything that identifies you. Only the totals per country are saved.</li>
 						</ul>
-						<p>We do not use analytics, advertising or social media tracking tools, and we do not build profiles of visitors.</p>
+						<p>We do not use advertising or social media tracking tools, and we do not build advertising profiles of visitors.</p>
 					</div>
 					<div class="privacy-content" id="how-we-use">
 						<h2>How we use your data and our legal basis</h2>
@@ -314,6 +316,8 @@
 									<tr><td>Deliver projects, invoice and support you</td><td>Client project and contact information</td><td>Performance of a contract (Art. 6(1)(b))</td></tr>
 									<tr><td>Run, secure and fix the website</td><td>Server logs</td><td>Legitimate interest in a working, secure website (Art. 6(1)(f))</td></tr>
 									<tr><td>Show the map on our contact page</td><td>IP address, Google cookies</td><td>Your consent (Art. 6(1)(a)), which you can withdraw at any time</td></tr>
+									<tr><td>Understand how the site is used and improve it (Google Analytics)</td><td>Pages viewed, device and browser, approximate location, Google Analytics cookies</td><td>Your consent (Art. 6(1)(a)), which you can withdraw at any time</td></tr>
+									<tr><td>Show how many people visit and from which countries</td><td>Country (derived from your IP address at the time of the visit; the IP address is not stored)</td><td>Legitimate interest in simple, anonymous visit statistics (Art. 6(1)(f))</td></tr>
 									<tr><td>Keep business and tax records</td><td>Invoices and related contact details</td><td>Legal obligation (Art. 6(1)(c))</td></tr>
 								</tbody>
 							</table>
@@ -325,7 +329,7 @@
 						<p>We never sell or rent your personal data. We share it only with service providers that help us run the business, and only as far as they need it:</p>
 						<ul class="privacy-list">
 							<li><b>Netlify, Inc.</b> (USA): hosts this website, receives booking form submissions and keeps server logs.</li>
-							<li><b>Google LLC</b> (USA): Google Fonts, Google Maps (only with your consent), and Google Workspace tools such as Gmail, Google Calendar and Google Meet that we use to email you and hold calls.</li>
+							<li><b>Google LLC</b> (USA): Google Fonts, Google Maps and Google Analytics (each only with your consent where needed), Google Firebase/Cloud Firestore (stores the anonymous visitor totals), and Google Workspace tools such as Gmail, Google Calendar and Google Meet that we use to email you and hold calls.</li>
 							<li><b>Freelance marketplaces</b> such as Fiverr and Upwork, only if you choose to hire us there. Their own privacy policies apply.</li>
 							<li><b>Professional advisers and authorities</b> (for example accountants or a court) when the law requires it.</li>
 						</ul>
@@ -340,6 +344,8 @@
 							<li><b>Booking requests and enquiries</b> that don't become a project: up to 24 months after our last contact, then deleted.</li>
 							<li><b>Client and project records</b>: for the length of our work together, then as long as tax and accounting law requires (usually up to 6 years).</li>
 							<li><b>Server logs</b>: for the limited period set by our hosting provider.</li>
+							<li><b>Google Analytics data</b>: 14 months, then deleted automatically by Google.</li>
+							<li><b>Visitor totals per country</b>: kept indefinitely; they contain no personal data.</li>
 							<li><b>Your cookie choice</b>: 12 months in your browser, then we ask again.</li>
 						</ul>
 					</div>
@@ -418,6 +424,21 @@
 
 			</div>
 
+			<!-- Visitor stats (assets/js/visitors.js, data from /api/visits); hidden until data loads -->
+			<div class="auto-container">
+				<div class="footer-visitors" data-visitors hidden>
+					<div class="footer-visitors_stats">
+						<span class="footer-visitors_label">Visitors worldwide</span>
+						<span class="footer-visitors_total" data-visitors-total>0</span>
+						<span class="footer-visitors_sub">from <b data-visitors-countries>0</b> countries</span>
+						<h2 class="footer-visitors_heading">Top countries</h2>
+						<ol class="footer-visitors_top" data-visitors-top></ol>
+					</div>
+					<div class="footer-visitors_map" data-visitors-map role="img"
+						aria-label="World map shaded by number of visitors from each country"></div>
+				</div>
+			</div>
+
 			<div class="footer-bottom">
 				<div class="auto-container">
 					<!-- Copyright -->
@@ -459,7 +480,10 @@
 	<script src="assets/js/jquery.marquee.min.js?v=20261003"></script>
 	<script src="assets/js/pagenav.js?v=20261003"></script>
 	<script src="assets/js/script.js?v=20261014"></script>
-	<script src="assets/js/consent.js?v=20261014"></script>
+	<script src="assets/js/consent.js?v=20261014.2"></script>
+	<script src="firebase-config.js"></script>
+	<script src="assets/js/analytics.js?v=20261014"></script>
+	<script src="assets/js/visitors.js?v=20261014"></script>
 
 
 </body>

@@ -21,3 +21,7 @@
 # Placeholder page stays out of search results
 /coming-soon.html
   X-Robots-Tag: noindex, nofollow
+
+# Generated at build time; must never be cached for long so env changes show up straight away
+/firebase-config.js
+  Cache-Control: public, max-age=0, must-revalidate

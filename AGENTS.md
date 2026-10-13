@@ -13,7 +13,7 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 
 | Item | Value |
 |---|---|
-| Stack | Plain static HTML + CSS + jQuery/vanilla JS. **No build step, no framework, no package manager.** |
+| Stack | Plain static HTML + CSS + jQuery/vanilla JS. No framework and no package manager. The only build step is `scripts/build-config.mjs` (writes `/firebase-config.js` from env vars); one Netlify Function powers the visitor counter. |
 | Base template | "iThub" multipurpose business HTML template, customised for TechFiyr |
 | Hosting | Netlify (Netlify Forms for the booking form; `_headers` sets cache rules) |
 | Production domain | `https://techfiyr.com` (use it for canonical, Open Graph and JSON-LD URLs) |
@@ -416,6 +416,35 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
   - Preload the LCP image when it's a CSS background (see the hero preload in `index.html`).
   - Resize photos to the size they display at (about 2× the card width, e.g. ≤ 640px for team photos) and compress them (JPEG quality ~82, progressive) before committing.
 - Every page must remain usable with JavaScript disabled for its core text and links.
+
+### 7.6 Firebase, Google Analytics and the visitor counter
+
+| Piece | File | Notes |
+|---|---|---|
+| Netlify build | `netlify.toml`, `scripts/build-config.mjs` | Build command writes `/firebase-config.js` (git-ignored) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
+| Google Analytics 4 | `assets/js/analytics.js` | Loads Firebase Analytics (SDK 13.0.0 from gstatic) **only after "analytics" consent**; sets `ga-disable-<ID>` and deletes `_ga` cookies when consent is withdrawn. |
+| Visitor counter API | `netlify/functions/visits.mjs` → `/api/visits` | No npm dependencies. POST counts a visit for the Netlify geo country, GET returns totals. Firestore document `stats/visits`. Only counts browsers on our own origins, skips bots. GET is edge-cached 60s. |
+| Footer counter + map | `assets/js/visitors.js`, `assets/vendor/jsvectormap/` (v1.7.0, MIT) | Counts a visit only on arrival from another site or a typed URL (not reloads or internal clicks). No cookies or storage. Map library loads when the footer is near view. Block stays hidden if the API fails. |
+
+**Netlify environment variables** (Site configuration → Environment variables). Never commit their values.
+
+| Key | Scope | Secret? | Value |
+|---|---|---|---|
+| `FIREBASE_API_KEY` | Builds | No (public web config) | from Firebase console → Project settings → Your apps |
+| `FIREBASE_AUTH_DOMAIN` | Builds | No | ″ |
+| `FIREBASE_PROJECT_ID` | Builds, Functions | No | ″ |
+| `FIREBASE_STORAGE_BUCKET` | Builds | No | ″ |
+| `FIREBASE_MESSAGING_SENDER_ID` | Builds | No | ″ |
+| `FIREBASE_APP_ID` | Builds | No | ″ |
+| `FIREBASE_MEASUREMENT_ID` | Builds | No | ″ (`G-…`) |
+| `FIREBASE_CLIENT_EMAIL` | Functions | **Yes** | `client_email` from the service-account JSON |
+| `FIREBASE_PRIVATE_KEY` | Functions | **Yes** | `private_key` from the service-account JSON |
+
+Rules:
+- The Firebase **web** config is public by design (it ships to every browser). Protect it by restricting the API key to `techfiyr.com/*`, `*.techfiyr.com/*` and `techfiyr.netlify.app/*` (Google Cloud Console → APIs & Services → Credentials). Don't mark the public vars as secret, or Netlify's secret scanning fails the build when they appear in `firebase-config.js`.
+- The **service account** key is a real secret: Functions scope only, marked secret, never in the repo or in browser code.
+- Firestore security rules must deny all client access (`allow read, write: if false;`); only the function writes, using the service account.
+- Local preview has no `/firebase-config.js` or `/api/visits`: analytics stays off and the footer counter stays hidden. Use `netlify dev` with a local `.env` (git-ignored) to test them.
 
 ### 7.5 Privacy, cookies and consent (mandatory)
 

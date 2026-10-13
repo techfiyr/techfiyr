@@ -1,3 +1,12 @@
 .DS_Store
 *.DS_Store
 Thumbs.db
+
+# Generated at build time from Netlify environment variables (scripts/build-config.mjs)
+firebase-config.js
+
+# Local secrets and Netlify CLI state
+.env
+.env.*
+.netlify/
+node_modules/

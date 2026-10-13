@@ -86,7 +86,7 @@
 
 	<!-- Stylesheets -->
 	<link href="assets/css/bootstrap.css?v=20261003" rel="stylesheet">
-	<link href="assets/css/style.css?v=20261014.6" rel="stylesheet">
+	<link href="assets/css/style.css?v=20261014.8" rel="stylesheet">
 	<link href="assets/css/meanmenu.min.css?v=20261003" rel="stylesheet">
 	<link href="assets/css/responsive.css?v=20261003" rel="stylesheet">
 
@@ -379,6 +379,21 @@
 
 			</div>
 
+			<!-- Visitor stats (assets/js/visitors.js, data from /api/visits); hidden until data loads -->
+			<div class="auto-container">
+				<div class="footer-visitors" data-visitors hidden>
+					<div class="footer-visitors_stats">
+						<span class="footer-visitors_label">Visitors worldwide</span>
+						<span class="footer-visitors_total" data-visitors-total>0</span>
+						<span class="footer-visitors_sub">from <b data-visitors-countries>0</b> countries</span>
+						<h2 class="footer-visitors_heading">Top countries</h2>
+						<ol class="footer-visitors_top" data-visitors-top></ol>
+					</div>
+					<div class="footer-visitors_map" data-visitors-map role="img"
+						aria-label="World map shaded by number of visitors from each country"></div>
+				</div>
+			</div>
+
 			<div class="footer-bottom">
 				<div class="auto-container">
 					<!-- Copyright -->
@@ -420,7 +435,10 @@
 	<script src="assets/js/jquery.marquee.min.js?v=20261003"></script>
 	<script src="assets/js/pagenav.js?v=20261003"></script>
 	<script src="assets/js/script.js?v=20261014"></script>
-	<script src="assets/js/consent.js?v=20261014"></script>
+	<script src="assets/js/consent.js?v=20261014.2"></script>
+	<script src="firebase-config.js"></script>
+	<script src="assets/js/analytics.js?v=20261014"></script>
+	<script src="assets/js/visitors.js?v=20261014"></script>
 
 
 </body>

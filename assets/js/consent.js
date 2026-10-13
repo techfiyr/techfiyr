@@ -5,7 +5,11 @@
  *
  * Categories
  *   necessary  always on (only this consent record)
+ *   analytics  Google Analytics via Firebase (assets/js/analytics.js)
  *   embedded   third-party embeds that set cookies, e.g. the Google Map on contact.html
+ *
+ * Other scripts read the choice with window.TechfiyrConsent.get() and listen for the
+ * "techfiyr:consent" event on document (event.detail = the stored choice).
  *
  * Gating an embed:  <iframe data-consent="embedded" data-src="https://..." hidden></iframe>
  *                   plus an element with data-consent-placeholder="embedded" (shown until allowed)
@@ -17,9 +21,9 @@
 	'use strict';
 
 	var KEY = 'techfiyr-consent';
-	var VERSION = 1;
+	var VERSION = 2;
 	var MAX_AGE_DAYS = 365;
-	var CATEGORIES = ['embedded'];
+	var CATEGORIES = ['analytics', 'embedded'];
 
 	// ---------- Storage ----------
 	function read() {
@@ -50,6 +54,11 @@
 
 	var state = read();
 
+	window.TechfiyrConsent = {
+		get: function () { return state; },
+		open: function () { openDialog(); }
+	};
+
 	// ---------- Apply choices to the page ----------
 	function apply() {
 		CATEGORIES.forEach(function (cat) {
@@ -63,6 +72,7 @@
 				el.hidden = on;
 			});
 		});
+		document.dispatchEvent(new CustomEvent('techfiyr:consent', { detail: state }));
 	}
 
 	// ---------- Banner ----------
@@ -74,8 +84,9 @@
 		'<div class="consent-banner_inner">' +
 			'<div class="consent-banner_text">' +
 				'<h2 class="consent-banner_title"><i class="fa-solid fa-cookie-bite" aria-hidden="true"></i> Your privacy, your choice</h2>' +
-				'<p>We don\'t use tracking or advertising cookies. With your permission we load Google Maps, which sets Google cookies. ' +
-				'You can change this any time in <b>Cookie settings</b>. Read our <a href="cookie-policy.html">Cookie Policy</a>.</p>' +
+				'<p>We never use advertising cookies. With your permission we use Google Analytics to see which pages are useful, ' +
+				'and load Google Maps on our contact page. Both set Google cookies. You can change this any time in <b>Cookie settings</b>. ' +
+				'Read our <a href="cookie-policy.html">Cookie Policy</a>.</p>' +
 			'</div>' +
 			'<div class="consent-banner_actions">' +
 				'<button type="button" class="consent-btn consent-btn_accept" data-consent-accept>Accept all</button>' +
@@ -98,6 +109,13 @@
 				'<p id="consent-necessary-desc">Remembers your cookie choice. Always on, because the site needs it to respect your choice.</p>' +
 			'</div>' +
 			'<input type="checkbox" class="consent-switch" role="switch" checked disabled aria-labelledby="consent-necessary-label" aria-describedby="consent-necessary-desc">' +
+		'</div>' +
+		'<div class="consent-option">' +
+			'<div class="consent-option_text">' +
+				'<h3 id="consent-analytics-label">Analytics</h3>' +
+				'<p id="consent-analytics-desc">Google Analytics counts visits and shows which pages are useful, so we can improve the site. Sets Google cookies (_ga).</p>' +
+			'</div>' +
+			'<input type="checkbox" class="consent-switch" role="switch" data-consent-toggle="analytics" aria-labelledby="consent-analytics-label" aria-describedby="consent-analytics-desc">' +
 		'</div>' +
 		'<div class="consent-option">' +
 			'<div class="consent-option_text">' +
