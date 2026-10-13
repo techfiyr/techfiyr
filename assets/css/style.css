@@ -31478,3 +31478,43 @@ div.slider-one_heading {
     display: none;
   }
 }
+
+/* ==========================================================================
+   Mobile polish
+   ========================================================================== */
+
+/* calendar month arrows were squeezed to ~11px wide on small phones */
+.booking-cal_arrow {
+  flex-shrink: 0;
+}
+
+/* section eyebrow dots must not wrap onto a second line */
+.sec-title_dots {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* reviews: slides share the tallest slide's height, so centre shorter reviews
+   instead of leaving one large empty block under them */
+@media (max-width: 991.98px) {
+  .testimonial-one_carousel .swiper-wrapper {
+    align-items: center;
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* hero buttons line up when they stack */
+  .slider-one_button {
+    gap: 12px;
+  }
+
+  .slider-one_button .theme-btn.ms-3 {
+    margin-left: 0 !important;
+  }
+
+  /* back-to-top sits closer to the corner so it covers less content */
+  .progress-wrap {
+    right: 16px;
+    bottom: 20px;
+  }
+}
