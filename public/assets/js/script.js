@@ -262,7 +262,8 @@
 	var mouseX = 0,
 		mouseY = 0;
 
-	TweenMax.to({}, 0.016, {
+	// Only run the 60fps cursor loop when the page has cursor elements (it warned every frame otherwise)
+	if (cursor.length || follower.length) TweenMax.to({}, 0.016, {
 	repeat: -1,
 	onRepeat: function() {
 		posX += (mouseX - posX) / 9;
@@ -803,6 +804,7 @@
 	}
 	
 	
+  if ($('.video-image').length) {
   let imageTl = gsap.timeline({
     scrollTrigger: {
       trigger: ".video-image",
@@ -817,6 +819,7 @@
 		scale: 1.15,
 		duration: 1,
 	})
+  }
 	
 	
 	//Typeit Text On Main Page

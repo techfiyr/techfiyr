@@ -300,7 +300,7 @@
 							<li><b>Your cookie choice</b>, stored in your own browser. See our <a href="cookie-policy.html">Cookie Policy</a>.</li>
 							<li><b>Google Maps</b> on our contact page loads only if you allow embedded content. Google may then set cookies and receive your IP address.</li>
 							<li><b>Google Analytics</b> (through Google Firebase) runs only if you allow analytics. It records the pages you view, how you arrived, your device and browser type and your approximate location (city or country), using the cookies listed in our <a href="cookie-policy.html">Cookie Policy</a>. Google Analytics 4 does not log or store IP addresses.</li>
-							<li><b>Visitor counter</b>: the counter in our footer adds one to a total and to your country when you arrive at the site. Your country is worked out by our host from your IP address at that moment; we don't store your IP address, set cookies or keep anything that identifies you. Only the totals per country are saved.</li>
+							<li><b>Visitor counter</b>: the counter in our footer counts unique visitors per country. Your country is worked out by our host from your IP address. To count you only once a day, we turn your IP address and browser type into a one-way code using a key that changes every day; the code cannot be turned back into your IP address, cannot recognise you on another day, and is deleted after two days. We don't store your IP address or set cookies. Only the totals per country are kept.</li>
 						</ul>
 						<p>We do not use advertising or social media tracking tools, and we do not build advertising profiles of visitors.</p>
 					</div>
@@ -317,7 +317,7 @@
 									<tr><td>Run, secure and fix the website</td><td>Server logs</td><td>Legitimate interest in a working, secure website (Art. 6(1)(f))</td></tr>
 									<tr><td>Show the map on our contact page</td><td>IP address, Google cookies</td><td>Your consent (Art. 6(1)(a)), which you can withdraw at any time</td></tr>
 									<tr><td>Understand how the site is used and improve it (Google Analytics)</td><td>Pages viewed, device and browser, approximate location, Google Analytics cookies</td><td>Your consent (Art. 6(1)(a)), which you can withdraw at any time</td></tr>
-									<tr><td>Show how many people visit and from which countries</td><td>Country (derived from your IP address at the time of the visit; the IP address is not stored)</td><td>Legitimate interest in simple, anonymous visit statistics (Art. 6(1)(f))</td></tr>
+									<tr><td>Show how many people visit and from which countries</td><td>Country and a daily one-way code made from your IP address and browser type (the IP address itself is not stored)</td><td>Legitimate interest in simple, anonymous visit statistics (Art. 6(1)(f))</td></tr>
 									<tr><td>Keep business and tax records</td><td>Invoices and related contact details</td><td>Legal obligation (Art. 6(1)(c))</td></tr>
 								</tbody>
 							</table>
@@ -345,7 +345,7 @@
 							<li><b>Client and project records</b>: for the length of our work together, then as long as tax and accounting law requires (usually up to 6 years).</li>
 							<li><b>Server logs</b>: for the limited period set by our hosting provider.</li>
 							<li><b>Google Analytics data</b>: 14 months, then deleted automatically by Google.</li>
-							<li><b>Visitor totals per country</b>: kept indefinitely; they contain no personal data.</li>
+							<li><b>Visitor counter codes</b>: deleted after two days. <b>Visitor totals per country</b>: kept indefinitely; they contain no personal data.</li>
 							<li><b>Your cookie choice</b>: 12 months in your browser, then we ask again.</li>
 						</ul>
 					</div>
@@ -428,7 +428,7 @@
 			<div class="auto-container">
 				<div class="footer-visitors" data-visitors hidden>
 					<div class="footer-visitors_stats">
-						<span class="footer-visitors_label">Visitors worldwide</span>
+						<span class="footer-visitors_label">Unique visitors</span>
 						<span class="footer-visitors_total" data-visitors-total>0</span>
 						<span class="footer-visitors_sub">from <b data-visitors-countries>0</b> countries</span>
 						<h2 class="footer-visitors_heading">Top countries</h2>
@@ -479,11 +479,11 @@
 	<script src="assets/vendor/typeit/jquery.typeit.js?v=20261003"></script>
 	<script src="assets/vendor/jquery-marquee/jquery.marquee.min.js?v=20261003"></script>
 	<script src="assets/vendor/jquery-one-page-nav/jquery.nav.js?v=20261003"></script>
-	<script src="assets/js/script.js?v=20261014"></script>
+	<script src="assets/js/script.js?v=20261015"></script>
 	<script src="assets/js/consent.js?v=20261014.2"></script>
 	<script src="firebase-config.js"></script>
 	<script src="assets/js/analytics.js?v=20261014"></script>
-	<script src="assets/js/visitors.js?v=20261014"></script>
+	<script src="assets/js/visitors.js?v=20261015"></script>
 
 
 </body>

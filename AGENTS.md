@@ -439,7 +439,7 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 |---|---|---|
 | Netlify build | `netlify.toml`, `scripts/build-config.mjs` | Build command writes `public/firebase-config.js` (git-ignored, served at `/firebase-config.js`) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
 | Google Analytics 4 | `assets/js/analytics.js` | Loads Firebase Analytics (SDK 13.0.0 from gstatic) **only after "analytics" consent**; sets `ga-disable-<ID>` and deletes `_ga` cookies when consent is withdrawn. |
-| Visitor counter API | `netlify/functions/visits.mjs` → `/api/visits` | No npm dependencies. POST counts a visit for the Netlify geo country, GET returns totals. Firestore document `stats/visits`. Only counts browsers on our own origins, skips bots. GET is edge-cached 60s. |
+| Visitor counter API | `netlify/functions/visits.mjs` → `/api/visits` | No npm dependencies. POST counts a **unique visitor per day** (HMAC of IP + user agent with a daily key, stored in `uniques/{day}-{hash}` with `expireAt`), GET returns totals from `stats/visits`. Only counts browsers on our own origins, skips bots. GET is edge-cached 60s. On failure it returns `{ step, status, detail }` so the cause shows in the browser's Network tab and in Netlify function logs. |
 | Footer counter + map | `assets/js/visitors.js`, `assets/vendor/jsvectormap/` (v1.7.0, MIT) | Counts a visit only on arrival from another site or a typed URL (not reloads or internal clicks). No cookies or storage. Map library loads when the footer is near view. Block stays hidden if the API fails. |
 
 **Netlify environment variables** (Site configuration → Environment variables). Never commit their values.
@@ -460,6 +460,7 @@ Rules:
 - The Firebase **web** config is public by design (it ships to every browser). Protect it by restricting the API key to `techfiyr.com/*`, `*.techfiyr.com/*` and `techfiyr.netlify.app/*` (Google Cloud Console → APIs & Services → Credentials). Don't mark the public vars as secret, or Netlify's secret scanning fails the build when they appear in `firebase-config.js`.
 - The **service account** key is a real secret: Functions scope only, marked secret, never in the repo or in browser code.
 - Firestore security rules must deny all client access (`allow read, write: if false;`); only the function writes, using the service account.
+- Firestore TTL policy (Firestore → TTL): collection group `uniques`, field `expireAt`. It deletes the daily visitor hashes after two days, as the Privacy Policy promises.
 - Local preview has no `/firebase-config.js` or `/api/visits`: analytics stays off and the footer counter stays hidden. Use `netlify dev` with a local `.env` (git-ignored) to test them.
 
 ### 7.5 Privacy, cookies and consent (mandatory)

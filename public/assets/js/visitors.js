@@ -1,8 +1,9 @@
 /*
  * Footer visitor counter and world map, on every page.
  * Data comes from the Netlify Function at /api/visits (netlify/functions/visits.mjs).
- * A visit is counted when someone arrives from another site or types the address
- * (not on internal clicks, reloads or back/forward), without cookies or local storage.
+ * Counts unique visitors: the browser asks to be counted when someone arrives from another site
+ * or types the address, and the server counts each person once per day (see visits.mjs).
+ * No cookies or local storage.
  * The map library (assets/vendor/jsvectormap) loads only when the footer scrolls near view.
  * If the API isn't available (e.g. local preview), the block stays hidden.
  */
@@ -103,7 +104,15 @@
 	}
 
 	fetch('/api/visits', { method: isNewVisit() ? 'POST' : 'GET' })
-		.then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+		.then(function (res) {
+			return res.json().catch(function () { return {}; }).then(function (data) {
+				if (!res.ok) throw data;
+				return data;
+			});
+		})
 		.then(render)
-		.catch(function () { /* API not available: keep the block hidden */ });
+		.catch(function (err) {
+			// API not available: keep the block hidden, but say why for whoever is debugging
+			if (window.console) console.warn('Visitor counter unavailable:', (err && (err.detail || err.error)) || err);
+		});
 })();
