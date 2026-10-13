@@ -14,12 +14,17 @@
  *   gallery      extra screenshots (optional)
  *   tags         tech stack
  *   links        any of { appStore, playStore, website } — leave out what doesn't exist
+ *   category     optional, schema.org app category for mobile apps (e.g. 'SportsApplication', 'BusinessApplication')
  *   sample       true = placeholder entry; delete these once real projects are added
+ *
+ * When you add a project, also add its details URL (project.html?p=<slug>) to sitemap.xml, the ItemList
+ * and <noscript> list in projects.html, and llms.txt, so search engines and AI crawlers find it.
  */
 window.TECHFIYR_PROJECTS = [
 	{
 		slug: 'matmaps',
 		type: 'mobile',
+		category: 'SportsApplication',
 		title: 'MatMaps',
 		summary: 'A UK combat sports platform that helps athletes find clubs and events, and gives gym owners the tools to run their club, on Android and the web.',
 		description: [

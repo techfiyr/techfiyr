@@ -1,0 +1,35 @@
+# robots.txt for https://techfiyr.com
+# Everything public is open to search engines and AI search / answer engines.
+# Pages that must stay out of results (coming-soon.html, 404.html) use <meta name="robots" content="noindex">
+# instead of Disallow, so crawlers can read that instruction.
+
+User-agent: *
+Allow: /
+
+# Search engines
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: DuckDuckBot
+User-agent: Applebot
+User-agent: YandexBot
+Allow: /
+
+# AI search, answer engines and assistants
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: DuckAssistBot
+User-agent: Amazonbot
+User-agent: meta-externalagent
+User-agent: MistralAI-User
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://techfiyr.com/sitemap.xml

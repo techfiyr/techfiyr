@@ -28,6 +28,87 @@
 
 	function detailsUrl(p) { return 'project.html?p=' + encodeURIComponent(p.slug); }
 
+	// ---------- SEO (project.html) ----------
+	var SITE = 'https://techfiyr.com/';
+
+	function absUrl(path) { return SITE + String(path || '').replace(/^\//, ''); }
+
+	function setRobots(value) {
+		var tag = document.querySelector('meta[name="robots"]');
+		if (tag) tag.setAttribute('content', value);
+	}
+
+	// Canonical, description, Open Graph/Twitter tags and JSON-LD for one project
+	function setSeo(p) {
+		var url = absUrl(detailsUrl(p));
+		var title = p.title + ' | TechFiyr Projects';
+		var image = absUrl(p.cover);
+		var values = { title: title, description: p.summary, url: url, image: image };
+
+		var desc = document.querySelector('meta[name="description"]');
+		if (desc) desc.setAttribute('content', p.summary);
+		document.querySelectorAll('[data-project-meta]').forEach(function (tag) {
+			var v = values[tag.getAttribute('data-project-meta')];
+			if (v) tag.setAttribute('content', v);
+		});
+
+		var canonical = document.createElement('link');
+		canonical.rel = 'canonical';
+		canonical.href = url;
+		document.head.appendChild(canonical);
+
+		var links = p.links || {};
+		var work = {
+			'@type': p.type === 'mobile' ? 'MobileApplication' : 'WebSite',
+			'@id': url + '#work',
+			name: p.title,
+			description: (p.description || [p.summary]).join(' '),
+			url: links.website || url,
+			image: [image].concat((p.gallery || []).map(absUrl)),
+			keywords: (p.tags || []).join(', '),
+			creator: { '@id': SITE + '#organization' }
+		};
+		if (p.type === 'mobile') {
+			if (p.category) work.applicationCategory = p.category;
+			work.operatingSystem = [links.playStore ? 'Android' : '', links.appStore ? 'iOS' : ''].filter(Boolean).join(', ') || undefined;
+			work.installUrl = links.playStore || links.appStore || undefined;
+		}
+		if (p.year) work.dateCreated = p.year;
+		if (p.client) work.sourceOrganization = { '@type': 'Organization', name: p.client };
+		var same = Object.keys(links).map(function (k) { return links[k]; });
+		if (same.length) work.sameAs = same;
+
+		var data = {
+			'@context': 'https://schema.org',
+			'@graph': [
+				{
+					'@type': 'WebPage',
+					'@id': url + '#webpage',
+					url: url,
+					name: title,
+					description: p.summary,
+					isPartOf: { '@id': SITE + '#website' },
+					mainEntity: { '@id': url + '#work' },
+					primaryImageOfPage: image,
+					inLanguage: 'en'
+				},
+				work,
+				{
+					'@type': 'BreadcrumbList',
+					itemListElement: [
+						{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+						{ '@type': 'ListItem', position: 2, name: 'Projects', item: SITE + 'projects.html' },
+						{ '@type': 'ListItem', position: 3, name: p.title, item: url }
+					]
+				}
+			]
+		};
+		var script = document.createElement('script');
+		script.type = 'application/ld+json';
+		script.textContent = JSON.stringify(data);
+		document.head.appendChild(script);
+	}
+
 	// ---------- Grid ----------
 	var grid = document.querySelector('[data-projects-grid]');
 	if (grid) {
@@ -92,10 +173,14 @@
 		if (!p) {
 			detail.hidden = true;
 			if (notFound) notFound.hidden = false;
+			setRobots('noindex, follow');
 			return;
 		}
 
 		document.title = p.title + ' | TechFiyr Projects';
+		setSeo(p);
+		var heading = document.querySelector('.page-title h1');
+		if (heading) heading.textContent = p.title;
 		var crumb = document.querySelector('[data-project-crumb]');
 		if (crumb) crumb.textContent = p.title;
 		var bigTitle = document.querySelector('[data-project-bigtitle]');

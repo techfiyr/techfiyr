@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	TechFiyr sitemap. Add every new indexable page here and update <lastmod> when a page's content changes.
+	Do not list noindex pages (coming-soon.html, 404.html).
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+	xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+	<url>
+		<loc>https://techfiyr.com/</loc>
+		<lastmod>2026-10-14</lastmod>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/og/techfiyr-og.jpg</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/resource/Mobile_App_Screen.jpeg</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/resource/Custom_Web_screen.jpeg</image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc>https://techfiyr.com/projects.html</loc>
+		<lastmod>2026-10-14</lastmod>
+	</url>
+	<url>
+		<loc>https://techfiyr.com/project.html?p=matmaps</loc>
+		<lastmod>2026-10-14</lastmod>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/projects/matmaps/cover.jpg</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/projects/matmaps/screens.jpg</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/projects/matmaps/features.jpg</image:loc>
+		</image:image>
+		<image:image>
+			<image:loc>https://techfiyr.com/assets/images/projects/matmaps/platform.jpg</image:loc>
+		</image:image>
+	</url>
+	<url>
+		<loc>https://techfiyr.com/contact.html</loc>
+		<lastmod>2026-10-14</lastmod>
+	</url>
+</urlset>

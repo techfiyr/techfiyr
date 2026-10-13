@@ -20795,7 +20795,9 @@ readers do not read off random characters that represent icons */
   min-height: 112px;
 }
 
-.marketing-one h1 {
+.marketing-one h1,
+.marketing-one .marketing-one_word {
+  position: relative;
   font-size: 110px;
   line-height: 1em;
   font-weight: 900;
@@ -20810,7 +20812,8 @@ readers do not read off random characters that represent icons */
   -o-transition: all 500ms ease;
 }
 
-.marketing-one h1:hover {
+.marketing-one h1:hover,
+.marketing-one .marketing-one_word:hover {
   background: linear-gradient(to right, #237A57, #C6E45A);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -31418,4 +31421,37 @@ a.fiverr-badge-tag:hover {
   top: -2px;
   content: ":";
   font-size: 22px;
+}
+
+/* ==========================================================================
+   One h1 per page (SEO): hero slides 2-3 use div.slider-one_heading,
+   so they copy the global h1 type settings here
+   ========================================================================== */
+
+div.slider-one_heading {
+  position: relative;
+  font-size: 72px;
+  line-height: 86px;
+  font-family: "Outfit", serif;
+}
+
+@media only screen and (max-width: 1240px) {
+  div.slider-one_heading {
+    font-size: 76px;
+    line-height: 90px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  div.slider-one_heading {
+    font-size: 60px;
+    line-height: 70px;
+  }
+}
+
+@media only screen and (max-width: 479px) {
+  div.slider-one_heading {
+    font-size: 40px;
+    line-height: 50px;
+  }
 }

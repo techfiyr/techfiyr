@@ -6,12 +6,87 @@
 	<title>Projects | TechFiyr Mobile App &amp; Web Portfolio</title>
 	<meta name="description"
 		content="Mobile apps and websites built by TechFiyr: live links, screenshots and project details.">
+	<link rel="canonical" href="https://techfiyr.com/projects.html">
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+	<meta name="theme-color" content="#237a57">
+
+	<!-- Open Graph / Social -->
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="TechFiyr">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:title" content="Projects | TechFiyr Mobile App &amp; Web Portfolio">
+	<meta property="og:description" content="Mobile apps and websites built by TechFiyr: live links, screenshots and project details.">
+	<meta property="og:url" content="https://techfiyr.com/projects.html">
+	<meta property="og:image" content="https://techfiyr.com/assets/images/og/techfiyr-og.jpg">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="630">
+	<meta property="og:image:alt" content="TechFiyr mobile app screens built with Flutter and React Native">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Projects | TechFiyr Mobile App &amp; Web Portfolio">
+	<meta name="twitter:description" content="Mobile apps and websites built by TechFiyr: live links, screenshots and project details.">
+	<meta name="twitter:image" content="https://techfiyr.com/assets/images/og/techfiyr-og.jpg">
+	<link rel="alternate" type="text/markdown" href="https://techfiyr.com/llms.txt" title="TechFiyr summary for AI assistants">
+
+	<!-- Structured data: keep these facts identical to index.html and llms.txt -->
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@graph": [
+			{
+				"@type": "CollectionPage",
+				"@id": "https://techfiyr.com/projects.html#webpage",
+				"url": "https://techfiyr.com/projects.html",
+				"name": "TechFiyr projects",
+				"description": "Mobile apps and websites designed and built by TechFiyr.",
+				"isPartOf": { "@id": "https://techfiyr.com/#website" },
+				"about": { "@id": "https://techfiyr.com/#organization" },
+				"inLanguage": "en",
+				"mainEntity": {
+					"@type": "ItemList",
+					"itemListElement": [
+						{ "@type": "ListItem", "position": 1, "url": "https://techfiyr.com/project.html?p=matmaps", "name": "MatMaps" }
+					]
+				}
+			},
+			{
+				"@type": "ProfessionalService",
+				"@id": "https://techfiyr.com/#organization",
+				"name": "TechFiyr",
+				"url": "https://techfiyr.com/",
+				"logo": "https://techfiyr.com/assets/images/logo.svg",
+				"email": "info@techfiyr.com",
+				"telephone": "+8801722364642",
+				"address": {
+					"@type": "PostalAddress",
+					"streetAddress": "341/342, Mirpur DOHS",
+					"addressLocality": "Dhaka",
+					"postalCode": "1216",
+					"addressCountry": "BD"
+				},
+				"sameAs": [
+					"https://github.com/techfiyr",
+					"https://www.fiverr.com/wahidsaurav",
+					"https://www.upwork.com/freelancers/sauravwahid"
+				]
+			},
+			{
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+						{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://techfiyr.com/" },
+						{ "@type": "ListItem", "position": 2, "name": "Projects", "item": "https://techfiyr.com/projects.html" }
+				]
+			}
+		]
+	}
+	</script>
 	<!-- Stylesheets -->
 	<link href="assets/css/bootstrap.css?v=20261003" rel="stylesheet">
-	<link href="assets/css/style.css?v=20261013.4" rel="stylesheet">
+	<link href="assets/css/style.css?v=20261014" rel="stylesheet">
 	<link href="assets/css/meanmenu.min.css?v=20261003" rel="stylesheet">
 	<link href="assets/css/responsive.css?v=20261003" rel="stylesheet">
 
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
 		rel="stylesheet">
@@ -190,6 +265,14 @@
 				</div>
 
 				<div class="projects-grid" data-projects-grid></div>
+				<!-- Crawler / no-JS fallback: keep in sync with assets/js/projects-data.js -->
+				<noscript>
+					<ul class="project-highlights">
+						<li><a href="project.html?p=matmaps">MatMaps</a>: a UK combat sports platform that helps
+							athletes find clubs and events, and gives gym owners the tools to run their club, on
+							Android and the web.</li>
+					</ul>
+				</noscript>
 				<p class="projects-empty" data-projects-empty hidden>No projects in this category yet.</p>
 			</div>
 		</section>
@@ -261,8 +344,8 @@
 	<script src="assets/js/pagenav.js?v=20261003"></script>
 	<script src="assets/js/script.js?v=20261003.2"></script>
 
-	<script src="assets/js/projects-data.js?v=20261013.3"></script>
-	<script src="assets/js/projects.js?v=20261013"></script>
+	<script src="assets/js/projects-data.js?v=20261014.3"></script>
+	<script src="assets/js/projects.js?v=20261014.3"></script>
 
 </body>
 

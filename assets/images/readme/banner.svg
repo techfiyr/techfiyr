@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+	<title id="title">TechFiyr: Mobile App &amp; Web Software Agency</title>
+	<desc id="desc">TechFiyr brand banner: we build high-performance mobile apps and custom web software. Flutter, React Native, Next.js, SaaS, UI/UX and CI/CD.</desc>
+	<defs>
+		<linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#237A57"/>
+			<stop offset="1" stop-color="#C6E45A"/>
+		</linearGradient>
+		<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#0B1A13"/>
+			<stop offset="1" stop-color="#191919"/>
+		</linearGradient>
+		<radialGradient id="glowGreen" cx="0.15" cy="0.1" r="0.6">
+			<stop offset="0" stop-color="#237A57" stop-opacity="0.55"/>
+			<stop offset="1" stop-color="#237A57" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="glowLime" cx="0.9" cy="0.95" r="0.5">
+			<stop offset="0" stop-color="#C6E45A" stop-opacity="0.22"/>
+			<stop offset="1" stop-color="#C6E45A" stop-opacity="0"/>
+		</radialGradient>
+		<pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+			<path d="M48 0H0V48" fill="none" stroke="#FFFFFF" stroke-opacity="0.04"/>
+		</pattern>
+		<clipPath id="frame">
+			<rect width="1280" height="420" rx="40"/>
+		</clipPath>
+	</defs>
+
+	<g clip-path="url(#frame)">
+		<rect width="1280" height="420" fill="url(#night)"/>
+		<rect width="1280" height="420" fill="url(#glowGreen)"/>
+		<rect width="1280" height="420" fill="url(#glowLime)"/>
+		<rect width="1280" height="420" fill="url(#grid)"/>
+
+		<!-- giant outlined word, like the site's page-title big text -->
+		<text x="1240" y="400" text-anchor="end" font-family="Raleway, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="150" font-weight="800" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1.5">TECHFIYR</text>
+
+		<!-- eyebrow with the three gradient dots -->
+		<circle cx="78" cy="96" r="6" fill="url(#brand)"/>
+		<circle cx="98" cy="96" r="6" fill="url(#brand)" opacity="0.7"/>
+		<circle cx="118" cy="96" r="6" fill="url(#brand)" opacity="0.4"/>
+		<text x="140" y="102" font-family="Manrope, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2" fill="#C6E45A">MOBILE APP &amp; WEB SOFTWARE AGENCY</text>
+
+		<!-- headline -->
+		<text x="72" y="180" font-family="Outfit, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#FFFFFF">We build high-performance</text>
+		<text x="72" y="248" font-family="Outfit, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="url(#brand)">mobile apps &amp; web software.</text>
+
+		<!-- pills -->
+		<g font-family="Manrope, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF">
+			<rect x="72" y="292" width="196" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.18"/>
+			<circle cx="96" cy="314" r="5" fill="#C6E45A"/>
+			<text x="110" y="320">Flutter &amp; React</text>
+
+			<rect x="282" y="292" width="210" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.18"/>
+			<circle cx="306" cy="314" r="5" fill="#C6E45A"/>
+			<text x="320" y="320">Full-Stack &amp; SaaS</text>
+
+			<rect x="506" y="292" width="216" height="44" rx="22" fill="#FFFFFF" fill-opacity="0.08" stroke="#FFFFFF" stroke-opacity="0.18"/>
+			<circle cx="530" cy="314" r="5" fill="#C6E45A"/>
+			<text x="544" y="320">CI/CD &amp; App Store</text>
+		</g>
+
+		<!-- rating badge -->
+		<g transform="translate(1000 82)">
+			<rect width="208" height="120" rx="28" fill="url(#brand)"/>
+			<text x="28" y="66" font-family="Outfit, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="48" font-weight="700" fill="#FFFFFF">5.0</text>
+			<text x="118" y="64" font-family="Arial, sans-serif" font-size="34" fill="#FFFFFF">★</text>
+			<text x="28" y="96" font-family="Manrope, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="1" fill="#FFFFFF">FIVERR RATING</text>
+		</g>
+	</g>
+</svg>
