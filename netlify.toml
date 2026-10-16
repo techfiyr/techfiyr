@@ -9,3 +9,64 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Extensionless URLs: /contact serves contact.html, /sitemap serves sitemap.xml, and so on.
+# Status 200 is a rewrite (the address bar keeps /contact), and the .html address keeps working too.
+# The query string is passed through, so /project?p=<slug> works like project.html?p=<slug>.
+# Canonical URLs stay on the .html addresses, so search engines see no duplicates.
+# Add a line here when a page is added to public/.
+
+[[redirects]]
+  from = "/index"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/projects"
+  to = "/projects.html"
+  status = 200
+
+[[redirects]]
+  from = "/project"
+  to = "/project.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/cookie-policy"
+  to = "/cookie-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/content-policy"
+  to = "/content-policy.html"
+  status = 200
+
+[[redirects]]
+  from = "/coming-soon"
+  to = "/coming-soon.html"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap"
+  to = "/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/robots"
+  to = "/robots.txt"
+  status = 200
+
+[[redirects]]
+  from = "/llms"
+  to = "/llms.txt"
+  status = 200

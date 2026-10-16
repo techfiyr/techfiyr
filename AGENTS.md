@@ -226,7 +226,7 @@ Copy an existing inner page (`contact.html` or `projects.html` is the best start
 | Portfolio | `.projects-section`, `.projects-grid`, `.project-hero`, `.project-body`, `.project-gallery` |
 | Map | `.map-one` with a titled `<iframe>` |
 
-When you add a page, also: add it to the main nav (all pages) if it is a top-level page, add it to `sitemap.xml`, and add internal links to it from relevant existing sections.
+When you add a page, also: add it to the main nav (all pages) if it is a top-level page, add it to `sitemap.xml`, add an extensionless rewrite (`/page` → `/page.html`, status 200) in `netlify.toml`, and add internal links to it from relevant existing sections.
 
 ---
 
@@ -381,10 +381,10 @@ Canonical organisation facts (keep identical everywhere: page copy, JSON-LD, foo
 	"url": "https://techfiyr.com/",
 	"logo": "https://techfiyr.com/assets/images/brand/logo.svg",
 	"email": "info@techfiyr.com",
-	"telephone": "+8801722364642",
+	"telephone": "+8801540659530",
 	"address": {
 		"@type": "PostalAddress",
-		"streetAddress": "341/342, Mirpur DOHS",
+		"streetAddress": "325, Mirpur DOHS",
 		"addressLocality": "Dhaka",
 		"postalCode": "1216",
 		"addressCountry": "BD"

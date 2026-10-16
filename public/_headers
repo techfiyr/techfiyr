@@ -9,10 +9,19 @@
 /robots.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
+/robots
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8
   Cache-Control: public, max-age=3600
+/sitemap
+  Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
 /llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+/llms
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
 /.well-known/security.txt
@@ -20,6 +29,8 @@
 
 # Placeholder page stays out of search results
 /coming-soon.html
+  X-Robots-Tag: noindex, nofollow
+/coming-soon
   X-Robots-Tag: noindex, nofollow
 
 # Generated at build time; must never be cached for long so env changes show up straight away
