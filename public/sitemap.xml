@@ -7,7 +7,7 @@
 	xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 	<url>
 		<loc>https://techfiyr.com/</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 		<image:image>
 			<image:loc>https://techfiyr.com/assets/images/og/techfiyr-og.jpg</image:loc>
 		</image:image>
@@ -20,11 +20,11 @@
 	</url>
 	<url>
 		<loc>https://techfiyr.com/projects.html</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 	</url>
 	<url>
 		<loc>https://techfiyr.com/project.html?p=matmaps</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 		<image:image>
 			<image:loc>https://techfiyr.com/assets/images/projects/matmaps/cover.jpg</image:loc>
 		</image:image>
@@ -40,18 +40,18 @@
 	</url>
 	<url>
 		<loc>https://techfiyr.com/contact.html</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 	</url>
 	<url>
 		<loc>https://techfiyr.com/privacy-policy.html</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 	</url>
 	<url>
 		<loc>https://techfiyr.com/cookie-policy.html</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 	</url>
 	<url>
 		<loc>https://techfiyr.com/content-policy.html</loc>
-		<lastmod>2026-10-14</lastmod>
+		<lastmod>2026-10-16</lastmod>
 	</url>
 </urlset>

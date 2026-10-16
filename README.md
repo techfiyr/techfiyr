@@ -224,7 +224,7 @@ Read **[AGENTS.md](AGENTS.md)** before changing anything. It covers the design s
 
 <a href="https://techfiyr.com/contact.html"><img src="https://img.shields.io/badge/Book_a_Free_Call-237A57?style=for-the-badge&labelColor=191919" alt="Book a free call"></a>
 
-📧 [info@techfiyr.com](mailto:info@techfiyr.com) · 📞 [+880 1722364642](tel:+8801540659530) · 📍 325, Mirpur DOHS, Dhaka, Bangladesh
+📧 [info@techfiyr.com](mailto:info@techfiyr.com) · 💬 [WhatsApp +880 1540659530](https://wa.me/8801540659530) · 📍 325, Mirpur DOHS, Dhaka, Bangladesh
 
 <a href="https://github.com/techfiyr"><img src="https://img.shields.io/badge/GitHub-191919?style=flat-square&logo=github&logoColor=white" alt="GitHub"></a>
 <a href="https://www.fiverr.com/wahidsaurav"><img src="https://img.shields.io/badge/Fiverr-191919?style=flat-square&logo=fiverr&logoColor=1DBF73" alt="Fiverr"></a>
