@@ -32158,3 +32158,56 @@ div.slider-one_heading {
     height: 200px;
   }
 }
+
+/* ==========================================================================
+   Team carousel (index.html #team)
+   ========================================================================== */
+.team-one .team-one_carousel .team-one_one,
+.team-one .team-one_carousel .team-one_one:hover {
+  min-height: 0;
+  margin-left: 0;
+  padding: 0;
+  -webkit-box-flex: 0 !important;
+  -ms-flex: 0 0 auto !important;
+  flex: 0 0 auto !important;
+}
+
+.team-one_arrow {
+  position: relative;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.team-one_carousel-prev,
+.team-one_carousel-next {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  font-size: 16px;
+  border-radius: 50%;
+  color: var(--white-color);
+  background-color: var(--main-color);
+  background-image: linear-gradient(180deg, #237A57, #C6E45A);
+  box-shadow: 0 4px 12px rgba(35, 122, 87, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.team-one_carousel-prev:hover,
+.team-one_carousel-next:hover {
+  background-image: linear-gradient(180deg, var(--black-color), var(--black-color));
+}
+
+.team-one_carousel-prev:focus-visible,
+.team-one_carousel-next:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-one_carousel-prev,
+  .team-one_carousel-next {
+    transition: none;
+  }
+}

@@ -494,6 +494,41 @@
 	
 	
 	
+	// Team One Slider (index.html #team): slides through the team, no autoplay for reduced motion
+	var teamReduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var slider = new Swiper('.team-one_carousel', {
+		slidesPerView: 1,
+		spaceBetween: 10,
+		loop: true,
+		autoplay: teamReduceMotion ? false : {
+			delay: 3000,
+			disableOnInteraction: false,
+			pauseOnMouseEnter: true
+		},
+		navigation: {
+			nextEl: '.team-one_carousel-next',
+			prevEl: '.team-one_carousel-prev',
+		},
+		speed: teamReduceMotion ? 0 : 800,
+		breakpoints: {
+			'1200': {
+				slidesPerView: 4,
+			},
+			'992': {
+				slidesPerView: 3,
+			},
+			'576': {
+				slidesPerView: 2,
+			},
+			'0': {
+				slidesPerView: 1,
+			},
+		},
+	});
+	
+	
+	
+	
 	// Testimonial Two Slider
 	var slider = new Swiper('.testimonial-two_carousel', {
 		slidesPerView: 2,
