@@ -38,7 +38,7 @@ scripts/                build scripts (Netlify build command)
 .github/assets/         README artwork, not deployed
 ```
 
-Rules: our code goes in `assets/css` and `assets/js`; libraries in `assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid.jpg`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
+Rules: our code goes in `assets/css` and `assets/js`; libraries in `assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid.png`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
 
 ---
 

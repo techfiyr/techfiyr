@@ -140,7 +140,7 @@ flowchart LR
 
 <div align="center">
 
-| <img src="public/assets/images/team/saurav-wahid.jpg" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
+| <img src="public/assets/images/team/saurav-wahid.png" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
 |:---:|:---:|:---:|:---:|:---:|
 | **[Saurav Wahid](https://www.linkedin.com/in/sauravwahid/)** | **[Viswajit Roy](https://www.linkedin.com/in/viswajitroy)** | **[Ponir Saha](https://www.linkedin.com/in/ponirsaha/)** | **[Md Masud Parvez](https://www.linkedin.com/in/masudparvez11/)** | **[Md. Awon-Uz-Zaman](https://www.linkedin.com/in/awonuzzaman/)** |
 | <sub>Co-Founder & Team Lead | Full Stack AI Native Engineer | Java | Spring | Web | Mobile App | DevOps</sub> | <sub>Co-Founder & Managing Director | Lead UI/UX Designer</sub> | <sub>Co-Founder & CTO | Software Architect | Production AI/RAG | Java | Spring | Python</sub> | <sub>Lead Android & iOS Developer</sub> | <sub>Android & iOS Developer</sub> |
