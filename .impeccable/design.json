@@ -1,0 +1,545 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T18:37:13+00:00",
+  "title": "Design System: TechFiyr",
+  "extensions": {
+    "colorMeta": {
+      "forest-green": {
+        "role": "primary",
+        "displayName": "Forest Green",
+        "canonical": "#237a57",
+        "tonalRamp": [
+          "#001204",
+          "#003117",
+          "#005131",
+          "#187250",
+          "#429570",
+          "#67b992",
+          "#8bdeb6",
+          "#b0ffdb"
+        ]
+      },
+      "fresh-lime": {
+        "role": "secondary",
+        "displayName": "Fresh Lime",
+        "canonical": "#c6e45a",
+        "tonalRamp": [
+          "#080e00",
+          "#202a00",
+          "#3b4900",
+          "#586b00",
+          "#768f00",
+          "#98b319",
+          "#bbd84d",
+          "#e0ff76"
+        ]
+      },
+      "mist-border": {
+        "role": "neutral",
+        "displayName": "Mist Border",
+        "canonical": "#dddddd",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "cloud-panel": {
+        "role": "neutral",
+        "displayName": "Cloud Panel",
+        "canonical": "#f2f2f2",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ink-black": {
+        "role": "neutral",
+        "displayName": "Ink Black",
+        "canonical": "#191919",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "body-grey": {
+        "role": "neutral",
+        "displayName": "Body Grey",
+        "canonical": "#666666",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "long-form-grey": {
+        "role": "neutral",
+        "displayName": "Long Form Grey",
+        "canonical": "#555f59",
+        "tonalRamp": [
+          "#060d09",
+          "#1f2722",
+          "#3b453f",
+          "#5a645e",
+          "#7b857f",
+          "#9da8a2",
+          "#c1ccc5",
+          "#e6f2eb"
+        ]
+      },
+      "muted-sage": {
+        "role": "neutral",
+        "displayName": "Muted Sage",
+        "canonical": "#6b7a72",
+        "tonalRamp": [
+          "#040e08",
+          "#1c2822",
+          "#38463f",
+          "#57655e",
+          "#77877e",
+          "#9aa9a1",
+          "#bdcec5",
+          "#e2f3ea"
+        ]
+      },
+      "field-grey": {
+        "role": "neutral",
+        "displayName": "Field Grey",
+        "canonical": "#f5f5f5",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "night-navy": {
+        "role": "tertiary",
+        "displayName": "Night Navy",
+        "canonical": "#00022a",
+        "tonalRamp": [
+          "#00042e",
+          "#0f224d",
+          "#2b406f",
+          "#496091",
+          "#6982b5",
+          "#8aa5db",
+          "#aec9ff",
+          "#dfefff"
+        ]
+      },
+      "footer-black": {
+        "role": "neutral",
+        "displayName": "Footer Black",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "footer-charcoal": {
+        "role": "neutral",
+        "displayName": "Footer Charcoal",
+        "canonical": "#222222",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "review-panel": {
+        "role": "neutral",
+        "displayName": "Review Panel",
+        "canonical": "#f6f7f8",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#242526",
+          "#414243",
+          "#606162",
+          "#818283",
+          "#a4a5a6",
+          "#c8c9ca",
+          "#edeeef"
+        ]
+      },
+      "sky-tint": {
+        "role": "neutral",
+        "displayName": "Sky Tint",
+        "canonical": "#dff8ff",
+        "tonalRamp": [
+          "#000e13",
+          "#14282e",
+          "#31464c",
+          "#50656b",
+          "#70878d",
+          "#92aab0",
+          "#b6ced5",
+          "#dbf4fb"
+        ]
+      },
+      "marketplace-green": {
+        "role": "tertiary",
+        "displayName": "Marketplace Green",
+        "canonical": "#1dbf73",
+        "tonalRamp": [
+          "#001301",
+          "#00320d",
+          "#005323",
+          "#007839",
+          "#009e55",
+          "#25c376",
+          "#59e99a",
+          "#93ffc3"
+        ]
+      },
+      "marketplace-green-text": {
+        "role": "tertiary",
+        "displayName": "Marketplace Green (text)",
+        "canonical": "#0c7c44",
+        "tonalRamp": [
+          "#001300",
+          "#003209",
+          "#00541e",
+          "#00753e",
+          "#36985e",
+          "#5dbc80",
+          "#83e1a3",
+          "#a8ffc7"
+        ]
+      },
+      "rating-gold": {
+        "role": "tertiary",
+        "displayName": "Rating Gold",
+        "canonical": "#ffbe0b",
+        "tonalRamp": [
+          "#160800",
+          "#362000",
+          "#593c00",
+          "#7f5a00",
+          "#aa7900",
+          "#d39a00",
+          "#febd06",
+          "#ffe34f"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The single h1 in heroes and page titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings in the section-title pattern."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card and block titles (h3–h6 scale)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default paragraph copy in Body Grey."
+      },
+      "body-long": {
+        "displayName": "Body Long-form",
+        "purpose": "Project detail pages, in Long-form Grey."
+      },
+      "label": {
+        "displayName": "Eyebrow",
+        "purpose": "Uppercase Forest Green section eyebrow."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Button labels, capitalised."
+      },
+      "outline-word": {
+        "displayName": "Outline Word",
+        "purpose": "Giant hollow decorative word; aria-hidden, never a heading."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-rest",
+        "value": "0 18px 50px rgba(25, 25, 25, 0.06)",
+        "purpose": "Project cards at rest (galleries use 0.08)."
+      },
+      {
+        "name": "card-lift",
+        "value": "0 28px 70px rgba(25, 25, 25, 0.12)",
+        "purpose": "Project cards on hover, paired with translateY(-6px)."
+      },
+      {
+        "name": "panel-large",
+        "value": "0 30px 70px rgba(25, 25, 25, 0.08)",
+        "purpose": "Large content cards and the booking widget."
+      },
+      {
+        "name": "image-float",
+        "value": "0 30px 80px rgba(25, 25, 25, 0.15)",
+        "purpose": "Feature photographs."
+      },
+      {
+        "name": "dialog",
+        "value": "0 30px 70px rgba(25, 25, 25, 0.18)",
+        "purpose": "Cookie banner and settings dialog."
+      },
+      {
+        "name": "green-glow",
+        "value": "0 4px 12px rgba(35, 122, 87, 0.25)",
+        "purpose": "Hover glow under green action buttons."
+      },
+      {
+        "name": "sticky-header",
+        "value": "0px 10px 15px rgba(0, 0, 0, 0.04)",
+        "purpose": "Header once fixed on scroll."
+      }
+    ],
+    "motion": [
+      {
+        "name": "standard",
+        "value": "all 0.3s ease",
+        "purpose": "Links, buttons, label swaps."
+      },
+      {
+        "name": "button-sweep",
+        "value": "800ms",
+        "purpose": "Reversed-gradient fill sweeping up behind button labels."
+      },
+      {
+        "name": "card-reveal",
+        "value": "all 500ms ease",
+        "purpose": "Service-card gradient expansion and 360° icon spin."
+      },
+      {
+        "name": "card-lift",
+        "value": "transform 300ms ease, box-shadow 300ms ease",
+        "purpose": "Card hover rise (0.3–0.4s)."
+      },
+      {
+        "name": "image-zoom",
+        "value": "transform 600ms ease",
+        "purpose": "Card image scale to 1.05 on hover."
+      },
+      {
+        "name": "dot-pulse",
+        "value": "zoom-in-out 3s infinite, 0.5s stagger",
+        "purpose": "Section-title gradient dots."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce)",
+        "purpose": "Every animation and transition has an override that disables it."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "479px"
+      },
+      {
+        "name": "sm",
+        "value": "599px"
+      },
+      {
+        "name": "mobile",
+        "value": "767.98px"
+      },
+      {
+        "name": "tablet",
+        "value": "991.98px"
+      },
+      {
+        "name": "desktop-sm",
+        "value": "1199px"
+      },
+      {
+        "name": "container",
+        "value": "1320px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Gradient pill for every primary action; reversed-gradient sweep and two-line label swap on hover.",
+      "html": "<a class=\"ds-btn\" href=\"#\"><span class=\"ds-btn-wrap\"><span class=\"ds-btn-one\">Book a free call</span><span class=\"ds-btn-two\">Book a free call</span></span></a>",
+      "css": ":host { --main-color: #237a57; --main-color-rgb: 35, 122, 87; --color-two: #c6e45a; --black-color: #191919; --black-color-rgb: 25, 25, 25; --white-color: #ffffff; } .ds-btn { position: relative; display: inline-block; overflow: hidden; padding: 16px 34px; border-radius: 50px; font-family: \"Manrope\", sans-serif; font-weight: 700; font-size: 15px; text-transform: capitalize; text-decoration: none; color: #fff; background-color: #237a57; background-image: linear-gradient(90deg, rgba(35, 122, 87, 1) 0%, rgba(198, 228, 90, 1) 100%); } .ds-btn::before { content: \"\"; position: absolute; width: 200%; height: 200%; top: -200%; left: 50%; transform: translateX(-50%); border-radius: 50%; z-index: 1; background-image: linear-gradient(90deg, rgba(198, 228, 90, 1) 0%, rgba(35, 122, 87, 1) 100%); transition: top 800ms; } .ds-btn:hover::before { top: -40%; } .ds-btn-wrap { position: relative; z-index: 2; display: inline-block; overflow: hidden; vertical-align: top; } .ds-btn-one, .ds-btn-two { display: block; transition: all 0.3s ease; } .ds-btn-two { position: absolute; top: 100%; } .ds-btn:hover .ds-btn-one { transform: translateY(-150%); } .ds-btn:hover .ds-btn-two { top: 50%; transform: translateY(-50%); } .ds-btn:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-btn::before, .ds-btn-one, .ds-btn-two { transition: none; } }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "filter-chip",
+      "description": "Pill filter on the projects page; green outline on hover, gradient fill when active.",
+      "html": "<div class=\"ds-chips\"><button type=\"button\" class=\"ds-chip is-active\">All <span>1</span></button><button type=\"button\" class=\"ds-chip\">Mobile <span>1</span></button><button type=\"button\" class=\"ds-chip\">Web <span>1</span></button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 12px; } .ds-chip { padding: 12px 24px; border: 1.5px solid rgba(35, 122, 87, 0.25); border-radius: 50px; font-family: \"Manrope\", sans-serif; font-size: 16px; font-weight: 700; color: #191919; background: #fff; cursor: pointer; transition: all 200ms ease; } .ds-chip span { margin-left: 4px; font-weight: 600; opacity: 0.55; } .ds-chip:hover { border-color: #237a57; color: #237a57; } .ds-chip.is-active { border-color: transparent; color: #fff; background: linear-gradient(110deg, #237a57, #5aa874 60%, #c6e45a); } .ds-chip:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Borderless 60px pill field on Field Grey, always with a real label.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\" for=\"ds-email\">Email address</label><input class=\"ds-input\" id=\"ds-email\" type=\"email\" placeholder=\"you@company.com\" autocomplete=\"email\"></div>",
+      "css": ".ds-field { display: grid; gap: 8px; max-width: 420px; } .ds-label { font-family: \"Manrope\", sans-serif; font-weight: 700; font-size: 15px; color: #191919; } .ds-input { display: block; width: 100%; height: 60px; padding: 10px 30px; border: none; border-radius: 50px; font-family: \"Manrope\", sans-serif; font-size: 16px; color: #666666; background-color: #f5f5f5; transition: all 300ms ease; box-sizing: border-box; } .ds-input:hover { background-color: #efefef; } .ds-input:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; }"
+    },
+    {
+      "name": "Main Navigation",
+      "kind": "nav",
+      "description": "Inline Outfit menu; labels roll to a green copy on hover, current item marked.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main\"><a href=\"#\" class=\"is-current\" aria-current=\"page\"><span class=\"ds-roll\" data-t=\"Home\">Home</span></a><a href=\"#\"><span class=\"ds-roll\" data-t=\"Projects\">Projects</span></a><a href=\"#\"><span class=\"ds-roll\" data-t=\"Contact\">Contact</span></a></nav>",
+      "css": ".ds-nav { display: flex; gap: 20px; background: #fff; padding: 0 20px; } .ds-nav a { display: block; padding: 30.5px 0; font-family: \"Outfit\", serif; font-size: 16px; line-height: 20px; color: #191919; text-decoration: none; text-transform: capitalize; } .ds-roll { display: block; overflow: hidden; height: 20px; position: relative; } .ds-roll::after { content: attr(data-t); position: absolute; left: 0; top: 100%; color: #237a57; transition: transform 0.3s ease; } .ds-roll { transition: color 0.3s ease; } .ds-nav a:hover .ds-roll { color: transparent; } .ds-nav a:hover .ds-roll::after { transform: translateY(-100%); } .ds-nav a.is-current { color: #237a57; } .ds-nav a:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-roll::after { transition: none; } }"
+    },
+    {
+      "name": "Section Title",
+      "kind": "custom",
+      "description": "Signature section opener: uppercase green eyebrow between pulsing gradient dots, then an Outfit headline.",
+      "html": "<div class=\"ds-sec\"><div class=\"ds-eyebrow\"><span class=\"ds-dots\"><i></i><i></i><i></i></span>Our services<span class=\"ds-dots\"><i></i><i></i><i></i></span></div><h2 class=\"ds-heading\">Apps and software built by one team</h2></div>",
+      "css": ".ds-sec { font-family: \"Manrope\", sans-serif; } .ds-eyebrow { display: flex; gap: 15px; align-items: center; font-weight: 700; font-size: 18px; color: #237a57; text-transform: uppercase; } .ds-dots i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 50px; background-image: linear-gradient(0deg, #237a57 0%, #c6e45a 100%); animation: ds-zoom 3s infinite; opacity: 0; } .ds-dots i:nth-child(2) { animation-delay: 0.5s; } .ds-dots i:nth-child(3) { animation-delay: 1s; } @keyframes ds-zoom { 0% { transform: scale(0); opacity: 0; } 20% { transform: scale(1.2); opacity: 1; } 50% { transform: scale(1); opacity: 1; } 80% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1); opacity: 0; } } .ds-heading { margin: 12px 0 0; font-family: \"Outfit\", serif; font-weight: 700; font-size: 48px; line-height: 58px; color: #191919; text-transform: capitalize; } @media (prefers-reduced-motion: reduce) { .ds-dots i { animation: none; opacity: 1; } }"
+    },
+    {
+      "name": "Service Card",
+      "kind": "card",
+      "refersTo": "service-card",
+      "description": "Ink Black 150px capsule; brand gradient expands across it and the icon spins on hover.",
+      "html": "<a class=\"ds-offer\" href=\"#\"><span class=\"ds-offer-icon\"><svg width=\"36\" height=\"36\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 18l6-6-6-6M8 6l-6 6 6 6\"/></svg></span><span class=\"ds-offer-arrow\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg></span><h4 class=\"ds-offer-title\">Custom Web Software &amp; SaaS</h4></a>",
+      "css": ".ds-offer { position: relative; display: block; max-width: 300px; padding: 75px 30px; border-radius: 150px; overflow: hidden; text-align: center; text-decoration: none; background-color: #191919; } .ds-offer::before { content: \"\"; position: absolute; inset: 0; opacity: 0; transform: scale(0.1, 1); transition: all 500ms ease; background-image: linear-gradient(90deg, rgba(35, 122, 87, 1) 0%, rgba(198, 228, 90, 1) 100%); } .ds-offer:hover::before { opacity: 1; transform: scale(1, 1); } .ds-offer-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; margin: 0 auto; border-radius: 50px; color: #fff; background-color: #191919; transition: all 500ms ease; } .ds-offer:hover .ds-offer-icon { transform: rotate(360deg); } .ds-offer-arrow { position: relative; display: block; margin: 35px 0; color: #c6e45a; } .ds-offer-title { position: relative; margin: 0; font-family: \"Manrope\", sans-serif; font-weight: 700; font-size: 22px; line-height: 30px; color: #fff; } .ds-offer:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-offer::before, .ds-offer-icon { transition: none; } }"
+    },
+    {
+      "name": "Project Card",
+      "kind": "card",
+      "refersTo": "project-card",
+      "description": "White 26px card with hairline, 16:10 media and a chip; lifts and zooms on hover.",
+      "html": "<a class=\"ds-project\" href=\"#\"><span class=\"ds-project-media\"><span class=\"ds-project-chip\">Android &amp; Web</span></span><span class=\"ds-project-body\"><h4 class=\"ds-project-title\">MatMaps</h4><p class=\"ds-project-text\">UK combat sports platform, live on Google Play.</p></span></a>",
+      "css": ".ds-project { display: flex; flex-direction: column; max-width: 360px; border: 1px solid rgba(35, 122, 87, 0.12); border-radius: 26px; overflow: hidden; text-decoration: none; background: #fff; box-shadow: 0 18px 50px rgba(25, 25, 25, 0.06); transition: transform 300ms ease, box-shadow 300ms ease; } .ds-project:hover { transform: translateY(-6px); box-shadow: 0 28px 70px rgba(25, 25, 25, 0.12); } .ds-project-media { position: relative; display: block; aspect-ratio: 16 / 10; background: linear-gradient(180deg, rgba(35, 122, 87, 0.06), rgba(198, 228, 90, 0.08)), #eef3f0; } .ds-project-chip { position: absolute; top: 16px; left: 16px; padding: 6px 14px; border-radius: 50px; font-family: \"Manrope\", sans-serif; font-size: 13px; font-weight: 700; color: #237a57; background: rgba(255, 255, 255, 0.92); box-shadow: 0 6px 18px rgba(25, 25, 25, 0.08); } .ds-project-body { display: block; padding: 24px 26px 28px; } .ds-project-title { margin: 0 0 6px; font-family: \"Outfit\", serif; font-weight: 700; font-size: 26px; line-height: 34px; color: #191919; } .ds-project-text { margin: 0; font-family: \"Manrope\", sans-serif; font-size: 16px; line-height: 1.7; color: #666666; } .ds-project:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-project { transition: none; } .ds-project:hover { transform: none; } }"
+    },
+    {
+      "name": "CTA Bar",
+      "kind": "custom",
+      "refersTo": "cta-bar",
+      "description": "150px capsule with white-to-sky gradient and lime border; heading left, gradient pill right.",
+      "html": "<div class=\"ds-cta\"><div><div class=\"ds-cta-title\">Have a project in mind?</div><h3 class=\"ds-cta-heading\">Let’s talk about your app</h3></div><a class=\"ds-cta-btn\" href=\"#\">Contact us</a></div>",
+      "css": ".ds-cta { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; padding: 40px 68px; border: 2px solid #c6e45a; border-radius: 150px; background-image: linear-gradient(90deg, #ffffff 0%, #dff8ff 100%); } .ds-cta-title { font-family: \"Manrope\", sans-serif; font-size: 16px; font-weight: 700; color: #191919; } .ds-cta-heading { margin: 10px 0 0; font-family: \"Outfit\", serif; font-weight: 700; font-size: 32px; line-height: 42px; color: #191919; } .ds-cta-btn { display: inline-block; padding: 20px 50px; border-radius: 50px; font-family: \"Manrope\", sans-serif; font-weight: 700; font-size: 15px; color: #fff; text-decoration: none; background-image: linear-gradient(90deg, rgba(35, 122, 87, 1) 0%, rgba(198, 228, 90, 1) 100%); transition: all 0.3s ease; } .ds-cta-btn:hover { background-image: linear-gradient(90deg, rgba(198, 228, 90, 1) 0%, rgba(35, 122, 87, 1) 100%); } .ds-cta-btn:focus-visible { outline: 2px solid #237a57; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Greenhouse Studio",
+    "overview": "Creative North Star: \"The Greenhouse Studio\"\n\nTechFiyr's site reads like a glasshouse where products are grown: a deep forest green flows into a fresh lime, and that 90° gradient is the brand's signature, spent on the elements that ask for action (buttons, the preloader, section-title dots, carousel arrows). The frames around it are soft and very round, like curved glass panes. Hero and page-title photos sit in a 50px rounded frame inset 20px from the viewport, CTAs and service cards are 150px capsules, and icons sit in circles. The mood is fresh, confident and approachable: bold Outfit headings carry the confidence, and the round geometry and lively hover motion keep it friendly.\n\nDepth comes from contrast before it comes from shadow. White content sections alternate with near-black feature blocks and a black-to-charcoal footer, and page-title photos sit under a 70% navy wash with one giant outlined Raleway word behind the heading. Density is generous: about 120px of vertical rhythm between sections on desktop, a 1320px container, and plenty of air around each heading.\n\nMotion belongs to the personality. Button labels swap on hover while a reversed gradient sweeps up behind them, nav labels roll, service-card icons spin, cards lift, a marquee band scrolls, odometer counters tick and the back-to-top ring fills. All of it switches off under prefers-reduced-motion.\n\nThe concept is fixed. New work extends this world; it does not redesign it.",
+    "keyCharacteristics": [
+      "Forest-green → lime 90° gradient as the single brand signature",
+      "Very round geometry: 50px pills and frames, 150px capsules, circular icons",
+      "High-contrast white / near-black section blocks",
+      "Navy-washed photo heroes with a giant outlined word",
+      "Uppercase green eyebrow flanked by three pulsing gradient dots",
+      "Lively, tactile hover motion, always with a reduced-motion fallback"
+    ],
+    "rules": [
+      {
+        "name": "The Gradient Signature Rule",
+        "body": "The forest → lime 90° gradient (linear-gradient(90deg, #237a57 0%, #c6e45a 100%)) is the brand mark. Its hover state is the same gradient reversed (lime → forest). It goes on action and identity elements, never on body text or headings.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lime Is Never Ink Rule",
+        "body": "Fresh Lime never appears as text on a light background, and small white text never sits over the lime end of the gradient.",
+        "section": "colors"
+      },
+      {
+        "name": "The Marketplace Quarantine Rule",
+        "body": "Marketplace Green appears only on Fiverr/Upwork badges and review tags. It is never a general UI colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Token-Only Rule",
+        "body": "Colours come from the :root variables (var(--main-color), rgba(var(--main-color-rgb), 0.15), var(--black-color)) or this list. Never add new hues, slate/zinc greys or purple/blue gradients. Note that --color-two-rgb is wrong in the CSS (a template leftover), so write 198, 228, 90 for alpha lime.",
+        "section": "colors"
+      },
+      {
+        "name": "The Three Families Rule",
+        "body": "Outfit for headings, Manrope for everything readable, Raleway only for hollow decoration. Never add a fourth family (no Inter, Roboto, system-ui or monospace UI text).",
+        "section": "typography"
+      },
+      {
+        "name": "The One H1 Rule",
+        "body": "Each page has exactly one h1. Hero slides 2–3 and marquee words are styled divs that look like headings but are not.",
+        "section": "typography"
+      },
+      {
+        "name": "The Contrast Before Shadow Rule",
+        "body": "If a block needs to stand apart, first try a section-colour change (white ↔ near-black). Only then reach for an ambient shadow, and never a hard, dark or coloured drop shadow other than the green glow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the forest → lime 90° gradient for primary actions and brand moments, reversed on hover.",
+      "Do keep geometry very round: 50px pills for buttons and fields, 150px capsules for CTA bars and service cards, 50% circles for icons.",
+      "Do alternate white and near-black blocks to create rhythm and depth before reaching for shadows.",
+      "Do open sections with the eyebrow-plus-dots section title and an Outfit headline.",
+      "Do reuse existing components and extend them with modifier classes (.cta-one.style-three) instead of forking them.",
+      "Do use Font Awesome 6 icons with aria-hidden=\"true\", inside circular holders where the template does.",
+      "Do keep text contrast at 4.5:1 or more (Muted Sage is the floor for normal-size grey text) and wrap every animation in a prefers-reduced-motion: reduce override."
+    ],
+    "donts": [
+      "Don't set Fresh Lime as text on light backgrounds, or put small white text over the lime end of the gradient.",
+      "Don't use Marketplace Green outside Fiverr/Upwork trust badges and review tags.",
+      "Don't add new colours, slate/zinc greys, indigo/violet/blue gradients, or new :root palettes.",
+      "Don't add fonts beyond Outfit, Manrope and Raleway.",
+      "Don't use emoji as icons, glassmorphism hero cards, bento grids, emoji pill badges, or gradient text on headings.",
+      "Don't use sharp-cornered buttons or fields, or hard, dark drop shadows.",
+      "Don't make outlined big words or marquee text into heading elements.",
+      "Don't use <style> blocks or inline style attributes, except background-image on template decoration elements."
+    ]
+  }
+}
