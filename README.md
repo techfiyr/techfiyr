@@ -165,6 +165,11 @@ cd techfiyr
 npm install
 npm run dev        # http://localhost:3000
 npm run build && npm start   # production build (service worker on)
+
+# or run it in the background
+npm run server:start         # dev server (add `-- prod` for the production build)
+npm run server:status
+npm run server:stop
 ```
 
 Netlify features (booking form submissions, headers and redirects, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.

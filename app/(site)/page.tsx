@@ -597,7 +597,8 @@ export default function HomePage() {
 			{/* About Section */}
 			{' '}
 			<section className="about-one" id="about">
-				<div className="about-one_vector" data-parallax="{&quot;y&quot; : 120}" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-3.png)' }}></div>
+				{/* parallax-scroll.js sets this element's transform on DOM ready, which can be just before React hydrates */}
+				<div className="about-one_vector" data-parallax="{&quot;y&quot; : 120}" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-3.png)' }} suppressHydrationWarning></div>
 				{' '}
 				<div className="about-one_pattern-layer" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-1.png)' }}></div>
 				{' '}

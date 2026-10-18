@@ -32295,3 +32295,13 @@ main:has(> .incredible-one:last-child) + .main-footer {
 .mobile-menu-visible .consent-banner {
   visibility: hidden;
 }
+
+/* ==========================================================================
+   Header top bar: brand icons (WhatsApp) need the Brands font; the template's
+   .icon rule forces the solid icon font, which has no WhatsApp glyph
+   ========================================================================== */
+.header-top_list li .icon.fa-brands,
+.header-top_list-two li .icon.fa-brands {
+  font-family: 'Font Awesome 6 Brands';
+  font-weight: 400;
+}

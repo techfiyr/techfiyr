@@ -8,7 +8,10 @@
     "prebuild": "node scripts/build-config.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "server:start": "bash scripts/server.sh start",
+    "server:stop": "bash scripts/server.sh stop",
+    "server:status": "bash scripts/server.sh status"
   },
   "engines": {
     "node": ">=20.9"

@@ -61,7 +61,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 			</div>
 			{/* End PageWrapper */}
 
-			<button type="button" className="progress-wrap" aria-label="Back to top">
+			{/* backtotop.js adds .active-progress on DOM ready when the page opens scrolled down, which can be just before React hydrates */}
+			<button type="button" className="progress-wrap" aria-label="Back to top" suppressHydrationWarning>
 				<svg className="progress-circle svg-content" aria-hidden="true" width="100%" height="100%" viewBox="-1 -1 102 102">
 					{/* backtotop.js sets the ring's stroke styles on DOM ready */}
 					<path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" suppressHydrationWarning />

@@ -60,6 +60,7 @@ Rules: page markup goes in `app/` and `components/`; our CSS in `public/assets/c
 | `npm run build` | Writes `public/firebase-config.js`, then builds and prerenders every page |
 | `npm start` | Serves the production build locally (service worker on) |
 | `npm run lint` | TypeScript check |
+| `npm run server:start` / `server:stop` / `server:status` | Runs the server in the background (`scripts/server.sh`). `npm run server:start -- prod` builds first and serves the production build. Uses port 3000, or the next free port if it is taken. PID and log in `.server/` |
 
 ---
 
