@@ -1,0 +1,29 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "lib/server/news.ts"
+        ],
+        "createdAt": "2026-10-18T16:23:30.713Z",
+        "reason": "agent: L90 is a regex that reads <img src> out of RSS feed HTML, not a rendered image"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "font awesome 6 free",
+        "createdAt": "2026-10-18T16:36:48.081Z",
+        "reason": "AGENTS.md: icons come from the bundled Font Awesome 6 icon font"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "font awesome 6 brands",
+        "createdAt": "2026-10-18T16:36:48.100Z",
+        "reason": "AGENTS.md: icons come from the bundled Font Awesome 6 icon font"
+      }
+    ]
+  }
+}

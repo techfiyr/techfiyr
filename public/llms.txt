@@ -31,6 +31,9 @@ Key facts:
 
 - [Home](https://techfiyr.com/): services, about, track record, client reviews, process and team
 - [Projects](https://techfiyr.com/projects): portfolio of shipped mobile apps and websites
+- [Products](https://techfiyr.com/products): apps, SaaS tools and templates made by TechFiyr, with features, platforms and pricing
+- [Blog](https://techfiyr.com/blog): guides from the TechFiyr team on app costs, timelines, Flutter, React Native, SaaS builds and store releases
+- [AI News](https://techfiyr.com/news): the top 10 AI stories of the day from TechCrunch, The Verge, MIT Technology Review, Ars Technica, WIRED, OpenAI, Google DeepMind and Google AI, picked every morning (headlines link to the original articles)
 - [Contact](https://techfiyr.com/contact): book a free discovery call, email, phone and office address
 - [Privacy Policy](https://techfiyr.com/privacy-policy): what personal data TechFiyr collects, why, who it is shared with, and your GDPR/CCPA rights
 - [Cookie Policy](https://techfiyr.com/cookie-policy): no advertising cookies; Google Analytics and Google Maps load only with consent

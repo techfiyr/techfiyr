@@ -13,16 +13,17 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 
 | Item | Value |
 |---|---|
-| Stack | **Next.js 16 (App Router) + React 19 + TypeScript**, every page prerendered to static HTML at build time. The design layer is unchanged: the template's own CSS (`public/assets/css`) and jQuery/vanilla behaviour scripts (`public/assets/js`, `public/assets/vendor`). Installable PWA with a service worker (`public/sw.js`). One Netlify Function powers the visitor counter. |
+| Stack | **Next.js 16 (App Router) + React 19 + TypeScript**, every page prerendered to static HTML at build time. The design layer is unchanged: the template's own CSS (`public/assets/css`) and jQuery/vanilla behaviour scripts (`public/assets/js`, `public/assets/vendor`). Installable PWA with a service worker (`public/sw.js`). Netlify Functions power the visitor counter and the daily AI news schedule. A built-in CMS at `/admin` (section 7.8) manages the blog, products and AI news in Firestore. |
 | Website root | `public/` holds static files served from the site root (`/assets/...`, `llms.txt`, `robots.txt`, `sw.js`). Pages live in `app/`. **Asset paths in this file (`assets/...`) are relative to `public/`.** |
 | Base template | "iThub" multipurpose business HTML template, customised for TechFiyr |
 | Hosting | Netlify with its Next.js runtime (`netlify.toml`: build, legacy redirects, cache headers). Netlify Forms for the booking form (declared in `public/__forms.html`). |
 | Production domain | `https://techfiyr.com` (use it for canonical, Open Graph and JSON-LD URLs) |
-| Pages (routes) | `/` `app/(site)/page.tsx`, `/projects`, `/projects/<slug>` (one static page per project), `/contact`, `/privacy-policy`, `/cookie-policy`, `/content-policy`, plus stand-alone `/coming-soon`, `/offline` (PWA fallback) and the 404 page (`app/not-found.tsx`). Old `.html` addresses 301-redirect to these. |
+| Pages (routes) | `/` `app/(site)/page.tsx`, `/projects`, `/projects/<slug>` (one static page per project), `/products`, `/products/<slug>`, `/blog`, `/blog/<slug>`, `/news` (CMS content, static pages refreshed on save), `/contact`, `/privacy-policy`, `/cookie-policy`, `/content-policy`, plus stand-alone `/coming-soon`, `/offline` (PWA fallback) and the 404 page (`app/not-found.tsx`). Old `.html` addresses 301-redirect to these. |
 | Main stylesheet | `assets/css/style.css` (template CSS plus all TechFiyr additions at the end) and `assets/css/responsive.css` (template breakpoints), linked from `app/(site)/layout.tsx` |
 | Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. npm packages: only `next`, `react`, `react-dom` and TypeScript types. |
 | Portfolio data | `lib/projects.ts` (single source of truth for projects) |
 | Company facts | `lib/site.ts` (contact details, shared JSON-LD nodes, nav items, asset versions) |
+| CMS content | Blog posts, products and AI news in Firestore, edited at `/admin` (section 7.8). Types in `lib/content.ts`, reads in `lib/server/content.ts`. |
 
 ### Repository layout
 
@@ -33,8 +34,16 @@ app/                    Next.js routes
   (site)/**/page.tsx    pages with the header and footer
   not-found.tsx, offline/, coming-soon/   stand-alone pages (own inline styles from styles/)
   manifest.ts, sitemap.ts                 /manifest.webmanifest, /sitemap.xml
-components/             Header, NavMenu, Footer, PageTitle, ProjectsGrid, JsonLd, SiteRuntime
-lib/                    site.ts (facts, nav, versions), seo.ts (metadata), projects.ts (portfolio)
+  admin/                the admin panel (CMS): login/, (panel)/ dashboard, blog, products, news; actions.ts
+  api/news/refresh/     daily AI news refresh (called by netlify/functions/news-daily.mjs)
+  media/[...path]/      /media/...: images uploaded in the admin panel
+components/             Header, NavMenu, Footer, PageTitle, ProjectsGrid, ContentCards, JsonLd, SiteRuntime
+  admin/                admin panel components (forms, Markdown editor, dashboard parts)
+lib/                    site.ts (facts, nav, versions), seo.ts (metadata), projects.ts (portfolio),
+                        content.ts (CMS types), markdown.tsx (Markdown to React)
+  server/               server-only: store (Firestore / local files), auth + session, content reads,
+                        news fetcher, dashboard data (insights), media uploads
+proxy.ts                sends signed-out visitors from /admin to the login page
 styles/                 CSS of the stand-alone pages only
 public/                 static files served at the site root
   assets/css/           style.css, responsive.css (our styles)
@@ -77,7 +86,7 @@ AI agents tend to produce a recognisable "default" look and code style. **None o
 - Generic "SaaS landing page" patterns: glassmorphism hero cards, bento grids, pill badges with emoji, "✨" or any emoji used as icons, gradient text on every heading, centred 3-column feature grids with rounded-xl cards and soft shadows.
 - Emoji as icons. Icons come from **Font Awesome 6** (already bundled), e.g. `<i class="fa-solid fa-check" aria-hidden="true"></i>`.
 - New CSS reset, new `:root` palettes, new design-token files, or new global stylesheets.
-- `<style>` blocks or `style` props in site pages. The one existing exception is `style={{ backgroundImage: 'url(/assets/...)' }}` on template decoration/background elements; keep that pattern only for background images. (The stand-alone 404, offline and coming-soon pages carry their own inline CSS from `styles/` on purpose: they must render without the site stylesheets.)
+- `<style>` blocks or `style` props in site pages. (The admin panel has its own stylesheet, `assets/css/admin.css`, with the site's tokens; its charts set bar sizes inline. Keep admin styles there, never in `style.css`.) The one existing exception is `style={{ backgroundImage: 'url(/assets/...)' }}` on template decoration/background elements; keep that pattern only for background images. (The stand-alone 404, offline and coming-soon pages carry their own inline CSS from `styles/` on purpose: they must render without the site stylesheets.)
 - Placeholder copy such as "Lorem ipsum", "Acme Inc.", "John Doe", fake testimonials, fake statistics, or fake client logos.
 
 ### Code style to follow (match the existing files)
@@ -480,6 +489,43 @@ Rules:
 - Firestore security rules must deny all client access (`allow read, write: if false;`); only the function writes, using the service account.
 - Firestore TTL policy (Firestore → TTL): collection group `uniques`, field `expireAt`. It deletes the daily visitor hashes after two days, as the Privacy Policy promises.
 - Local preview has no `/firebase-config.js` or `/api/visits`: analytics stays off and the footer counter stays hidden. Use `netlify dev` with a local `.env` (git-ignored) to test them.
+
+### 7.8 Admin panel (CMS): blog, products, AI news
+
+| Piece | File | Notes |
+|---|---|---|
+| Admin panel | `app/admin/` | `/admin/login`, then dashboard, Blog, Products, AI news. Own stylesheet `assets/css/admin.css` (site tokens, no template CSS/JS). noindex, never cached (`proxy.ts`), disallowed in `robots.txt`, skipped by the service worker. |
+| Sign-in | `lib/server/auth.ts`, `lib/server/session.ts` | Firebase Authentication email/password, checked server-side; only addresses in `ADMIN_EMAILS`. Session: signed HttpOnly cookie `tf_admin` (12 h, listed in the Cookie Policy). Every page and server action checks it. Nobody can register. |
+| Content store | `lib/server/store.ts` | Firestore REST with the service account: collections `posts`, `products`, `news`, `meta`. Without credentials in development: JSON files in `.data/` (git-ignored). |
+| Public pages | `app/(site)/blog`, `products`, `news` | Static, cached with tags `posts`/`products`/`news`; the admin actions call `updateTag` + `revalidatePath`, so a save is live on the next visit. New slugs render on first visit. Sitemap updates itself. |
+| Images | `lib/server/media.ts`, `app/media/[...path]/route.ts` | Uploaded to the private Firebase Storage bucket, served from `/media/...` (first party, one-year cache, unique names). Max 5 MB. |
+| AI news | `lib/server/news.ts`, `netlify/functions/news-daily.mjs`, `app/api/news/refresh/route.ts` | Every day 00:30 UTC (06:30 Dhaka): reads the AI feeds in `FEEDS`, picks the top 10 (last 36 h, max 2 per publisher, duplicates merged, nothing repeated from earlier days), keeps 30 days. Publishes only headline, publisher, date, the feed's summary and a link; never article text or publisher images. Add or remove sources in `FEEDS` (check the feed URL returns RSS/Atom). |
+| Dashboard | `lib/server/insights.ts` | Visitors (Firestore `stats/visits` + `stats/daily-YYYY-MM`), Search Console performance and URL Inspection per sitemap URL, GA4 report, IndexNow status. Each source is optional and shows its own setup steps. |
+| IndexNow | `lib/server/insights.ts`, `app/indexnow-key.txt/route.ts` | Publishing, updating or deleting pings Bing/Yandex/Seznam/Naver with the changed URLs (production only). |
+
+**Environment variables for the CMS** (in addition to section 7.6; scope Functions unless noted):
+
+| Key | Secret? | Value |
+|---|---|---|
+| `ADMIN_EMAILS` | No | The admin's email address (comma-separate several) |
+| `SESSION_SECRET` | **Yes** | 32+ random characters (`openssl rand -base64 48`) |
+| `CRON_SECRET` | **Yes** | 24+ random characters; the daily news job sends it |
+| `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | as 7.6 | Give them the **Builds** scope too (keep the key marked secret), so `npm run build` prerenders the blog, products and news with real content; otherwise those pages start empty after each deploy until the first save or for up to an hour |
+| `FIREBASE_API_KEY` | No | Also needed in the Functions scope (password check) |
+| `FIREBASE_STORAGE_BUCKET` | No | Also needed in the Functions scope (uploads) |
+| `GSC_SITE_URL` | No | `sc-domain:techfiyr.com` (domain property) or `https://techfiyr.com/` |
+| `GA4_PROPERTY_ID` | No | GA4 property ID, digits only |
+| `INDEXNOW_KEY` | No | 32 random letters/digits; served at `/indexnow-key.txt` |
+
+**One-time setup:**
+1. Firebase console → Authentication → Sign-in method: enable Email/Password. Users → Add user with the admin email and a strong password. Put that email in `ADMIN_EMAILS`.
+2. Firebase console → Storage: create the default bucket. Keep its rules closed (`allow read, write: if false;`); the site reads and writes with the service account.
+3. Google Cloud Console → IAM: the service account needs **Cloud Datastore User** and **Storage Object Admin** on the project.
+4. Search Console → techfiyr.com → Settings → Users and permissions: add the service account email (Restricted). Submit `https://techfiyr.com/sitemap.xml` there and in Bing Webmaster Tools.
+5. Google Analytics → Admin → Property access management: add the service account email as Viewer.
+6. Firestore: no new rules (clients have no access). Optional TTL is not needed for `news`: the job deletes stories older than 30 days.
+
+**Rules:** content written in the admin panel follows section 7.0 like any page (answer-first summary, question headings, real author, no invented facts). Never fill the CMS with sample or placeholder posts or products on production. A product is something TechFiyr really offers.
 
 ### 7.5 Privacy, cookies and consent (mandatory)
 

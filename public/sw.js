@@ -4,14 +4,15 @@
  *
  *   /_next/static/*, /assets/*, Google Fonts   cache first (file names or ?v= change when content does)
  *   pages and Next.js page data (RSC)          network first, saved copy if the network is slow or down
- *   anything else (/api/visits, analytics,     not touched
+ *   /media/* (CMS images, unique names)        cache first
+ *   anything else (/admin, /api/*, analytics,  not touched
  *   Google Maps, other sites, POST requests)
  *
  * Bump VERSION when this file's caching rules change; old caches are deleted on activate.
  */
 'use strict';
 
-var VERSION = '2026-10-18.1';
+var VERSION = '2026-10-18.2';
 var STATIC_CACHE = 'techfiyr-static-' + VERSION;
 var PAGE_CACHE = 'techfiyr-pages-' + VERSION;  // HTML documents only
 var DATA_CACHE = 'techfiyr-data-' + VERSION;   // Next.js page data for client-side navigation
@@ -60,7 +61,7 @@ self.addEventListener('message', function (event) {
 function isStatic(url) {
 	if (FONT_HOSTS.indexOf(url.hostname) > -1) return true;
 	if (url.origin !== self.location.origin) return false;
-	return url.pathname.indexOf('/_next/static/') === 0 || url.pathname.indexOf('/assets/') === 0;
+	return url.pathname.indexOf('/_next/static/') === 0 || url.pathname.indexOf('/assets/') === 0 || url.pathname.indexOf('/media/') === 0;
 }
 
 function isPageData(request, url) {
@@ -114,7 +115,8 @@ self.addEventListener('fetch', function (event) {
 		event.respondWith(cacheFirst(request));
 		return;
 	}
-	if (url.origin !== self.location.origin || url.pathname.indexOf('/api/') === 0) return;
+	// the admin panel is private and always live: never cached
+	if (url.origin !== self.location.origin || url.pathname.indexOf('/api/') === 0 || url.pathname.indexOf('/admin') === 0) return;
 
 	if (request.mode === 'navigate') {
 		event.respondWith(networkFirst(request, PAGE_CACHE, OFFLINE_URL));

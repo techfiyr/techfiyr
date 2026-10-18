@@ -172,6 +172,17 @@ npm run server:status
 npm run server:stop
 ```
 
+### Admin panel (CMS)
+
+`/admin` manages the blog, products and the daily AI news, and shows visitors, Google Search and indexing. Locally, without Firebase credentials, content is saved in `.data/` and you sign in with the address and password from a git-ignored `.env.local`:
+
+```bash
+ADMIN_EMAILS=you@example.com
+ADMIN_LOCAL_PASSWORD=choose-a-local-password
+```
+
+Production setup (Firebase Authentication, Storage, Search Console, the daily schedule) is in [AGENTS.md](AGENTS.md), section 7.8.
+
 Netlify features (booking form submissions, headers and redirects, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.
 
 ### Project structure

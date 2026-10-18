@@ -30,7 +30,7 @@ const structuredData = {
 				"about": {
 					"@id": "https://techfiyr.com/#organization"
 				},
-				"dateModified": "2026-10-14",
+				"dateModified": "2026-10-18",
 				"inLanguage": "en"
 			},
 			{
@@ -82,7 +82,7 @@ export default function CookiePolicyPage() {
 					<div className="auto-container">
 						<p className="date">
 							Last updated:{' '}
-							<time dateTime="2026-10-14">14 October 2026</time>
+							<time dateTime="2026-10-18">18 October 2026</time>
 						</p>
 						{' '}
 						<div className="privacy-summary">
@@ -153,6 +153,15 @@ export default function CookiePolicyPage() {
 											<td>Strictly necessary</td>
 											<td>Remembers your cookie choice so we don't ask on every page</td>
 											<td>12 months</td>
+										</tr>
+										<tr>
+											<td>
+												<code>tf_admin</code>
+											</td>
+											<td>TechFiyr (first party)</td>
+											<td>Strictly necessary</td>
+											<td>Keeps the site administrator signed in to the admin panel. Set only after the administrator signs in; visitors never receive it</td>
+											<td>12 hours</td>
 										</tr>
 										<tr>
 											<td>

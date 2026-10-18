@@ -1,10 +1,13 @@
 # robots.txt for https://techfiyr.com
 # Everything public is open to search engines and AI search / answer engines.
 # Pages that must stay out of results (coming soon, offline, 404) use <meta name="robots" content="noindex">
-# instead of Disallow, so crawlers can read that instruction.
+# instead of Disallow, so crawlers can read that instruction. The private admin panel and the API are
+# disallowed for every crawler (they also send noindex).
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 # Search engines
 User-agent: Googlebot

@@ -8,7 +8,8 @@
  * HMAC with a key that changes every day and is never stored. Only that hash is saved (in
  * Firestore "uniques", with an expireAt date for a TTL policy), so the same person is counted
  * once per day and cannot be recognised on another day. Country comes from Netlify geolocation.
- * Totals live in one Firestore document (stats/visits) and are updated with atomic increments.
+ * Totals live in one Firestore document (stats/visits) and are updated with atomic increments;
+ * stats/daily-YYYY-MM keeps the count per day for the admin dashboard (no personal data).
  *
  * No npm dependencies: a Google service account signs its own OAuth token with node:crypto.
  * Credentials come from Netlify environment variables (never commit them):
@@ -108,6 +109,7 @@ async function readStats(token) {
 // Creates the visitor's hash for today and increments the totals in one atomic commit.
 // If the hash already exists, the commit fails as a whole and nothing is counted.
 async function countUniqueVisit(token, visitorId, country) {
+	const day = new Date().toISOString().slice(0, 10);
 	const expireAt = new Date(Date.now() + 2 * 864e5).toISOString();
 	const res = await fetch(API + root() + ':commit', {
 		method: 'POST',
@@ -127,6 +129,12 @@ async function countUniqueVisit(token, visitorId, country) {
 						{ fieldPath: 'countries.' + country, increment: { integerValue: '1' } },
 						{ fieldPath: 'updated', setToServerValue: 'REQUEST_TIME' }
 					]
+				},
+				{
+					// visitors per day for the admin dashboard: stats/daily-YYYY-MM, one field per day (d01..d31)
+					update: { name: root() + '/stats/daily-' + day.slice(0, 7), fields: {} },
+					updateMask: { fieldPaths: [] },
+					updateTransforms: [{ fieldPath: 'd' + day.slice(8), increment: { integerValue: '1' } }]
 				}
 			]
 		})

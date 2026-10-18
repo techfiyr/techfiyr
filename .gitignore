@@ -18,3 +18,6 @@ next-env.d.ts
 
 # Local server state from scripts/server.sh (PID, port, log)
 .server/
+
+# CMS content and uploads in local development without Firebase (lib/server/store.ts)
+.data/
