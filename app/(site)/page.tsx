@@ -209,17 +209,17 @@ export default function HomePage() {
 										{' '}
 										<div className="slider-one_features">
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Flutter &amp; React Native
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Full-Stack Web &amp; SaaS
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}CI/CD &amp; App Store Deploy
 											</span>
 										</div>
@@ -239,7 +239,8 @@ export default function HomePage() {
 													{' '}
 													<span className="text-two">View Portfolio</span>
 												</span>
-											</a>
+											<span className="sr-only">{' '}(opens in a new tab)</span>
+										</a>
 										</div>
 									</div>
 								</div>
@@ -265,17 +266,17 @@ export default function HomePage() {
 										{' '}
 										<div className="slider-one_features">
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Next.js &amp; React
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Node.js &amp; Cloud APIs
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Pixel-Perfect UI
 											</span>
 										</div>
@@ -313,17 +314,17 @@ export default function HomePage() {
 										{' '}
 										<div className="slider-one_features">
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Rapid Turnaround
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Agile Sprints
 											</span>
 											{' '}
 											<span className="slider-one_feature-item">
-												<i className="fa-solid fa-circle-check"></i>
+												<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 												{' '}Dedicated Tech Support
 											</span>
 										</div>
@@ -352,7 +353,7 @@ export default function HomePage() {
 					<div className="button">
 						<a className="service-btn" href="#testimonial">
 							Client Reviews{' '}
-							<i className="fa-arrow-right"></i>
+							<i className="fa-arrow-right" aria-hidden="true"></i>
 						</a>
 					</div>
 					{' '}
@@ -391,22 +392,22 @@ export default function HomePage() {
 								<div className="offer-one_images_outer">
 									{/* Image 1 */}
 									<div className="offer-one_image active">
-										<img loading="lazy" decoding="async" src="/assets/images/services/mobile-app-development.jpg" alt="Mobile App Development" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/mobile-app-development.jpg" alt="Mobile App Development" />
 									</div>
 									{/* Image 2 */}
 									{' '}
 									<div className="offer-one_image two">
-										<img loading="lazy" decoding="async" src="/assets/images/services/web-software-saas.jpg" alt="Web Software &amp; SaaS" />
+										<img width="959" height="766" loading="lazy" decoding="async" src="/assets/images/services/web-software-saas.jpg" alt="Web Software &amp; SaaS" />
 									</div>
 									{/* Image 3 */}
 									{' '}
 									<div className="offer-one_image three">
-										<img loading="lazy" decoding="async" src="/assets/images/services/ui-ux-design.jpg" alt="UI/UX Product Design" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/ui-ux-design.jpg" alt="UI/UX Product Design" />
 									</div>
 									{/* Image 4 */}
 									{' '}
 									<div className="offer-one_image four">
-										<img loading="lazy" decoding="async" src="/assets/images/services/backend-cloud-cicd.jpg" alt="Backend, Cloud &amp; CI/CD Pipelines" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/backend-cloud-cicd.jpg" alt="Backend, Cloud &amp; CI/CD Pipelines" />
 									</div>
 								</div>
 								{/* Award Box */}
@@ -445,7 +446,7 @@ export default function HomePage() {
 											<span className="offer-one_number">1</span>
 											{' '}
 											<div className="offer-one_icon">
-												<i className="fa-solid fa-mobile-screen-button"></i>
+												<i className="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
 											</div>
 										</div>
 										{' '}
@@ -471,8 +472,8 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact">
-											<img loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="Arrow" />
+										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Mobile App Design & Development">
+											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
 									{/* Service 2 */}
@@ -482,7 +483,7 @@ export default function HomePage() {
 											<span className="offer-one_number">2</span>
 											{' '}
 											<div className="offer-one_icon">
-												<i className="fa-solid fa-laptop-code"></i>
+												<i className="fa-solid fa-laptop-code" aria-hidden="true"></i>
 											</div>
 										</div>
 										{' '}
@@ -508,8 +509,8 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact">
-											<img loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="Arrow" />
+										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Custom Web Software & SaaS">
+											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
 									{/* Service 3 */}
@@ -519,7 +520,7 @@ export default function HomePage() {
 											<span className="offer-one_number">3</span>
 											{' '}
 											<div className="offer-one_icon">
-												<i className="fa-solid fa-pen-nib"></i>
+												<i className="fa-solid fa-pen-nib" aria-hidden="true"></i>
 											</div>
 										</div>
 										{' '}
@@ -545,8 +546,8 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact">
-											<img loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="Arrow" />
+										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for UI/UX & Product Prototyping">
+											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
 									{/* Service 4 */}
@@ -556,7 +557,7 @@ export default function HomePage() {
 											<span className="offer-one_number">4</span>
 											{' '}
 											<div className="offer-one_icon">
-												<i className="fa-solid fa-cloud"></i>
+												<i className="fa-solid fa-cloud" aria-hidden="true"></i>
 											</div>
 										</div>
 										{' '}
@@ -582,8 +583,8 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact">
-											<img loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="Arrow" />
+										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Backend, Cloud & CI/CD Pipelines">
+											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
 								</div>
@@ -647,7 +648,7 @@ export default function HomePage() {
 									{' '}is a fast-growing team of mobile and web engineers obsessed with clean code and great user experience. In 2+ years, we've helped 20 clients across the US, Europe, and Asia launch iOS, Android, and web products — and automate how they ship — with a 5.0 rating on{' '}
 									<strong>Fiverr</strong>
 									. We're led by founder Saurav Wahid, an{' '}
-									<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener">Oracle Certified Professional</a>
+									<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener">Oracle Certified Professional<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									{' '}with 11+ years of software engineering experience, and co-founder Viswajit Roy, a UI/UX designer with 10+ years of product design experience.
 								</div>
 							</div>
@@ -656,13 +657,13 @@ export default function HomePage() {
 							<div className="column col-lg-6 col-md-12 col-sm-12">
 								<div className="about-one_image-outer">
 									<div className="about-one_image">
-										<img loading="lazy" decoding="async" src="/assets/images/about/about-team.jpg" alt="TechFiyr Team" />
+										<img width="520" height="460" loading="lazy" decoding="async" src="/assets/images/about/about-team.jpg" alt="TechFiyr Team" />
 									</div>
 								</div>
 								{' '}
 								<div className="d-flex align-items-center flex-wrap">
 									<div className="about-one_image-two">
-										<img loading="lazy" decoding="async" src="/assets/images/about/about-workspace.png" alt="TechFiyr developer workspace" />
+										<img width="440" height="440" loading="lazy" decoding="async" src="/assets/images/about/about-workspace.png" alt="TechFiyr developer workspace" />
 									</div>
 									{' '}
 									<div className="about-one_carousel">
@@ -672,7 +673,7 @@ export default function HomePage() {
 												<div className="swiper-slide">
 													<div className="review-block_one">
 														<div className="review-block_one-quote">
-															<img loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="Quote" />
+															<img width="60" height="60" loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="" />
 														</div>
 														{' '}
 														<div className="review-block_one-text">{' '}“He came to my rescue right in time after fighting with Codemagic for months … He is the best Codemagic expert I've ever worked with!”{' '}</div>
@@ -692,7 +693,7 @@ export default function HomePage() {
 												<div className="swiper-slide">
 													<div className="review-block_one">
 														<div className="review-block_one-quote">
-															<img loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="Quote" />
+															<img width="60" height="60" loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="" />
 														</div>
 														{' '}
 														<div className="review-block_one-text">{' '}“What stood out the most was their ability to deliver the work ahead of schedule, which was a tremendous help for our team.”{' '}</div>
@@ -712,7 +713,7 @@ export default function HomePage() {
 												<div className="swiper-slide">
 													<div className="review-block_one">
 														<div className="review-block_one-quote">
-															<img loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="Quote" />
+															<img width="60" height="60" loading="lazy" decoding="async" src="/assets/images/icons/quote.svg" alt="" />
 														</div>
 														{' '}
 														<div className="review-block_one-text">{' '}“He was exceptionally professional -- especially with communication and responsiveness -- and really went above and beyond with my project.”{' '}</div>
@@ -785,7 +786,7 @@ export default function HomePage() {
 						<div className="counter-one_column">
 							<div className="counter-one_inner wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
 								<div className="counter-one_icon">
-									<i className="fa-solid fa-users"></i>
+									<i className="fa-solid fa-users" aria-hidden="true"></i>
 								</div>
 								{' '}
 								<div className="counter-one_count">
@@ -800,7 +801,7 @@ export default function HomePage() {
 						<div className="counter-one_column">
 							<div className="counter-one_inner wow fadeInUp" data-wow-delay="150ms" data-wow-duration="1500ms">
 								<div className="counter-one_icon">
-									<i className="fa-solid fa-star"></i>
+									<i className="fa-solid fa-star" aria-hidden="true"></i>
 								</div>
 								{' '}
 								<div className="counter-one_count">5.0</div>
@@ -813,7 +814,7 @@ export default function HomePage() {
 						<div className="counter-one_column">
 							<div className="counter-one_inner wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
 								<div className="counter-one_icon">
-									<i className="fa-solid fa-calendar-check"></i>
+									<i className="fa-solid fa-calendar-check" aria-hidden="true"></i>
 								</div>
 								{' '}
 								<div className="counter-one_count">
@@ -829,7 +830,7 @@ export default function HomePage() {
 						<div className="counter-one_column">
 							<div className="counter-one_inner wow fadeInUp" data-wow-delay="450ms" data-wow-duration="1500ms">
 								<div className="counter-one_icon">
-									<i className="fa-solid fa-code"></i>
+									<i className="fa-solid fa-code" aria-hidden="true"></i>
 								</div>
 								{' '}
 								<div className="counter-one_count">
@@ -867,9 +868,9 @@ export default function HomePage() {
 								{' '}
 								<div className="sec-title_text">
 									Unedited 5-star reviews from our founder Saurav Wahid's{' '}
-									<a href="https://www.fiverr.com/wahidsaurav" target="_blank" rel="noopener">Fiverr profile</a>
+									<a href="https://www.fiverr.com/wahidsaurav" target="_blank" rel="noopener">Fiverr profile<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									. You can also hire us on{' '}
-									<a href="https://www.upwork.com/freelancers/sauravwahid" target="_blank" rel="noopener">Upwork</a>
+									<a href="https://www.upwork.com/freelancers/sauravwahid" target="_blank" rel="noopener">Upwork<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									.
 								</div>
 							</div>
@@ -878,7 +879,7 @@ export default function HomePage() {
 								<span className="up-down_animation">Let’s Talk</span>
 								{' '}
 								<i>
-									<img loading="lazy" decoding="async" src="/assets/images/icons/hand-shake.png" alt="Handshake" />
+									<img width="48" height="33" loading="lazy" decoding="async" src="/assets/images/icons/hand-shake.png" alt="" />
 								</i>
 							</div>
 							{/* Button Box */}
@@ -909,7 +910,7 @@ export default function HomePage() {
 											<div className="testimonial-block_one">
 												<div className="testimonial-block_one-inner">
 													<div className="review-gig-tag">
-														<i className="fa-solid fa-mobile-screen-button"></i>
+														<i className="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
 														{' '}Mobile Store &amp; Codemagic CI/CD Pipeline{' '}
 														<span className="price-badge">Top-Notch Quality</span>
 													</div>
@@ -929,7 +930,7 @@ export default function HomePage() {
 																	<span>•</span>
 																	{' '}
 																	<span className="verified-tag">
-																		<i className="fa-solid fa-circle-check"></i>
+																		<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 																		{' '}Verified Fiverr Client
 																	</span>
 																</div>
@@ -940,15 +941,15 @@ export default function HomePage() {
 															<span>5.0</span>
 															{' '}
 															<div className="stars-group">
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 															</div>
 														</div>
 													</div>
@@ -962,7 +963,7 @@ export default function HomePage() {
 											<div className="testimonial-block_one">
 												<div className="testimonial-block_one-inner">
 													<div className="review-gig-tag">
-														<i className="fa-solid fa-cloud-arrow-up"></i>
+														<i className="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
 														{' '}Codemagic Deployment &amp; Store Management{' '}
 														<span className="price-badge">Ahead of Schedule</span>
 													</div>
@@ -982,7 +983,7 @@ export default function HomePage() {
 																	<span>•</span>
 																	{' '}
 																	<span className="verified-tag">
-																		<i className="fa-solid fa-circle-check"></i>
+																		<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 																		{' '}Verified Fiverr Client
 																	</span>
 																</div>
@@ -993,15 +994,15 @@ export default function HomePage() {
 															<span>5.0</span>
 															{' '}
 															<div className="stars-group">
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 															</div>
 														</div>
 													</div>
@@ -1015,7 +1016,7 @@ export default function HomePage() {
 											<div className="testimonial-block_one">
 												<div className="testimonial-block_one-inner">
 													<div className="review-gig-tag">
-														<i className="fa-solid fa-code"></i>
+														<i className="fa-solid fa-code" aria-hidden="true"></i>
 														{' '}Mobile App Customization &amp; Engineering{' '}
 														<span className="price-badge">5-Star Communication</span>
 													</div>
@@ -1035,7 +1036,7 @@ export default function HomePage() {
 																	<span>•</span>
 																	{' '}
 																	<span className="verified-tag">
-																		<i className="fa-solid fa-circle-check"></i>
+																		<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 																		{' '}Verified Fiverr Client
 																	</span>
 																</div>
@@ -1046,15 +1047,15 @@ export default function HomePage() {
 															<span>5.0</span>
 															{' '}
 															<div className="stars-group">
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 															</div>
 														</div>
 													</div>
@@ -1068,7 +1069,7 @@ export default function HomePage() {
 											<div className="testimonial-block_one">
 												<div className="testimonial-block_one-inner">
 													<div className="review-gig-tag">
-														<i className="fa-brands fa-apple"></i>
+														<i className="fa-brands fa-apple" aria-hidden="true"></i>
 														{' '}iOS Deployment Pipeline &amp; Store Management{' '}
 														<span className="price-badge">Super Fast Delivery</span>
 													</div>
@@ -1088,7 +1089,7 @@ export default function HomePage() {
 																	<span>•</span>
 																	{' '}
 																	<span className="verified-tag">
-																		<i className="fa-solid fa-circle-check"></i>
+																		<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 																		{' '}Verified Fiverr Client
 																	</span>
 																</div>
@@ -1099,15 +1100,15 @@ export default function HomePage() {
 															<span>5.0</span>
 															{' '}
 															<div className="stars-group">
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 															</div>
 														</div>
 													</div>
@@ -1121,7 +1122,7 @@ export default function HomePage() {
 											<div className="testimonial-block_one">
 												<div className="testimonial-block_one-inner">
 													<div className="review-gig-tag">
-														<i className="fa-solid fa-wrench"></i>
+														<i className="fa-solid fa-wrench" aria-hidden="true"></i>
 														{' '}Mobile Store Management &amp; Problem Solving{' '}
 														<span className="price-badge">1-Day Turnaround</span>
 													</div>
@@ -1141,7 +1142,7 @@ export default function HomePage() {
 																	<span>•</span>
 																	{' '}
 																	<span className="verified-tag">
-																		<i className="fa-solid fa-circle-check"></i>
+																		<i className="fa-solid fa-circle-check" aria-hidden="true"></i>
 																		{' '}Verified Fiverr Client
 																	</span>
 																</div>
@@ -1152,15 +1153,15 @@ export default function HomePage() {
 															<span>5.0</span>
 															{' '}
 															<div className="stars-group">
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 																{' '}
-																<i className="fa-solid fa-star"></i>
+																<i className="fa-solid fa-star" aria-hidden="true"></i>
 															</div>
 														</div>
 													</div>
@@ -1314,7 +1315,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid-portrait.jpg" alt="Saurav Wahid" />
+											<img width="640" height="960" loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid-portrait.jpg" alt="Saurav Wahid" />
 										</figure>
 									</div>
 									{' '}
@@ -1330,16 +1331,16 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/sauravwahid/" target="_blank" rel="noopener" aria-label="LinkedIn">
-														<i className="fa-brands fa-linkedin-in"></i>
+													<a href="https://www.linkedin.com/in/sauravwahid/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/swahid" target="_blank" rel="noopener" aria-label="GitHub">
-														<i className="fa-brands fa-github"></i>
+													<a href="https://github.com/swahid" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener" aria-label="Oracle Certified Professional" title="Oracle Certified Professional">
-														<i className="fa-solid fa-certificate"></i>
+													<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener" aria-label="Oracle Certified Professional (opens in a new tab)" title="Oracle Certified Professional">
+														<i className="fa-solid fa-certificate" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>
@@ -1353,7 +1354,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/viswajit-roy.jpg" alt="Viswajit Roy" />
+											<img width="640" height="651" loading="lazy" decoding="async" src="/assets/images/team/viswajit-roy.jpg" alt="Viswajit Roy" />
 										</figure>
 									</div>
 									{' '}
@@ -1369,16 +1370,16 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/viswajitroy" target="_blank" rel="noopener" aria-label="LinkedIn">
-														<i className="fa-brands fa-linkedin-in"></i>
+													<a href="https://www.linkedin.com/in/viswajitroy" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/viswajitRoy" target="_blank" rel="noopener" aria-label="GitHub">
-														<i className="fa-brands fa-github"></i>
+													<a href="https://github.com/viswajitRoy" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://www.behance.net/royviswajie8fd" target="_blank" rel="noopener" aria-label="Behance">
-														<i className="fa-brands fa-behance"></i>
+													<a href="https://www.behance.net/royviswajie8fd" target="_blank" rel="noopener" aria-label="Behance (opens in a new tab)">
+														<i className="fa-brands fa-behance" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>
@@ -1392,7 +1393,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/ponir-saha.jpg" alt="Ponir Saha" />
+											<img width="640" height="608" loading="lazy" decoding="async" src="/assets/images/team/ponir-saha.jpg" alt="Ponir Saha" />
 										</figure>
 									</div>
 									{' '}
@@ -1408,12 +1409,12 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/ponirsaha/" target="_blank" rel="noopener" aria-label="LinkedIn">
-														<i className="fa-brands fa-linkedin-in"></i>
+													<a href="https://www.linkedin.com/in/ponirsaha/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/ponir-saha" target="_blank" rel="noopener" aria-label="GitHub">
-														<i className="fa-brands fa-github"></i>
+													<a href="https://github.com/ponir-saha" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>
@@ -1427,7 +1428,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/masud-parvez.jpg" alt="Md Masud Parvez" />
+											<img width="640" height="853" loading="lazy" decoding="async" src="/assets/images/team/masud-parvez.jpg" alt="Md Masud Parvez" />
 										</figure>
 									</div>
 									{' '}
@@ -1441,12 +1442,12 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/masudparvez11/" target="_blank" rel="noopener" aria-label="LinkedIn">
-														<i className="fa-brands fa-linkedin-in"></i>
+													<a href="https://www.linkedin.com/in/masudparvez11/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/pavelsust" target="_blank" rel="noopener" aria-label="GitHub">
-														<i className="fa-brands fa-github"></i>
+													<a href="https://github.com/pavelsust" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>
@@ -1460,7 +1461,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/awon-uz-zaman.jpg" alt="Md. Awon-Uz-Zaman" />
+											<img width="433" height="440" loading="lazy" decoding="async" src="/assets/images/team/awon-uz-zaman.jpg" alt="Md. Awon-Uz-Zaman" />
 										</figure>
 									</div>
 									{' '}
@@ -1474,12 +1475,12 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/awonuzzaman/" target="_blank" rel="noopener" aria-label="LinkedIn">
-														<i className="fa-brands fa-linkedin-in"></i>
+													<a href="https://www.linkedin.com/in/awonuzzaman/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/awon057" target="_blank" rel="noopener" aria-label="GitHub">
-														<i className="fa-brands fa-github"></i>
+													<a href="https://github.com/awon057" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>
@@ -1493,7 +1494,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/sohanur-islam.jpg" alt="Sohanur Islam" />
+											<img width="640" height="640" loading="lazy" decoding="async" src="/assets/images/team/sohanur-islam.jpg" alt="Sohanur Islam" />
 										</figure>
 									</div>
 									{' '}
@@ -1507,11 +1508,11 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/sohanur-islam-b2a027145/" target="_blank" rel="noopener" aria-label="LinkedIn">
+													<a href="https://www.linkedin.com/in/sohanur-islam-b2a027145/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/sohanur1" target="_blank" rel="noopener" aria-label="GitHub">
+													<a href="https://github.com/sohanur1" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1526,7 +1527,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img loading="lazy" decoding="async" src="/assets/images/team/pranabesh-sarkar.jpg" alt="Pranabesh Sarkar" />
+											<img width="520" height="520" loading="lazy" decoding="async" src="/assets/images/team/pranabesh-sarkar.jpg" alt="Pranabesh Sarkar" />
 										</figure>
 									</div>
 									{' '}
@@ -1540,11 +1541,11 @@ export default function HomePage() {
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/pranab-csra" target="_blank" rel="noopener" aria-label="LinkedIn">
+													<a href="https://www.linkedin.com/in/pranab-csra" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/pranab-sarkar" target="_blank" rel="noopener" aria-label="GitHub">
+													<a href="https://github.com/pranab-sarkar" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>

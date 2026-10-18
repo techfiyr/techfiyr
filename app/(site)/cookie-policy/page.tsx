@@ -239,11 +239,11 @@ export default function CookiePolicyPage() {
 								<li>
 									<b>Google</b>
 									: see{' '}
-									<a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">how Google uses cookies</a>
+									<a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">how Google uses cookies<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									,{' '}
-									<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>
+									<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									, and the{' '}
-									<a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics opt-out browser add-on</a>
+									<a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics opt-out browser add-on<span className="sr-only">{' '}(opens in a new tab)</span></a>
 									.
 								</li>
 							</ul>

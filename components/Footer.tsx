@@ -17,7 +17,7 @@ export default function Footer() {
 				<div className="inner-container">
 					<div className="footer-logo">
 						<Link href="/">
-							<img loading="lazy" decoding="async" src="/assets/images/brand/logo-footer.svg" alt="TechFiyr Logo" title="TechFiyr" />
+							<img width="133" height="120" loading="lazy" decoding="async" src="/assets/images/brand/logo-footer.svg" alt="TechFiyr Logo" title="TechFiyr" />
 						</Link>
 					</div>
 					{' '}
@@ -30,8 +30,8 @@ export default function Footer() {
 						{/* Social Box */}
 						{' '}
 						<div className="footer-social_box">
-							<a href={CONTACT.github} target="_blank" rel="noopener" aria-label="GitHub">
-								<i className="fa-brands fa-github"></i>
+							<a href={CONTACT.github} target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+								<i className="fa-brands fa-github" aria-hidden="true"></i>
 							</a>
 						</div>
 					</div>
@@ -43,7 +43,7 @@ export default function Footer() {
 					<ul className="footer-contact_list d-flex justify-content-end flex-wrap">
 						<li>
 							<a href={`mailto:${CONTACT.email}`}>
-								<i className="fa-solid fa-envelope me-2"></i>
+								<i className="fa-solid fa-envelope me-2" aria-hidden="true"></i>
 								{CONTACT.email}
 							</a>
 						</li>
@@ -58,7 +58,7 @@ export default function Footer() {
 						{' '}
 						<li>
 							<span className="text-white opacity-75">
-								<i className="fa-solid fa-location-dot me-2"></i>
+								<i className="fa-solid fa-location-dot me-2" aria-hidden="true"></i>
 								Mirpur DOHS, Dhaka, Bangladesh
 							</span>
 						</li>

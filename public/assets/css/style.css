@@ -32268,3 +32268,30 @@ main:has(> .incredible-one:last-child) + .main-footer {
 .mobile-menu-visible .mobile-menu .menu-backdrop {
   background: transparent;
 }
+
+/* ==========================================================================
+   Menu toggles and back-to-top as real buttons: clear the browser's button
+   styling so they keep the template's look
+   ========================================================================== */
+.main-header .mobile-nav-toggler,
+.mobile-menu .close-btn,
+.progress-wrap {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.main-header .mobile-nav-toggler:focus-visible,
+.mobile-menu .close-btn:focus-visible,
+.progress-wrap:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Mobile menu over the cookie banner: the header's stacking context keeps the
+   menu below the banner, so the banner steps aside while the menu is open
+   ========================================================================== */
+.mobile-menu-visible .consent-banner {
+  visibility: hidden;
+}

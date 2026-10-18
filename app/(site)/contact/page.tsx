@@ -127,23 +127,23 @@ export default function ContactPage() {
 						{' '}
 						<div className="booking" id="booking">
 							<aside className="booking-info">
-								<img className="booking-info_logo" src="/assets/images/brand/logo.svg" alt="TechFiyr" />
+								<img width="166" height="54" className="booking-info_logo" src="/assets/images/brand/logo.svg" alt="TechFiyr" />
 								{' '}
 								<span className="booking-info_host">Saurav Wahid · TechFiyr</span>
 								{' '}
 								<ul className="booking-info_meta">
 									<li>
-										<i className="fa-regular fa-clock fa-fw"></i>
+										<i className="fa-regular fa-clock fa-fw" aria-hidden="true"></i>
 										{' '}30 min
 									</li>
 									{' '}
 									<li>
-										<i className="fa-solid fa-video fa-fw"></i>
+										<i className="fa-solid fa-video fa-fw" aria-hidden="true"></i>
 										{' '}Google Meet link sent after confirmation
 									</li>
 									{' '}
 									<li>
-										<i className="fa-solid fa-earth-asia fa-fw"></i>
+										<i className="fa-solid fa-earth-asia fa-fw" aria-hidden="true"></i>
 										{' '}
 										<span data-booking-tz="">Your time zone</span>
 									</li>
@@ -152,7 +152,7 @@ export default function ContactPage() {
 								<p className="booking-info_text">Tell us about your app or web idea. We'll talk scope, tech stack, and timeline, and you'll leave with clear next steps. No commitment.</p>
 								{' '}
 								<div className="booking-info_picked" data-booking-picked="" hidden>
-									<i className="fa-regular fa-calendar-check fa-fw"></i>
+									<i className="fa-regular fa-calendar-check fa-fw" aria-hidden="true"></i>
 									{' '}
 									<span></span>
 								</div>
@@ -166,13 +166,13 @@ export default function ContactPage() {
 										{' '}
 										<div className="booking-cal_nav">
 											<button type="button" className="booking-cal_arrow" data-cal-prev="" aria-label="Previous month">
-												<i className="fa-solid fa-chevron-left"></i>
+												<i className="fa-solid fa-chevron-left" aria-hidden="true"></i>
 											</button>
 											{' '}
 											<span className="booking-cal_month" data-cal-month="" aria-live="polite"></span>
 											{' '}
 											<button type="button" className="booking-cal_arrow" data-cal-next="" aria-label="Next month">
-												<i className="fa-solid fa-chevron-right"></i>
+												<i className="fa-solid fa-chevron-right" aria-hidden="true"></i>
 											</button>
 										</div>
 										{' '}
@@ -207,7 +207,7 @@ export default function ContactPage() {
 								{' '}
 								<div className="booking-step booking-step_details contact-form" data-step="details" hidden>
 									<button type="button" className="booking-back" data-booking-back="">
-										<i className="fa-solid fa-arrow-left"></i>
+										<i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
 										{' '}Back
 									</button>
 									{' '}
@@ -279,7 +279,7 @@ export default function ContactPage() {
 								{' '}
 								<div className="booking-step booking-step_done" data-step="done" hidden>
 									<div className="booking-done_icon">
-										<i className="fa-solid fa-check"></i>
+										<i className="fa-solid fa-check" aria-hidden="true"></i>
 									</div>
 									{' '}
 									<h4 className="booking-heading">Request sent!</h4>
@@ -289,9 +289,10 @@ export default function ContactPage() {
 									<div className="booking-done_slot" data-done-slot=""></div>
 									{' '}
 									<a className="booking-done_gcal" data-done-gcal="" href="#" target="_blank" rel="noopener">
-										<i className="fa-brands fa-google"></i>
+										<i className="fa-brands fa-google" aria-hidden="true"></i>
 										{' '}Add to Google Calendar
-									</a>
+									<span className="sr-only">{' '}(opens in a new tab)</span>
+								</a>
 									{' '}
 									<button type="button" className="booking-back" data-booking-restart="">Book another time</button>
 								</div>
@@ -310,9 +311,9 @@ export default function ContactPage() {
 									{' '}
 									<div className="contact-info_text">
 										We reply within 24 hours. Prefer a marketplace? Hire us on{' '}
-										<a href="https://www.fiverr.com/wahidsaurav" target="_blank" rel="noopener">Fiverr</a>
+										<a href="https://www.fiverr.com/wahidsaurav" target="_blank" rel="noopener">Fiverr<span className="sr-only">{' '}(opens in a new tab)</span></a>
 										{' '}or{' '}
-										<a href="https://www.upwork.com/freelancers/sauravwahid" target="_blank" rel="noopener">Upwork</a>
+										<a href="https://www.upwork.com/freelancers/sauravwahid" target="_blank" rel="noopener">Upwork<span className="sr-only">{' '}(opens in a new tab)</span></a>
 										.
 									</div>
 								</div>
@@ -324,7 +325,7 @@ export default function ContactPage() {
 										<div className="contact-info_block col-lg-6 col-md-6 col-sm-12">
 											<div className="contact-info_block-inner">
 												<div className="contact-info_block-icon">
-													<i className="fa-classic fa-solid fa-location-dot fa-fw"></i>
+													<i className="fa-classic fa-solid fa-location-dot fa-fw" aria-hidden="true"></i>
 												</div>
 												{' '}
 												<h4>Visit Us</h4>
@@ -384,7 +385,8 @@ export default function ContactPage() {
 									{' '}
 									<span className="text-two">Fiverr</span>
 								</span>
-							</a>
+							<span className="sr-only">{' '}(opens in a new tab)</span>
+						</a>
 							{' '}
 							<a href="https://www.upwork.com/freelancers/sauravwahid" target="_blank" rel="noopener" className="theme-btn btn-style-one">
 								<span className="btn-wrap">
@@ -392,7 +394,8 @@ export default function ContactPage() {
 									{' '}
 									<span className="text-two">Upwork</span>
 								</span>
-							</a>
+							<span className="sr-only">{' '}(opens in a new tab)</span>
+						</a>
 						</div>
 					</div>
 				</div>
@@ -419,7 +422,7 @@ export default function ContactPage() {
 						<div className="consent-embed_actions">
 							<button type="button" className="consent-btn consent-btn_accept" data-consent-allow="embedded">Load map</button>
 							{' '}
-							<a className="consent-link" href="https://www.google.com/maps/search/?api=1&amp;query=341%2F342%2C+Mirpur+DOHS%2C+Dhaka+1216%2C+Bangladesh" target="_blank" rel="noopener">Open in Google Maps</a>
+							<a className="consent-link" href="https://www.google.com/maps/search/?api=1&amp;query=341%2F342%2C+Mirpur+DOHS%2C+Dhaka+1216%2C+Bangladesh" target="_blank" rel="noopener">Open in Google Maps<span className="sr-only">{' '}(opens in a new tab)</span></a>
 						</div>
 					</div>
 					{' '}

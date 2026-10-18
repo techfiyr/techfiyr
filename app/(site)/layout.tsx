@@ -61,12 +61,12 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 			</div>
 			{/* End PageWrapper */}
 
-			<div className="progress-wrap">
-				<svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+			<button type="button" className="progress-wrap" aria-label="Back to top">
+				<svg className="progress-circle svg-content" aria-hidden="true" width="100%" height="100%" viewBox="-1 -1 102 102">
 					{/* backtotop.js sets the ring's stroke styles on DOM ready */}
 					<path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" suppressHydrationWarning />
 				</svg>
-			</div>
+			</button>
 
 			{SCRIPTS.map((src) => <script key={src} src={src} defer />)}
 			<SiteRuntime />

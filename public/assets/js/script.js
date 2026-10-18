@@ -48,10 +48,27 @@
 	}
 
 
+	// The panel's buttons only become visible (so focusable) once its slide-in transition delay has passed
+	function focusMenuWhenShown(tries) {
+		var closeBtn = document.querySelector('.mobile-menu .close-btn');
+		if (!closeBtn || !$('body').hasClass('mobile-menu-visible')) return;
+		closeBtn.focus();
+		if (document.activeElement !== closeBtn && tries < 20) {
+			setTimeout(function () { focusMenuWhenShown(tries + 1); }, 100);
+		}
+	}
+
+
 	function closeMobileMenu() {
+		var wasOpen = $('body').hasClass('mobile-menu-visible');
 		$('body').removeClass('mobile-menu-visible');
 		$('.mobile-menu .navigation > li').removeClass('open');
 		$('.mobile-menu .navigation li ul').slideUp(0);
+		$('.mobile-nav-toggler').attr('aria-expanded', 'false');
+		// Hand focus back to the toggler when the panel closes with focus inside it
+		if (wasOpen && $(document.activeElement).closest('.mobile-menu').length) {
+			$('.mobile-nav-toggler').trigger('focus');
+		}
 	}
 
 
@@ -156,6 +173,8 @@
 			//Menu Toggle Btn
 			$('.mobile-nav-toggler').on('click', function () {
 				$('body').addClass('mobile-menu-visible');
+				$(this).attr('aria-expanded', 'true');
+				focusMenuWhenShown(0);
 			});
 
 			//Menu Toggle Btn
@@ -165,7 +184,7 @@
 			$('.mobile-menu').on('click', '.navigation a, .nav-logo a', closeMobileMenu);
 
 			$(document).keydown(function (e) {
-				if (e.keyCode == 27) closeMobileMenu();
+				if (e.keyCode == 27 && $('body').hasClass('mobile-menu-visible')) closeMobileMenu();
 			});
 		}
 

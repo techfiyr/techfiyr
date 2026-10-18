@@ -19,7 +19,7 @@ export default function Header() {
 									{/* Info List */}
 									<ul className="header-top_list d-flex flex-wrap align-items-center">
 										<li>
-											<span className="icon fa-classic fa-solid fa-envelope fa-fw"></span>
+											<span className="icon fa-classic fa-solid fa-envelope fa-fw" aria-hidden="true"></span>
 											<a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
 										</li>
 										{' '}
@@ -36,15 +36,16 @@ export default function Header() {
 							{' '}
 							<div className="right-box d-flex align-items-center flex-wrap">
 								<a href={CONTACT.fiverr} target="_blank" rel="noopener" className="fiverr-badge-tag d-none d-md-inline-flex">
-									<i className="fa-solid fa-star"></i>
+									<i className="fa-solid fa-star" aria-hidden="true"></i>
 									{' '}5.0 Rated on Fiverr
-								</a>
+								<span className="sr-only">{' '}(opens in a new tab)</span>
+							</a>
 								{/* Social Box */}
 								{' '}
 								<div className="header-top_socials ms-3">
 									<div className="social-inner">
-										<a href={CONTACT.github} target="_blank" rel="noopener" aria-label="GitHub">
-											<i className="fa-brands fa-github"></i>
+										<a href={CONTACT.github} target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+											<i className="fa-brands fa-github" aria-hidden="true"></i>
 										</a>
 									</div>
 								</div>
@@ -62,14 +63,14 @@ export default function Header() {
 							<div className="logo-box">
 								<div className="logo">
 									<Link href="/">
-										<img src="/assets/images/brand/logo.svg" alt="TechFiyr Logo" title="TechFiyr" />
+										<img width="166" height="54" src="/assets/images/brand/logo.svg" alt="TechFiyr Logo" title="TechFiyr" />
 									</Link>
 								</div>
 							</div>
 							{' '}
 							<div className="nav-outer d-flex flex-wrap">
 								{/* Main Menu */}
-								<nav className="main-menu navbar-expand-md">
+								<nav className="main-menu navbar-expand-md" aria-label="Main">
 									<NavMenu />
 								</nav>
 							</div>
@@ -82,9 +83,9 @@ export default function Header() {
 								</div>
 								{/* Mobile Navigation Toggler */}
 								{' '}
-								<div className="mobile-nav-toggler">
-									<span className="icon fa-classic fa-solid fa-bars fa-fw"></span>
-								</div>
+								<button type="button" className="mobile-nav-toggler" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+									<span className="icon fa-classic fa-solid fa-bars fa-fw" aria-hidden="true"></span>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -93,17 +94,17 @@ export default function Header() {
 			{/* End Header Lower */}
 			{/* Mobile Menu */}
 			{' '}
-			<div className="mobile-menu">
+			<div className="mobile-menu" id="mobile-menu">
 				<div className="menu-backdrop"></div>
 				{' '}
-				<div className="close-btn">
-					<span className="icon fa-xmark"></span>
-				</div>
+				<button type="button" className="close-btn" aria-label="Close menu">
+					<span className="icon fa-xmark" aria-hidden="true"></span>
+				</button>
 				{' '}
-				<nav className="menu-box">
+				<nav className="menu-box" aria-label="Mobile">
 					<div className="nav-logo">
 						<Link href="/">
-							<img src="/assets/images/brand/logo-mobile.svg" alt="TechFiyr Logo" title="TechFiyr" />
+							<img width="154" height="53" src="/assets/images/brand/logo-mobile.svg" alt="TechFiyr Logo" title="TechFiyr" />
 						</Link>
 					</div>
 					{' '}
