@@ -498,7 +498,7 @@ Rules:
 | Sign-in | `lib/server/auth.ts`, `lib/server/session.ts` | Firebase Authentication email/password, checked server-side; only addresses in `ADMIN_EMAILS`. Session: signed HttpOnly cookie `tf_admin` (12 h, listed in the Cookie Policy). Every page and server action checks it. Nobody can register. |
 | Content store | `lib/server/store.ts` | Firestore REST with the service account: collections `posts`, `products`, `news`, `meta`. Without credentials in development: JSON files in `.data/` (git-ignored). |
 | Public pages | `app/(site)/blog`, `products`, `news` | Static, cached with tags `posts`/`products`/`news`; the admin actions call `updateTag` + `revalidatePath`, so a save is live on the next visit. New slugs render on first visit. Sitemap updates itself. |
-| Images | `lib/server/media.ts`, `app/media/[...path]/route.ts` | Uploaded to the private Firebase Storage bucket, served from `/media/...` (first party, one-year cache, unique names). Max 5 MB. |
+| Images | `lib/server/media.ts`, `app/media/[...path]/route.ts` | Stored in Firestore by default (collections `media` + `media_chunks`, 900 KB pieces), so they work on the free Spark plan; `MEDIA_STORE=storage` switches new uploads to the private Firebase Storage bucket (Blaze plan). Always served from `/media/...` (first party, one-year CDN cache, unique names, so Firestore is read about once per image). Max 5 MB; keep photos around 1600 px wide and under 500 KB. |
 | AI news | `lib/server/news.ts`, `netlify/functions/news-daily.mjs`, `app/api/news/refresh/route.ts` | Every day 00:30 UTC (06:30 Dhaka): reads the AI feeds in `FEEDS`, picks the top 10 (last 36 h, max 2 per publisher, duplicates merged, nothing repeated from earlier days), keeps 30 days. Publishes only headline, publisher, date, the feed's summary and a link; never article text or publisher images. Add or remove sources in `FEEDS` (check the feed URL returns RSS/Atom). |
 | Dashboard | `lib/server/insights.ts` | Visitors (Firestore `stats/visits` + `stats/daily-YYYY-MM`), Search Console performance and URL Inspection per sitemap URL, GA4 report, IndexNow status. Each source is optional and shows its own setup steps. |
 | IndexNow | `lib/server/insights.ts`, `app/indexnow-key.txt/route.ts` | Publishing, updating or deleting pings Bing/Yandex/Seznam/Naver with the changed URLs (production only). |
@@ -510,17 +510,19 @@ Rules:
 | `ADMIN_EMAILS` | No | The admin's email address (comma-separate several) |
 | `SESSION_SECRET` | **Yes** | 32+ random characters (`openssl rand -base64 48`) |
 | `CRON_SECRET` | **Yes** | 24+ random characters; the daily news job sends it |
+| `FIREBASE_SERVICE_ACCOUNT` | **Yes** | Simplest: the whole downloaded service-account JSON (or its base64) in one variable, Builds + Functions scopes. Used by the CMS and the visitor counter. The three separate variables below win when both are set |
 | `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` | as 7.6 | Give them the **Builds** scope too (keep the key marked secret), so `npm run build` prerenders the blog, products and news with real content; otherwise those pages start empty after each deploy until the first save or for up to an hour |
 | `FIREBASE_API_KEY` | No | Also needed in the Functions scope (password check) |
-| `FIREBASE_STORAGE_BUCKET` | No | Also needed in the Functions scope (uploads) |
+| `MEDIA_STORE` | No | Leave unset (images in Firestore, free). `storage` = Firebase Storage, then `FIREBASE_STORAGE_BUCKET` is needed in the Functions scope |
+| `FIREBASE_SERVICE_ACCOUNT_FILE` | local only | In `.env.local`: the path to the downloaded JSON key (a `*service-account*.json` file in the project folder is git-ignored) |
 | `GSC_SITE_URL` | No | `sc-domain:techfiyr.com` (domain property) or `https://techfiyr.com/` |
 | `GA4_PROPERTY_ID` | No | GA4 property ID, digits only |
 | `INDEXNOW_KEY` | No | 32 random letters/digits; served at `/indexnow-key.txt` |
 
 **One-time setup:**
 1. Firebase console → Authentication → Sign-in method: enable Email/Password. Users → Add user with the admin email and a strong password. Put that email in `ADMIN_EMAILS`.
-2. Firebase console → Storage: create the default bucket. Keep its rules closed (`allow read, write: if false;`); the site reads and writes with the service account.
-3. Google Cloud Console → IAM: the service account needs **Cloud Datastore User** and **Storage Object Admin** on the project.
+2. Firebase console → Firestore Database: create the database (production mode) with rules that deny all client access (`allow read, write: if false;`). Storage is optional (only with `MEDIA_STORE=storage`, Blaze plan; keep its rules closed too).
+3. Google Cloud Console → IAM: the service account needs **Cloud Datastore User** (the default `firebase-adminsdk` account already has it), plus **Storage Object Admin** only when using Storage.
 4. Search Console → techfiyr.com → Settings → Users and permissions: add the service account email (Restricted). Submit `https://techfiyr.com/sitemap.xml` there and in Bing Webmaster Tools.
 5. Google Analytics → Admin → Property access management: add the service account email as Viewer.
 6. Firestore: no new rules (clients have no access). Optional TTL is not needed for `news`: the job deletes stories older than 30 days.

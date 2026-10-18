@@ -14,6 +14,7 @@
  * No npm dependencies: a Google service account signs its own OAuth token with node:crypto.
  * Credentials come from Netlify environment variables (never commit them):
  *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
+ * or the whole downloaded JSON key in one variable: FIREBASE_SERVICE_ACCOUNT (plain JSON or base64).
  */
 import { createSign, createHash, createHmac } from 'node:crypto';
 
@@ -22,7 +23,26 @@ const UNIQUES = 'uniques';
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|monitor|curl|wget|python|java\/|httpclient|axios|go-http/i;
 const ALLOWED_ORIGIN = /^https:\/\/((www\.)?techfiyr\.com|([a-z0-9-]+--)?techfiyr\.netlify\.app)$/;
 
-const env = (k) => ((globalThis.Netlify ? Netlify.env.get(k) : process.env[k]) || '').trim();
+const rawEnv = (k) => ((globalThis.Netlify ? Netlify.env.get(k) : process.env[k]) || '').trim();
+
+// FIREBASE_SERVICE_ACCOUNT: the service-account JSON in one variable; separate variables win when both exist
+let serviceAccount;
+function fromServiceAccount(k) {
+	if (serviceAccount === undefined) {
+		serviceAccount = {};
+		let text = rawEnv('FIREBASE_SERVICE_ACCOUNT');
+		if (text && !text.startsWith('{')) text = Buffer.from(text, 'base64').toString('utf8');
+		try {
+			if (text) serviceAccount = JSON.parse(text);
+		} catch (e) {
+			console.error('visits: FIREBASE_SERVICE_ACCOUNT is not valid JSON');
+		}
+	}
+	const field = { FIREBASE_PROJECT_ID: 'project_id', FIREBASE_CLIENT_EMAIL: 'client_email', FIREBASE_PRIVATE_KEY: 'private_key' }[k];
+	return field ? String(serviceAccount[field] || '').trim() : '';
+}
+
+const env = (k) => rawEnv(k) || fromServiceAccount(k);
 
 class StepError extends Error {
 	constructor(step, status, detail) {
@@ -168,6 +188,7 @@ const json = (body, status, cache) => new Response(JSON.stringify(body), {
 export default async (req, context) => {
 	const missing = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'].filter((k) => !env(k));
 	if (missing.length) {
+		if (!rawEnv('FIREBASE_SERVICE_ACCOUNT')) missing.push('(or FIREBASE_SERVICE_ACCOUNT)');
 		return json({ error: 'not configured', detail: 'Missing environment variables (Functions scope): ' + missing.join(', ') }, 503);
 	}
 

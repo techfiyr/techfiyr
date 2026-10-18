@@ -8,6 +8,8 @@ public/firebase-config.js
 # Local secrets and Netlify CLI state
 .env
 .env.*
+*service-account*.json
+techfiyr-*-*.json
 .netlify/
 node_modules/
 

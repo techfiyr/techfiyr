@@ -5,11 +5,11 @@
  * Local development without credentials: JSON files in .data/ (git-ignored), so the admin panel and
  * the dynamic pages can be tried without a Firebase project. The file store is never used in production.
  *
- * Documents are plain JSON objects; dates are ISO strings.
+ * Documents are plain JSON objects; dates are ISO strings; binary data (image chunks) is a Uint8Array.
  */
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { GoogleError, SCOPES, accessToken, env, googleError, hasServiceAccount } from './google';
+import { GoogleError, SCOPES, accessToken, googleError, hasServiceAccount, projectId } from './google';
 
 export type Data = Record<string, unknown>;
 export type Doc<T = Data> = T & { id: string };
@@ -23,7 +23,7 @@ export function storeMode(): StoreMode {
 
 export class StoreUnavailable extends Error {
 	constructor() {
-		super('The content database is not configured (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY).');
+		super('The content database is not configured (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, or FIREBASE_SERVICE_ACCOUNT_FILE locally).');
 	}
 }
 
@@ -35,6 +35,7 @@ function encode(v: unknown): FsValue {
 	if (typeof v === 'boolean') return { booleanValue: v };
 	if (typeof v === 'number') return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
 	if (typeof v === 'string') return { stringValue: v };
+	if (v instanceof Uint8Array) return { bytesValue: Buffer.from(v).toString('base64') };
 	if (Array.isArray(v)) return { arrayValue: { values: v.map(encode) } };
 	if (typeof v === 'object') return { mapValue: { fields: encodeFields(v as Data) } };
 	return { stringValue: String(v) };
@@ -53,6 +54,7 @@ function decode(v: FsValue): unknown {
 	if ('booleanValue' in v) return v.booleanValue;
 	if ('timestampValue' in v) return v.timestampValue;
 	if ('nullValue' in v) return null;
+	if ('bytesValue' in v) return new Uint8Array(Buffer.from(String(v.bytesValue), 'base64'));
 	if ('arrayValue' in v) return (((v.arrayValue as { values?: FsValue[] }).values) || []).map(decode);
 	if ('mapValue' in v) return decodeFields(((v.mapValue as { fields?: Record<string, FsValue> }).fields) || {});
 	return null;
@@ -65,7 +67,7 @@ function decodeFields(fields: Record<string, FsValue>): Data {
 }
 
 const API = 'https://firestore.googleapis.com/v1/';
-const root = () => `projects/${env('FIREBASE_PROJECT_ID')}/databases/(default)/documents`;
+const root = () => `projects/${projectId()}/databases/(default)/documents`;
 const docId = (name: string) => name.slice(name.lastIndexOf('/') + 1);
 
 async function fsFetch(url: string, init: RequestInit = {}) {

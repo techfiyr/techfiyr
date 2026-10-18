@@ -1,17 +1,21 @@
 /*
  * Images uploaded in the admin panel (server only).
  *
- * Production: stored in the project's Firebase Storage bucket (FIREBASE_STORAGE_BUCKET), which stays
- * private. Visitors load them from our own address, /media/<name> (app/media/[...path]/route.ts),
- * so no request goes to Google before consent and the CDN caches each file for a year (names are
- * unique, so a changed image always gets a new address).
- * Local development without credentials: files in .data/uploads/.
+ * Where they are kept:
+ *   default        Firestore, on the free Spark plan: "media" holds each image's details and
+ *                  "media_chunks" its bytes in pieces under Firestore's 1 MiB document limit.
+ *   MEDIA_STORE=storage   the private Firebase Storage bucket (FIREBASE_STORAGE_BUCKET; needs the
+ *                  Blaze plan for new buckets). Images already in Firestore keep working.
+ *   no credentials (development)   files in .data/uploads/.
+ * Visitors always load them from our own address, /media/<name> (app/media/[...path]/route.ts), so no
+ * request goes to Google before consent, and the CDN caches each file for a year: names are unique,
+ * so a changed image gets a new address and Firestore is read about once per image, not per visit.
  */
 import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { GoogleError, SCOPES, accessToken, env, googleError } from './google';
-import { storeMode } from './store';
+import { store, storeMode } from './store';
 
 export const IMAGE_TYPES: Record<string, string> = {
 	'image/jpeg': 'jpg',
@@ -25,6 +29,9 @@ export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const LOCAL_DIR = path.join(process.cwd(), '.data', 'uploads');
 const bucket = () => env('FIREBASE_STORAGE_BUCKET');
 const NAME = /^cms\/[a-z0-9-]+\/[a-z0-9-]+\.(jpg|png|webp|avif|gif)$/;
+const CHUNK_BYTES = 900_000;
+const useBucket = () => env('MEDIA_STORE') === 'storage' && Boolean(bucket());
+const docIdOf = (name: string) => name.replace(/\//g, '__');
 
 export const mediaUrl = (name: string) => `/${name.replace(/^cms\//, 'media/')}`;
 
@@ -38,8 +45,15 @@ export async function saveImage(file: File, folder: 'blog' | 'products'): Promis
 	const name = `cms/${folder}/${base}-${randomUUID().slice(0, 8)}.${ext}`;
 	const bytes = Buffer.from(await file.arrayBuffer());
 
-	if (storeMode() === 'firestore') {
-		if (!bucket()) throw new Error('FIREBASE_STORAGE_BUCKET is not set, so images cannot be uploaded.');
+	if (storeMode() === 'firestore' && !useBucket()) {
+		const id = docIdOf(name);
+		const chunks = Math.ceil(bytes.length / CHUNK_BYTES);
+		for (let i = 0; i < chunks; i++) {
+			await store.put('media_chunks', `${id}--${i}`, { data: new Uint8Array(bytes.subarray(i * CHUNK_BYTES, (i + 1) * CHUNK_BYTES)) });
+		}
+		// written last, so a half-finished upload is never served
+		await store.put('media', id, { name, type: file.type, size: bytes.length, chunks, createdAt: new Date().toISOString() });
+	} else if (storeMode() === 'firestore') {
 		const token = await accessToken(SCOPES.storage);
 		const res = await fetch(`https://storage.googleapis.com/upload/storage/v1/b/${encodeURIComponent(bucket())}/o?uploadType=media&name=${encodeURIComponent(name)}`, {
 			method: 'POST',
@@ -64,6 +78,14 @@ export async function readImage(name: string): Promise<{ body: Uint8Array; type:
 	const type = Object.entries(IMAGE_TYPES).find(([, e]) => name.endsWith(`.${e}`))?.[0] || 'application/octet-stream';
 
 	if (storeMode() === 'firestore') {
+		const meta = await store.get('media', docIdOf(name));
+		if (meta) {
+			const id = docIdOf(name);
+			const parts = await Promise.all(Array.from({ length: Number(meta.chunks) || 0 }, (_, i) => store.get('media_chunks', `${id}--${i}`)));
+			if (parts.some((d) => !(d?.data instanceof Uint8Array))) return null;
+			return { body: new Uint8Array(Buffer.concat(parts.map((d) => d!.data as Uint8Array))), type: String(meta.type || type) };
+		}
+		if (!bucket()) return null;
 		const token = await accessToken(SCOPES.storage);
 		const res = await fetch(`https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket())}/o/${encodeURIComponent(name)}?alt=media`, {
 			headers: { Authorization: `Bearer ${token}` },

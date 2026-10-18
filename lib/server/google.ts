@@ -1,21 +1,63 @@
 /*
  * Google service-account access for the CMS (server only). The same service account as the visitor
  * counter (netlify/functions/visits.mjs) signs its own OAuth tokens with node:crypto, so no Google
- * SDK is needed. Credentials come from environment variables (AGENTS.md section 7.6):
- *   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
+ * SDK is needed. Credentials, first match wins (AGENTS.md sections 7.6 and 7.8):
+ *   FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY   three separate variables
+ *   FIREBASE_SERVICE_ACCOUNT        the whole downloaded JSON key in one variable (or base64 of it)
+ *   FIREBASE_SERVICE_ACCOUNT_FILE   local development: the path to that JSON file
  */
 import { createSign } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 export const env = (key: string) => (process.env[key] || '').trim();
 
-export const hasServiceAccount = () => Boolean(env('FIREBASE_PROJECT_ID') && env('FIREBASE_CLIENT_EMAIL') && env('FIREBASE_PRIVATE_KEY'));
+type Credentials = { projectId: string; clientEmail: string; privateKey: string };
+let fromJson: Credentials | null | undefined;
 
-// Accepts the key as pasted from the service-account JSON: with or without quotes, real or "\n" line breaks
-function privateKey() {
-	let k = env('FIREBASE_PRIVATE_KEY');
-	if (/^(".*"|'.*')$/s.test(k)) k = k.slice(1, -1);
-	return k.replace(/\\n/g, '\n');
+/** The service-account JSON from FIREBASE_SERVICE_ACCOUNT (plain or base64) or FIREBASE_SERVICE_ACCOUNT_FILE. */
+function jsonKey(): Credentials | null {
+	if (fromJson !== undefined) return fromJson;
+	fromJson = null;
+	let text = env('FIREBASE_SERVICE_ACCOUNT');
+	let source = 'FIREBASE_SERVICE_ACCOUNT';
+	if (text && !text.startsWith('{')) text = Buffer.from(text, 'base64').toString('utf8');
+	if (!text && env('FIREBASE_SERVICE_ACCOUNT_FILE')) {
+		source = 'FIREBASE_SERVICE_ACCOUNT_FILE';
+		try {
+			text = readFileSync(env('FIREBASE_SERVICE_ACCOUNT_FILE'), 'utf8');
+		} catch {
+			text = '';
+		}
+	}
+	if (!text) return null;
+	try {
+		const j = JSON.parse(text) as { project_id?: string; client_email?: string; private_key?: string };
+		fromJson = { projectId: j.project_id || '', clientEmail: j.client_email || '', privateKey: j.private_key || '' };
+	} catch {
+		console.error(`${source} is not a valid service-account JSON key`);
+	}
+	return fromJson;
 }
+
+function credentials(): Credentials {
+	const fromFile = jsonKey();
+	// Accepts the key as pasted from the service-account JSON: with or without quotes, real or "\n" line breaks
+	let key = env('FIREBASE_PRIVATE_KEY');
+	if (/^(".*"|'.*')$/s.test(key)) key = key.slice(1, -1);
+	return {
+		projectId: env('FIREBASE_PROJECT_ID') || fromFile?.projectId || '',
+		clientEmail: env('FIREBASE_CLIENT_EMAIL') || fromFile?.clientEmail || '',
+		privateKey: key ? key.replace(/\\n/g, '\n') : fromFile?.privateKey || '',
+	};
+}
+
+export const projectId = () => credentials().projectId;
+export const serviceAccountEmail = () => credentials().clientEmail;
+
+export const hasServiceAccount = () => {
+	const c = credentials();
+	return Boolean(c.projectId && c.clientEmail && c.privateKey);
+};
 
 const b64url = (v: string | object) => Buffer.from(typeof v === 'string' ? v : JSON.stringify(v)).toString('base64url');
 
@@ -51,7 +93,7 @@ export async function accessToken(scope: string): Promise<string> {
 
 	const now = Math.floor(Date.now() / 1000);
 	const unsigned = `${b64url({ alg: 'RS256', typ: 'JWT' })}.${b64url({
-		iss: env('FIREBASE_CLIENT_EMAIL'),
+		iss: credentials().clientEmail,
 		scope,
 		aud: 'https://oauth2.googleapis.com/token',
 		iat: now,
@@ -59,7 +101,7 @@ export async function accessToken(scope: string): Promise<string> {
 	})}`;
 	let signature: string;
 	try {
-		signature = createSign('RSA-SHA256').update(unsigned).sign(privateKey(), 'base64url');
+		signature = createSign('RSA-SHA256').update(unsigned).sign(credentials().privateKey, 'base64url');
 	} catch {
 		throw new GoogleError('sign', 0, 'FIREBASE_PRIVATE_KEY is not a valid private key');
 	}

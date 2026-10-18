@@ -299,7 +299,11 @@ function SetupPanel() {
 		{ ok: mode === 'firestore', label: 'Content database (Firestore)', detail: mode === 'firestore' ? 'Connected with the service account' : mode === 'local' ? 'Local files in .data (development)' : 'Set the FIREBASE_* service account variables' },
 		{ ok: Boolean(env('FIREBASE_API_KEY')) && adminEmails().length > 0, label: 'Admin sign-in', detail: `${adminEmails().length} admin address${adminEmails().length === 1 ? '' : 'es'} in ADMIN_EMAILS${env('FIREBASE_API_KEY') ? ', Firebase Authentication' : ', local password'}` },
 		{ ok: Boolean(env('SESSION_SECRET')), label: 'Session secret', detail: env('SESSION_SECRET') ? 'Set' : 'Set SESSION_SECRET (32+ random characters)' },
-		{ ok: Boolean(env('FIREBASE_STORAGE_BUCKET')) && hasServiceAccount(), label: 'Image uploads (Firebase Storage)', detail: env('FIREBASE_STORAGE_BUCKET') || 'Set FIREBASE_STORAGE_BUCKET for the Functions scope' },
+		{
+			ok: hasServiceAccount(),
+			label: 'Image uploads',
+			detail: !hasServiceAccount() ? 'Needs the Firebase service account' : env('MEDIA_STORE') === 'storage' ? `Firebase Storage (${env('FIREBASE_STORAGE_BUCKET') || 'set FIREBASE_STORAGE_BUCKET'})` : 'Stored in Firestore (free plan), served from /media',
+		},
 		{ ok: (env('CRON_SECRET') || '').length >= 24, label: 'Daily AI news schedule', detail: 'Runs at 06:30 Dhaka time; needs CRON_SECRET (24+ characters)' },
 		{ ok: Boolean(env('GSC_SITE_URL')), label: 'Google Search Console', detail: env('GSC_SITE_URL') || 'Set GSC_SITE_URL' },
 		{ ok: Boolean(env('GA4_PROPERTY_ID')), label: 'Google Analytics 4 reports', detail: env('GA4_PROPERTY_ID') ? `Property ${env('GA4_PROPERTY_ID')}` : 'Set GA4_PROPERTY_ID' },
