@@ -8,6 +8,9 @@
  *   analytics  Google Analytics via Firebase (assets/js/analytics.js)
  *   embedded   third-party embeds that set cookies, e.g. the Google Map on contact.html
  *
+ * Loaded by app/(site)/layout.tsx. The banner and dialog are appended to <body>, outside the
+ * React-rendered page, so client-side navigation never removes them.
+ *
  * Other scripts read the choice with window.TechfiyrConsent.get() and listen for the
  * "techfiyr:consent" event on document (event.detail = the stored choice).
  *
@@ -56,7 +59,9 @@
 
 	window.TechfiyrConsent = {
 		get: function () { return state; },
-		open: function () { openDialog(); }
+		open: function () { openDialog(); },
+		// assets/js/script.js calls this after each client-side page change, for the new page's embeds
+		apply: function () { apply(); }
 	};
 
 	// ---------- Apply choices to the page ----------
@@ -86,7 +91,7 @@
 				'<h2 class="consent-banner_title"><i class="fa-solid fa-cookie-bite" aria-hidden="true"></i> Your privacy, your choice</h2>' +
 				'<p>We never use advertising cookies. With your permission we use Google Analytics to see which pages are useful, ' +
 				'and load Google Maps on our contact page. Both set Google cookies. You can change this any time in <b>Cookie settings</b>. ' +
-				'Read our <a href="cookie-policy.html">Cookie Policy</a>.</p>' +
+				'Read our <a href="/cookie-policy">Cookie Policy</a>.</p>' +
 			'</div>' +
 			'<div class="consent-banner_actions">' +
 				'<button type="button" class="consent-btn consent-btn_accept" data-consent-accept>Accept all</button>' +
@@ -102,7 +107,7 @@
 	dialog.innerHTML =
 		'<button type="button" class="consent-dialog_close" data-consent-close aria-label="Close cookie settings"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
 		'<h2 class="consent-dialog_title" id="consent-dialog-title">Cookie settings</h2>' +
-		'<p class="consent-dialog_intro">Choose what this site may load. Details are in our <a href="cookie-policy.html">Cookie Policy</a>.</p>' +
+		'<p class="consent-dialog_intro">Choose what this site may load. Details are in our <a href="/cookie-policy">Cookie Policy</a>.</p>' +
 		'<div class="consent-option">' +
 			'<div class="consent-option_text">' +
 				'<h3 id="consent-necessary-label">Strictly necessary</h3>' +

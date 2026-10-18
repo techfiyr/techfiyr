@@ -14,7 +14,7 @@
 <br><br>
 
 <a href="https://techfiyr.com"><img src="https://img.shields.io/badge/techfiyr.com-Visit_Website-237A57?style=for-the-badge&labelColor=191919" alt="Visit techfiyr.com"></a>
-<a href="https://techfiyr.com/contact.html"><img src="https://img.shields.io/badge/Free_Call-Book_Now-C6E45A?style=for-the-badge&labelColor=191919" alt="Book a free call"></a>
+<a href="https://techfiyr.com/contact"><img src="https://img.shields.io/badge/Free_Call-Book_Now-C6E45A?style=for-the-badge&labelColor=191919" alt="Book a free call"></a>
 <a href="https://www.fiverr.com/wahidsaurav"><img src="https://img.shields.io/badge/Fiverr-5.0_★-1DBF73?style=for-the-badge&logo=fiverr&logoColor=white&labelColor=191919" alt="Rated 5.0 on Fiverr"></a>
 <a href="https://www.upwork.com/freelancers/sauravwahid"><img src="https://img.shields.io/badge/Upwork-Hire_Us-237A57?style=for-the-badge&logo=upwork&logoColor=white&labelColor=191919" alt="Hire us on Upwork"></a>
 
@@ -107,19 +107,19 @@ flowchart LR
 
 <table>
 	<tr>
-		<td width="45%"><a href="https://techfiyr.com/project.html?p=matmaps"><img src="public/assets/images/projects/matmaps/cover.jpg" alt="MatMaps app screens"></a></td>
+		<td width="45%"><a href="https://techfiyr.com/projects/matmaps"><img src="public/assets/images/projects/matmaps/cover.jpg" alt="MatMaps app screens"></a></td>
 		<td valign="top">
 			<h3>MatMaps</h3>
 			<p>A UK combat sports platform that helps athletes find clubs and events, and gives gym owners the tools to run their club, on Android and the web.</p>
 			<p>Geo-located club directory · events & bookings · round timers · role-based access · subscriptions</p>
-			<a href="https://techfiyr.com/project.html?p=matmaps"><img src="https://img.shields.io/badge/Case_Study-237A57?style=flat-square" alt="Read the case study"></a>
+			<a href="https://techfiyr.com/projects/matmaps"><img src="https://img.shields.io/badge/Case_Study-237A57?style=flat-square" alt="Read the case study"></a>
 			<a href="https://play.google.com/store/apps/details?id=com.matmaps.app"><img src="https://img.shields.io/badge/Google_Play-191919?style=flat-square&logo=googleplay&logoColor=C6E45A" alt="Get it on Google Play"></a>
 			<a href="https://matmaps.co.uk/"><img src="https://img.shields.io/badge/matmaps.co.uk-191919?style=flat-square&logo=googlechrome&logoColor=C6E45A" alt="Visit matmaps.co.uk"></a>
 		</td>
 	</tr>
 </table>
 
-<p align="center"><a href="https://techfiyr.com/projects.html"><b>See all projects →</b></a></p>
+<p align="center"><a href="https://techfiyr.com/projects"><b>See all projects →</b></a></p>
 
 <br>
 
@@ -140,7 +140,7 @@ flowchart LR
 
 <div align="center">
 
-| <img src="public/assets/images/team/saurav-wahid.png" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
+| <img src="public/assets/images/team/saurav-wahid-portrait.jpg" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
 |:---:|:---:|:---:|:---:|:---:|
 | **[Saurav Wahid](https://www.linkedin.com/in/sauravwahid/)** | **[Viswajit Roy](https://www.linkedin.com/in/viswajitroy)** | **[Ponir Saha](https://www.linkedin.com/in/ponirsaha/)** | **[Md Masud Parvez](https://www.linkedin.com/in/masudparvez11/)** | **[Md. Awon-Uz-Zaman](https://www.linkedin.com/in/awonuzzaman/)** |
 | <sub>Co-Founder & Team Lead | Full Stack AI Native Engineer | Java | Spring | Web | Mobile App | DevOps</sub> | <sub>Co-Founder & Managing Director | Lead UI/UX Designer</sub> | <sub>Co-Founder & CTO | Software Architect | Production AI/RAG | Java | Spring | Python</sub> | <sub>Lead Android & iOS Developer</sub> | <sub>Android & iOS Developer</sub> |
@@ -153,48 +153,58 @@ flowchart LR
 
 ## ⚙️ About this repository
 
-This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a fast, static website hosted on Netlify, with one tiny build step (Firebase config from environment variables) and one Netlify Function (visitor counter).
+This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a Next.js site where every page is prerendered to static HTML and served from Netlify's CDN. Links prefetch the next page so navigation is instant, and a service worker makes the site an installable PWA that opens visited pages offline. The look and motion are the original template's own CSS and scripts. One Netlify Function powers the visitor counter.
 
-<img src="https://img.shields.io/badge/HTML5-191919?style=flat-square&logo=html5&logoColor=C6E45A" alt="HTML5"> <img src="https://img.shields.io/badge/CSS3-191919?style=flat-square&logo=css&logoColor=C6E45A" alt="CSS3"> <img src="https://img.shields.io/badge/JavaScript-191919?style=flat-square&logo=javascript&logoColor=C6E45A" alt="JavaScript"> <img src="https://img.shields.io/badge/Bootstrap-191919?style=flat-square&logo=bootstrap&logoColor=C6E45A" alt="Bootstrap"> <img src="https://img.shields.io/badge/GSAP-191919?style=flat-square&logo=greensock&logoColor=C6E45A" alt="GSAP"> <img src="https://img.shields.io/badge/Netlify-237A57?style=flat-square&logo=netlify&logoColor=white" alt="Netlify">
+<img src="https://img.shields.io/badge/Next.js-191919?style=flat-square&logo=nextdotjs&logoColor=C6E45A" alt="Next.js"> <img src="https://img.shields.io/badge/React-191919?style=flat-square&logo=react&logoColor=C6E45A" alt="React"> <img src="https://img.shields.io/badge/TypeScript-191919?style=flat-square&logo=typescript&logoColor=C6E45A" alt="TypeScript"> <img src="https://img.shields.io/badge/PWA-191919?style=flat-square&logo=pwa&logoColor=C6E45A" alt="PWA"> <img src="https://img.shields.io/badge/Bootstrap-191919?style=flat-square&logo=bootstrap&logoColor=C6E45A" alt="Bootstrap"> <img src="https://img.shields.io/badge/GSAP-191919?style=flat-square&logo=greensock&logoColor=C6E45A" alt="GSAP"> <img src="https://img.shields.io/badge/Netlify-237A57?style=flat-square&logo=netlify&logoColor=white" alt="Netlify">
 
 ### Run it locally
 
 ```bash
 git clone git@github.com:techfiyr/techfiyr.git
 cd techfiyr
-python3 -m http.server 8000 --directory public   # or: npx serve public
-# open http://localhost:8000
+npm install
+npm run dev        # http://localhost:3000
+npm run build && npm start   # production build (service worker on)
 ```
 
-Netlify features (booking form submissions, `_headers`, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.
+Netlify features (booking form submissions, headers and redirects, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.
 
 ### Project structure
 
 ```text
 .
-├── public/                          # The website, deployed as-is (Netlify publish directory)
-│   ├── index.html                   # Home: services, about, reviews, process, team
-│   ├── projects.html                # Portfolio catalog
-│   ├── project.html                 # Project details: project.html?p=<slug>
-│   ├── contact.html                 # Booking calendar, contact details, map
-│   ├── privacy-policy.html · cookie-policy.html · content-policy.html
-│   ├── 404.html · coming-soon.html
+├── app/                             # Next.js routes (prerendered at build time)
+│   ├── layout.tsx                   # <html>, icons, theme colour
+│   ├── (site)/layout.tsx            # Template stylesheets, header, footer, template scripts
+│   ├── (site)/page.tsx              # Home: services, about, reviews, process, team
+│   ├── (site)/projects/             # Portfolio and /projects/<slug> case studies
+│   ├── (site)/contact/              # Booking calendar, contact details, map
+│   ├── (site)/privacy-policy · cookie-policy · content-policy
+│   ├── not-found.tsx · offline/ · coming-soon/   # Stand-alone pages
+│   └── manifest.ts · sitemap.ts     # /manifest.webmanifest, /sitemap.xml
+├── components/                      # Header, NavMenu, Footer, PageTitle, ProjectsGrid, JsonLd, SiteRuntime
+├── lib/
+│   ├── site.ts                      # Company facts, nav, asset versions
+│   ├── seo.ts                       # Page metadata helper
+│   └── projects.ts                  # ← add or edit portfolio projects here
+├── styles/                          # CSS of the stand-alone pages
+├── public/                          # Static files served from the site root
 │   ├── assets/
 │   │   ├── css/                     # style.css (site styles), responsive.css (breakpoints)
-│   │   ├── js/                      # Site scripts: script.js, booking.js, consent.js,
-│   │   │                            #   analytics.js, visitors.js, projects.js,
-│   │   │                            #   projects-data.js  ← add or edit portfolio projects here
+│   │   ├── js/                      # Template behaviour and widgets: script.js, booking.js,
+│   │   │                            #   consent.js, analytics.js, visitors.js
 │   │   ├── vendor/                  # Third-party libraries, one folder each (see THIRD_PARTY_NOTICES.md)
 │   │   ├── fonts/                   # Font Awesome webfonts
 │   │   └── images/                  # brand/ hero/ backgrounds/ services/ about/ team/
 │   │                                #   icons/ projects/<slug>/ og/
+│   ├── sw.js                        # Service worker (PWA, offline)
+│   ├── __forms.html                 # Netlify Forms registration for the booking form
 │   ├── .well-known/security.txt
-│   ├── robots.txt · sitemap.xml · llms.txt   # Search engine and AI crawler discovery
-│   └── _headers                     # Netlify cache and content-type rules
+│   └── robots.txt · llms.txt        # Search engine and AI crawler discovery
 ├── netlify/functions/visits.mjs     # /api/visits: footer visitor counter (Firestore)
-├── scripts/build-config.mjs         # Netlify build: writes public/firebase-config.js from env vars
+├── scripts/build-config.mjs         # Runs before the build: writes public/firebase-config.js from env vars
 ├── .github/assets/                  # README artwork (not deployed)
-├── netlify.toml                     # Build, publish and functions settings
+├── netlify.toml                     # Build, redirects from the old .html URLs, headers
 ├── .editorconfig · .gitattributes   # Editor and line-ending conventions
 ├── AGENTS.md                        # Design system, code style, accessibility and SEO rules
 ├── THIRD_PARTY_NOTICES.md           # Bundled libraries and their licenses
@@ -214,7 +224,7 @@ Signature gradient: `linear-gradient(90deg, #237A57 0%, #C6E45A 100%)` · Fonts:
 
 ### Contributing
 
-Read **[AGENTS.md](AGENTS.md)** before changing anything. It covers the design system, code style, accessibility (WCAG 2.2 AA), and the SEO/AEO/GEO rules every page must follow. Remember to bump the `?v=` query string on any CSS or JS file you change.
+Read **[AGENTS.md](AGENTS.md)** before changing anything. It covers the design system, code style, accessibility (WCAG 2.2 AA), and the SEO/AEO/GEO rules every page must follow. Remember to bump the file's version in `ASSET_VERSION` (`lib/site.ts`) when you change a CSS or JS file in `public/assets`.
 
 ---
 
@@ -222,7 +232,7 @@ Read **[AGENTS.md](AGENTS.md)** before changing anything. It covers the design s
 
 ### Have an app or web idea? Let's build it.
 
-<a href="https://techfiyr.com/contact.html"><img src="https://img.shields.io/badge/Book_a_Free_Call-237A57?style=for-the-badge&labelColor=191919" alt="Book a free call"></a>
+<a href="https://techfiyr.com/contact"><img src="https://img.shields.io/badge/Book_a_Free_Call-237A57?style=for-the-badge&labelColor=191919" alt="Book a free call"></a>
 
 📧 [info@techfiyr.com](mailto:info@techfiyr.com) · 💬 [WhatsApp +880 1540659530](https://wa.me/8801540659530) · 📍 325, Mirpur DOHS, Dhaka, Bangladesh
 

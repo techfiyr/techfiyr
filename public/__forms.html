@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+	Netlify Forms registration. Netlify finds forms by reading static HTML at deploy time, and the
+	Next.js pages are not static files, so the booking form is declared here with the same name and
+	fields as the form on the contact page. public/assets/js/booking.js posts submissions to this file.
+	Keep the field names in sync with app/(site)/contact/page.tsx. Not a page for visitors.
+-->
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="robots" content="noindex, nofollow">
+	<title>TechFiyr forms</title>
+</head>
+
+<body>
+	<form name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+		<input type="hidden" name="form-name" value="booking">
+		<input type="hidden" name="slot_dhaka_time">
+		<input type="hidden" name="slot_visitor_time">
+		<input type="hidden" name="visitor_timezone">
+		<input type="hidden" name="slot_utc">
+		<input name="bot-field">
+		<input type="text" name="name">
+		<input type="email" name="email">
+		<select name="service">
+			<option>Mobile App Design &amp; Development</option>
+		</select>
+		<textarea name="message"></textarea>
+	</form>
+</body>
+
+</html>

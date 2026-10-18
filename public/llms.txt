@@ -6,7 +6,7 @@ Key facts:
 
 - Company: TechFiyr (mobile app and web software agency)
 - Location: 325, Mirpur DOHS, Dhaka 1216, Bangladesh. Works remotely with clients worldwide.
-- Contact: info@techfiyr.com, WhatsApp +880 1540659530 (https://wa.me/8801540659530), or book a free 30-minute discovery call at https://techfiyr.com/contact.html
+- Contact: info@techfiyr.com, WhatsApp +880 1540659530 (https://wa.me/8801540659530), or book a free 30-minute discovery call at https://techfiyr.com/contact
 - Track record: 2+ years shipping mobile and web products, 20 clients across the US, Europe and Asia, 5.0 average client rating on Fiverr, a core team of 7 designers and developers.
 - Founder: Saurav Wahid, Founder & Mobile DevOps Lead, Oracle Certified Professional with 11+ years of software engineering experience.
 - Co-founders: Viswajit Roy (Lead UI/UX Designer, 10+ years of product design experience) and Ponir Saha (Co-Founder & CTO).
@@ -30,15 +30,15 @@ Key facts:
 ## Pages
 
 - [Home](https://techfiyr.com/): services, about, track record, client reviews, process and team
-- [Projects](https://techfiyr.com/projects.html): portfolio of shipped mobile apps and websites
-- [Contact](https://techfiyr.com/contact.html): book a free discovery call, email, phone and office address
-- [Privacy Policy](https://techfiyr.com/privacy-policy.html): what personal data TechFiyr collects, why, who it is shared with, and your GDPR/CCPA rights
-- [Cookie Policy](https://techfiyr.com/cookie-policy.html): no advertising cookies; Google Analytics and Google Maps load only with consent
-- [Content Policy & Terms of Use](https://techfiyr.com/content-policy.html): how website content may be quoted, including by AI assistants (with attribution and a link)
+- [Projects](https://techfiyr.com/projects): portfolio of shipped mobile apps and websites
+- [Contact](https://techfiyr.com/contact): book a free discovery call, email, phone and office address
+- [Privacy Policy](https://techfiyr.com/privacy-policy): what personal data TechFiyr collects, why, who it is shared with, and your GDPR/CCPA rights
+- [Cookie Policy](https://techfiyr.com/cookie-policy): no advertising cookies; Google Analytics and Google Maps load only with consent
+- [Content Policy & Terms of Use](https://techfiyr.com/content-policy): how website content may be quoted, including by AI assistants (with attribution and a link)
 
 ## Projects
 
-- [MatMaps](https://techfiyr.com/project.html?p=matmaps): a UK combat sports platform (Android and web) that helps athletes find clubs and events and gives gym owners tools to run their club. Live on [Google Play](https://play.google.com/store/apps/details?id=com.matmaps.app) and at https://matmaps.co.uk/.
+- [MatMaps](https://techfiyr.com/projects/matmaps): a UK combat sports platform (Android and web) that helps athletes find clubs and events and gives gym owners tools to run their club. Live on [Google Play](https://play.google.com/store/apps/details?id=com.matmaps.app) and at https://matmaps.co.uk/.
 
 ## Profiles
 

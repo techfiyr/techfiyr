@@ -1,6 +1,6 @@
 # robots.txt for https://techfiyr.com
 # Everything public is open to search engines and AI search / answer engines.
-# Pages that must stay out of results (coming-soon.html, 404.html) use <meta name="robots" content="noindex">
+# Pages that must stay out of results (coming soon, offline, 404) use <meta name="robots" content="noindex">
 # instead of Disallow, so crawlers can read that instruction.
 
 User-agent: *

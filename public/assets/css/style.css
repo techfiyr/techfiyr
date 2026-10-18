@@ -32211,3 +32211,60 @@ div.slider-one_heading {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Skip link (every page, app/(site)/layout.tsx): hidden until a keyboard user tabs to it
+   ========================================================================== */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100000000;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white-color);
+  background-color: var(--main-color);
+  transform: translateY(-200%);
+  transition: transform 0.3s ease;
+}
+
+.skip-link:focus,
+.skip-link:visited {
+  color: var(--white-color);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.skip-link:focus-visible {
+  outline: 2px solid var(--white-color);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Next.js page structure (app/(site)/layout.tsx): page content sits in <main>, so the
+   footer is no longer the direct sibling of the last section. Same spacing as
+   ".incredible-one+.main-footer" above.
+   ========================================================================== */
+main:has(> .incredible-one:last-child) + .main-footer {
+  margin-top: 120px;
+}
+
+/* ==========================================================================
+   Mobile menu: no dark overlay over the page while the menu is open.
+   The backdrop stays (transparent) so a tap beside the menu still closes it.
+   ========================================================================== */
+.mobile-menu .menu-backdrop,
+.mobile-menu-visible .mobile-menu .menu-backdrop {
+  background: transparent;
+}

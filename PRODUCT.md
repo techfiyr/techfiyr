@@ -16,7 +16,7 @@ Secondary audiences (not the design target, but must be served): clients arrivin
 
 techfiyr.com is the marketing website of TechFiyr, a mobile app and web software agency in Mirpur DOHS, Dhaka, Bangladesh. It exists to turn a qualified visitor into an inquiry.
 
-Success is any qualified inquiry, weighted equally: a booked free 30-minute discovery call (contact.html), a WhatsApp message, an email to info@techfiyr.com, or an order on Fiverr/Upwork.
+Success is any qualified inquiry, weighted equally: a booked free 30-minute discovery call (/contact), a WhatsApp message, an email to info@techfiyr.com, or an order on Fiverr/Upwork.
 
 ## Positioning
 
@@ -37,8 +37,8 @@ Mobile DevOps and Codemagic CI/CD are a real capability (the founder is Mobile D
 ## Capabilities and Constraints
 
 - Services: Mobile App Design & Development (Flutter, React Native, native iOS and Android, store deployment); Custom Web Software & SaaS (Next.js, React, Node.js, admin dashboards); UI/UX & Product Prototyping (Figma, design systems, wireframes); Backend, Cloud & CI/CD (REST/GraphQL APIs, Firebase, AWS, Codemagic).
-- Pages: home, projects, project details (`project.html?p=<slug>`, rendered from `public/assets/js/projects-data.js`), contact, privacy, cookie and content policies, 404, coming-soon.
-- Technical constraints live in `AGENTS.md` and are binding: plain static HTML/CSS/jQuery on Netlify, no frameworks or build tooling, Netlify Forms, one-year asset cache with `?v=` busting, consent-gated analytics and embeds.
+- Pages: home, projects, project details (`/projects/<slug>`, prerendered from `lib/projects.ts`), contact, privacy, cookie and content policies, 404, offline, coming-soon.
+- Technical constraints live in `AGENTS.md` and are binding: Next.js (App Router, every page prerendered) on Netlify, the template's own CSS and jQuery behaviour scripts for the design, installable PWA with offline support, Netlify Forms, one-year asset cache with `?v=` busting, consent-gated analytics and embeds.
 - Every page and content change must be SEO, AEO and GEO optimised (AGENTS.md section 7): crawlable HTML, JSON-LD, answer-first copy, sitemap and `llms.txt` kept in sync.
 - Company facts (name, address, phone, email, founder, rating) must stay identical across page copy, JSON-LD, footer and `llms.txt`.
 
@@ -53,7 +53,7 @@ Mobile DevOps and Codemagic CI/CD are a real capability (the founder is Mobile D
 
 - Track record: 2+ years shipping, 20 clients across the US, Europe and Asia, 5.0 average Fiverr rating, core team of 7.
 - Team (real people, photos in `public/assets/images/team/`): Saurav Wahid (Founder & Mobile DevOps Lead, Oracle Certified Professional, 11+ years), Viswajit Roy (Co-founder, Lead UI/UX Designer, 10+ years), Ponir Saha (Co-Founder & CTO), Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer), Pranabesh Sarkar (AI/ML Engineer).
-- Reviews: real Fiverr/Upwork client reviews in the testimonial carousel on `public/index.html`.
+- Reviews: real Fiverr/Upwork client reviews in the testimonial carousel on the home page (`app/(site)/page.tsx`).
 - Projects: one published case study, MatMaps (UK combat sports platform, Android and web, live on Google Play and matmaps.co.uk).
 - Profiles: GitHub, Fiverr, Upwork, the founder's LinkedIn.
 - Absences future work must not fill with invention: only one public case study, no client logos, no press, no published pricing, no awards. Never fabricate reviews, statistics, clients or logos.

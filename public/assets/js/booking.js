@@ -1,10 +1,12 @@
 /*
- * Discovery-call booking widget for contact.html.
+ * Discovery-call booking widget for the contact page (app/(site)/contact/page.tsx).
  * Slots are defined in Dhaka time and shown in the visitor's own time zone.
- * Submissions go to Netlify Forms (form name "booking"); if that fails
- * (e.g. local preview), the visitor's email app opens with the details instead.
+ * Submissions go to Netlify Forms (form name "booking", declared for Netlify in public/__forms.html);
+ * if that fails (e.g. local preview), the visitor's email app opens with the details instead.
+ * The page can be opened several times without a reload, so assets/js/script.js calls
+ * window.TechfiyrBooking() each time the contact page is shown.
  */
-(function () {
+window.TechfiyrBooking = function () {
 	'use strict';
 
 	// ---- Availability (Dhaka time, UTC+6, no daylight saving) ----
@@ -18,7 +20,8 @@
 	var CONTACT_EMAIL = 'info@techfiyr.com';
 
 	var root = document.getElementById('booking');
-	if (!root) return;
+	if (!root || root.getAttribute('data-booking-ready')) return;
+	root.setAttribute('data-booking-ready', 'true');
 
 	var $ = function (sel) { return root.querySelector(sel); };
 	var visitorTz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || 'your local time';
@@ -162,7 +165,7 @@
 		var submitBtn = $('[data-booking-submit]');
 		submitBtn.disabled = true;
 
-		fetch('/', {
+		fetch('/__forms.html', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 			body: new URLSearchParams(new FormData(form)).toString()
@@ -199,4 +202,4 @@
 
 	renderCalendar();
 	if (keys.length) { selectedKey = keys[0]; renderCalendar(); renderTimes(); }
-})();
+};

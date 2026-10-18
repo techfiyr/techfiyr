@@ -6,14 +6,14 @@
  * No cookies or local storage.
  * The map library (assets/vendor/jsvectormap) loads only when the footer scrolls near view.
  * If the API isn't available (e.g. local preview), the block stays hidden.
+ * The footer stays on the page during client-side navigation, so this runs once:
+ * assets/js/script.js calls window.TechfiyrVisitors.start() after React hydrates.
  */
 (function () {
 	'use strict';
 
-	var root = document.querySelector('[data-visitors]');
-	if (!root || !window.fetch) return;
-
-	var VENDOR = 'assets/vendor/jsvectormap/';
+	var root;
+	var VENDOR = '/assets/vendor/jsvectormap/';
 	var numberFmt = new Intl.NumberFormat('en');
 	var names = window.Intl && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
 
@@ -103,16 +103,24 @@
 			.catch(function () { el.hidden = true; });
 	}
 
-	fetch('/api/visits', { method: isNewVisit() ? 'POST' : 'GET' })
-		.then(function (res) {
-			return res.json().catch(function () { return {}; }).then(function (data) {
-				if (!res.ok) throw data;
-				return data;
+	function start() {
+		root = document.querySelector('[data-visitors]');
+		if (!root || !window.fetch || start.done) return;
+		start.done = true;
+
+		fetch('/api/visits', { method: isNewVisit() ? 'POST' : 'GET' })
+			.then(function (res) {
+				return res.json().catch(function () { return {}; }).then(function (data) {
+					if (!res.ok) throw data;
+					return data;
+				});
+			})
+			.then(render)
+			.catch(function (err) {
+				// API not available: keep the block hidden, but say why for whoever is debugging
+				if (window.console) console.warn('Visitor counter unavailable:', (err && (err.detail || err.error)) || err);
 			});
-		})
-		.then(render)
-		.catch(function (err) {
-			// API not available: keep the block hidden, but say why for whoever is debugging
-			if (window.console) console.warn('Visitor counter unavailable:', (err && (err.detail || err.error)) || err);
-		});
+	}
+
+	window.TechfiyrVisitors = { start: start };
 })();

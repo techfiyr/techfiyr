@@ -1,0 +1,215 @@
+/*
+ * Stand-alone page styles, moved unchanged from public/404.html.
+ * Rendered as an inline <style> by the page, so they never reach the main site's pages.
+ */
+const css = `
+:root {
+	color-scheme: dark;
+	--ink: #f5f8f4;
+	--muted: #aebbb2;
+	--green: #237a57;
+	--lime: #c6e45a;
+	--night: #07110b;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	overflow-x: hidden;
+	padding: 32px 16px 80px;
+	color: var(--ink);
+	background:
+		radial-gradient(circle at 18% 12%, rgba(35, 122, 87, .38), transparent 34rem),
+		radial-gradient(circle at 86% 86%, rgba(198, 228, 90, .16), transparent 30rem),
+		var(--night);
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: .28;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+	background-size: 56px 56px;
+	mask-image: linear-gradient(to bottom, black, transparent 88%);
+}
+
+main {
+	position: relative;
+	z-index: 1;
+	width: min(760px, 100%);
+	text-align: center;
+}
+
+.logo {
+	display: block;
+	width: 190px;
+	max-width: 52vw;
+	height: auto;
+	margin: 0 auto 56px;
+}
+
+.status {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 15px;
+	border: 1px solid rgba(198, 228, 90, .24);
+	border-radius: 999px;
+	background: rgba(198, 228, 90, .07);
+	color: #dcec9f;
+	font-size: 12px;
+	font-weight: 750;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+
+.status::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--lime);
+	box-shadow: 0 0 18px var(--lime);
+}
+
+h1 {
+	margin: 30px 0 20px;
+	font-size: clamp(58px, 11vw, 112px);
+	line-height: .92;
+	letter-spacing: -.07em;
+}
+
+h1 span {
+	color: transparent;
+	background: linear-gradient(110deg, var(--lime), #63c68d);
+	background-clip: text;
+	-webkit-background-clip: text;
+}
+
+p {
+	max-width: 590px;
+	margin: 0 auto;
+	color: var(--muted);
+	font-size: clamp(17px, 2.3vw, 21px);
+	line-height: 1.7;
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 14px;
+	margin-top: 40px;
+}
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 52px;
+	padding: 0 28px;
+	border-radius: 999px;
+	font-size: 15px;
+	font-weight: 700;
+	text-decoration: none;
+	transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.btn:hover {
+	transform: translateY(-2px);
+}
+
+.btn:focus-visible,
+.links a:focus-visible {
+	outline: 2px solid var(--lime);
+	outline-offset: 3px;
+}
+
+.btn-primary {
+	color: #ffffff;
+	background: linear-gradient(110deg, var(--green), #63c68d 60%, var(--lime));
+}
+
+.btn-ghost {
+	color: var(--ink);
+	border: 1px solid rgba(255, 255, 255, .18);
+	background: rgba(255, 255, 255, .04);
+}
+
+.btn-ghost:hover {
+	border-color: rgba(198, 228, 90, .5);
+	background: rgba(198, 228, 90, .07);
+}
+
+.links {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px 22px;
+	margin: 36px 0 0;
+	padding: 0;
+	list-style: none;
+	font-size: 14px;
+}
+
+.links a {
+	color: var(--muted);
+	text-decoration: none;
+	border-bottom: 1px solid transparent;
+	transition: color .2s ease, border-color .2s ease;
+}
+
+.links a:hover {
+	color: var(--lime);
+	border-color: currentColor;
+}
+
+footer {
+	position: fixed;
+	bottom: 25px;
+	left: 0;
+	right: 0;
+	color: rgba(255, 255, 255, .42);
+	text-align: center;
+	font-size: 12px;
+}
+
+@media (max-height: 760px) {
+	.logo {
+		margin-bottom: 28px;
+	}
+
+	footer {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn,
+	.links a {
+		transition: none;
+	}
+
+	.btn:hover {
+		transform: none;
+	}
+}
+`;
+
+export default css;

@@ -13,32 +13,53 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 
 | Item | Value |
 |---|---|
-| Stack | Plain static HTML + CSS + jQuery/vanilla JS. No framework and no package manager. The only build step is `scripts/build-config.mjs` (writes `public/firebase-config.js` from env vars); one Netlify Function powers the visitor counter. |
-| Website root | `public/` is deployed as the site root. **Site paths in this file (`index.html`, `assets/...`) are relative to `public/`.** |
+| Stack | **Next.js 16 (App Router) + React 19 + TypeScript**, every page prerendered to static HTML at build time. The design layer is unchanged: the template's own CSS (`public/assets/css`) and jQuery/vanilla behaviour scripts (`public/assets/js`, `public/assets/vendor`). Installable PWA with a service worker (`public/sw.js`). One Netlify Function powers the visitor counter. |
+| Website root | `public/` holds static files served from the site root (`/assets/...`, `llms.txt`, `robots.txt`, `sw.js`). Pages live in `app/`. **Asset paths in this file (`assets/...`) are relative to `public/`.** |
 | Base template | "iThub" multipurpose business HTML template, customised for TechFiyr |
-| Hosting | Netlify (Netlify Forms for the booking form; `_headers` sets cache rules) |
+| Hosting | Netlify with its Next.js runtime (`netlify.toml`: build, legacy redirects, cache headers). Netlify Forms for the booking form (declared in `public/__forms.html`). |
 | Production domain | `https://techfiyr.com` (use it for canonical, Open Graph and JSON-LD URLs) |
-| Pages | `index.html`, `projects.html`, `project.html?p=<slug>` (project details, rendered by JS), `contact.html`, `404.html`, `coming-soon.html` |
-| Main stylesheet | `assets/css/style.css` (template CSS plus all TechFiyr additions at the end) and `assets/css/responsive.css` (template breakpoints) |
-| Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. |
-| Portfolio data | `assets/js/projects-data.js` (single source of truth for projects) |
+| Pages (routes) | `/` `app/(site)/page.tsx`, `/projects`, `/projects/<slug>` (one static page per project), `/contact`, `/privacy-policy`, `/cookie-policy`, `/content-policy`, plus stand-alone `/coming-soon`, `/offline` (PWA fallback) and the 404 page (`app/not-found.tsx`). Old `.html` addresses 301-redirect to these. |
+| Main stylesheet | `assets/css/style.css` (template CSS plus all TechFiyr additions at the end) and `assets/css/responsive.css` (template breakpoints), linked from `app/(site)/layout.tsx` |
+| Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. npm packages: only `next`, `react`, `react-dom` and TypeScript types. |
+| Portfolio data | `lib/projects.ts` (single source of truth for projects) |
+| Company facts | `lib/site.ts` (contact details, shared JSON-LD nodes, nav items, asset versions) |
 
 ### Repository layout
 
 ```text
-public/                 website root (deployed)
-  *.html                pages
+app/                    Next.js routes
+  layout.tsx            <html>/<body>, site-wide metadata, icons
+  (site)/layout.tsx     template stylesheets, header, <main>, footer, template scripts
+  (site)/**/page.tsx    pages with the header and footer
+  not-found.tsx, offline/, coming-soon/   stand-alone pages (own inline styles from styles/)
+  manifest.ts, sitemap.ts                 /manifest.webmanifest, /sitemap.xml
+components/             Header, NavMenu, Footer, PageTitle, ProjectsGrid, JsonLd, SiteRuntime
+lib/                    site.ts (facts, nav, versions), seo.ts (metadata), projects.ts (portfolio)
+styles/                 CSS of the stand-alone pages only
+public/                 static files served at the site root
   assets/css/           style.css, responsive.css (our styles)
-  assets/js/            our scripts
+  assets/js/            our scripts (template behaviour, consent, booking, visitors, analytics)
   assets/vendor/<lib>/  third-party libraries, untouched
   assets/fonts/         Font Awesome webfonts
   assets/images/        brand/ hero/ backgrounds/ services/ about/ team/ icons/ projects/<slug>/ og/
+  sw.js                 service worker (PWA, offline)
+  __forms.html          Netlify Forms registration (not a page)
 netlify/functions/      serverless API (visitor counter)
-scripts/                build scripts (Netlify build command)
+scripts/                build scripts (run before `next build`)
 .github/assets/         README artwork, not deployed
 ```
 
-Rules: our code goes in `assets/css` and `assets/js`; libraries in `assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid.png`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
+Rules: page markup goes in `app/` and `components/`; our CSS in `public/assets/css`; our browser scripts in `public/assets/js`; libraries in `public/assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid-portrait.jpg`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
+
+### Commands
+
+| Command | What it does |
+|---|---|
+| `npm install` | Install Next.js, React and TypeScript (Node 20.9+) |
+| `npm run dev` | Development server on http://localhost:3000 (the service worker is off in development) |
+| `npm run build` | Writes `public/firebase-config.js`, then builds and prerenders every page |
+| `npm start` | Serves the production build locally (service worker on) |
+| `npm run lint` | TypeScript check |
 
 ---
 
@@ -48,21 +69,24 @@ AI agents tend to produce a recognisable "default" look and code style. **None o
 
 ### Never introduce
 
-- Tailwind, utility-class CSS frameworks, CSS-in-JS, Sass/PostCSS, or any build tooling.
-- React, Vue, Svelte, Alpine, web components, TypeScript, ES modules, bundlers, or npm dependencies.
+- Tailwind, utility-class CSS frameworks, CSS-in-JS, CSS Modules, Sass/PostCSS, or UI component libraries (shadcn, MUI, Chakra, Radix themes…). Styling stays in the template's global `style.css`.
+- Other frameworks or extra npm dependencies (Vue, Svelte, Alpine, animation or carousel packages, `next/font`, `next/image` for template images). The npm dependencies are `next`, `react`, `react-dom` and TypeScript types; anything else needs the owner's approval.
 - New fonts: no `Inter`, `system-ui`, `-apple-system`, `Roboto`, `Geist`, or monospace UI text.
 - New colours: no indigo/violet/purple/blue gradients, no slate/zinc greys, no `#6366f1`, `#8b5cf6`, `#3b82f6`, `#0f172a` and so on. Use only the tokens in section 4.
 - Generic "SaaS landing page" patterns: glassmorphism hero cards, bento grids, pill badges with emoji, "✨" or any emoji used as icons, gradient text on every heading, centred 3-column feature grids with rounded-xl cards and soft shadows.
 - Emoji as icons. Icons come from **Font Awesome 6** (already bundled), e.g. `<i class="fa-solid fa-check" aria-hidden="true"></i>`.
 - New CSS reset, new `:root` palettes, new design-token files, or new global stylesheets.
-- `<style>` blocks or `style="..."` attributes in pages. The one existing exception is `style="background-image:url(...)"` on template decoration/background elements; keep that pattern only for background images.
+- `<style>` blocks or `style` props in site pages. The one existing exception is `style={{ backgroundImage: 'url(/assets/...)' }}` on template decoration/background elements; keep that pattern only for background images. (The stand-alone 404, offline and coming-soon pages carry their own inline CSS from `styles/` on purpose: they must render without the site stylesheets.)
 - Placeholder copy such as "Lorem ipsum", "Acme Inc.", "John Doe", fake testimonials, fake statistics, or fake client logos.
 
 ### Code style to follow (match the existing files)
 
-**HTML**
-- Indent with **tabs**. Lower-case tags and attributes, double quotes.
-- Keep the template's comment markers around every section: `<!-- Contact Two -->` … `<!-- End Contact Two -->`.
+**Markup (TSX in `app/` and `components/`)**
+- Indent with **tabs**, single quotes in TypeScript, double quotes in JSX attributes. Server components by default; add `'use client'` only for real interactivity (see `ProjectsGrid.tsx`, `NavMenu.tsx`).
+- The markup is the template's HTML written as JSX (`className`, `htmlFor`, `style={{ backgroundImage: ... }}`). Keep it identical to the template patterns, including the whitespace between inline elements: JSX drops line breaks, so write `{' '}` where HTML had a space between inline or inline-block elements (buttons side by side, breadcrumb items, nav items). Missing spaces change the layout.
+- Internal links use `next/link` (`<Link href="/contact">`) so pages are prefetched and open instantly; external, `mailto:` and `tel:` links stay `<a>`. Use clean URLs (`/contact`, `/projects/<slug>`), never `.html`.
+- Images and assets use absolute paths (`/assets/images/...`), never relative ones.
+- Keep the template's comment markers around every section: `{/* Contact Two */}` … `{/* End Contact Two */}`.
 - Use the template's BEM-ish class naming: `block`, `block_element`, `block_element-part`, plus modifier classes like `style-two`, `light`, `centered` (e.g. `sec-title_heading`, `contact-info_block-inner`, `cta-one style-two`).
 - Use Bootstrap grid and utility classes that are already in use (`row clearfix`, `col-lg-6 col-md-6 col-sm-12`, `d-flex`, `justify-content-between`, `align-items-center`, `flex-wrap`, `gap-3`, `ms-3`, `d-none d-md-inline-flex`).
 - JS hooks use `data-*` attributes (`data-booking-form`, `data-projects-grid`), not ids or styling classes.
@@ -72,7 +96,7 @@ AI agents tend to produce a recognisable "default" look and code style. **None o
 
   ```css
   /* ==========================================================================
-     Services detail page (services.html)
+     Services detail page (/services)
      ========================================================================== */
   ```
 
@@ -82,15 +106,21 @@ AI agents tend to produce a recognisable "default" look and code style. **None o
 - Breakpoints: `max-width: 991.98px` (tablet) and `max-width: 767.98px` (mobile) for new code; the template also uses 1199/599/479px in `responsive.css`.
 - Wrap any new animation or transition in a `@media (prefers-reduced-motion: reduce)` override.
 
-**JavaScript**
-- ES5, inside an IIFE with `'use strict';`, `var`, `function` declarations, tabs. See `assets/js/booking.js` and `assets/js/projects.js`.
-- Header comment at the top of every new file explaining what page uses it and where its data comes from.
-- jQuery is available (`script.js` uses it); new page-specific widgets may be vanilla JS like `booking.js`.
-- Escape any data inserted into HTML (see `esc()` in `projects.js`).
+**TypeScript (app code)**
+- Strict TypeScript, function components, named types for data (`Project` in `lib/projects.ts`). Facts, URLs and versions come from `lib/site.ts`; never hard-code them in pages.
+- Header comment at the top of every new file explaining what it is for and where its data comes from.
+- Render data with JSX (React escapes it). `dangerouslySetInnerHTML` only for JSON-LD (`components/JsonLd.tsx`) and the stand-alone pages' CSS.
+
+**Browser scripts (`public/assets/js`)**
+- ES5, inside an IIFE with `'use strict';`, `var`, `function` declarations, tabs. See `assets/js/booking.js`.
+- They must never change the HTML before React hydrates it. Template behaviour goes in `script.js`: once-per-visit work (header, mobile menu, footer) in `initOnce()`, per-page widgets in `initPage(path)` with cleanup in `destroyPage()`. `components/SiteRuntime.tsx` calls `window.TechFiyr.mount(pathname)` after hydration and after every client-side page change. A page widget in its own file exposes an init function (`window.TechfiyrBooking`) that `initPage` calls, and guards against running twice on the same DOM.
+- jQuery is available; new page-specific widgets may be vanilla JS like `booking.js`.
+- Escape any data inserted into HTML.
 - No external API calls, trackers or ad scripts without the owner's approval.
 
 **Cache busting (mandatory)**
-- `_headers` caches `/assets/*` for one year. Every time you change a CSS or JS file, bump its `?v=` query string **in every HTML page that loads it** (format `?v=YYYYMMDD` or `?v=YYYYMMDD.N`).
+- `netlify.toml` caches `/assets/*` for one year. Every time you change a CSS or JS file in `public/assets`, bump its version in `ASSET_VERSION` in `lib/site.ts` (format `YYYYMMDD` or `YYYYMMDD.N`); every page picks it up from there. Next.js's own files (`/_next/static/*`) are content-hashed and need nothing.
+- When you change the caching rules in `public/sw.js`, bump its `VERSION` so old caches are cleared.
 - A changed image must get a **new file name**; otherwise visitors keep the old one for up to a year.
 
 ---
@@ -194,18 +224,16 @@ Type scale (desktop; `responsive.css` scales it down):
 
 ## 5. Building a new page
 
-Copy an existing inner page (`contact.html` or `projects.html` is the best starting point) and keep its structure. Do not hand-write a new header or footer.
+Create `app/(site)/<route>/page.tsx`, copying an existing inner page (`contact/page.tsx` or `projects/page.tsx` is the best starting point). The layout `app/(site)/layout.tsx` already provides the stylesheets, skip link, preloader, header, `<main id="main">`, footer, back-to-top ring and scripts. Never hand-write a header or footer.
 
 ### 5.1 Required page skeleton
 
-1. `<head>` (see section 7.1 for the full SEO head).
-2. `.page-wrapper` → `.preloader` → `header.main-header.header-style-one` (header-top, header-lower, mobile-menu), copied exactly. Set `class="current"` on the matching nav item and add `aria-current="page"` to its link.
-3. `<main id="main">` wrapping all page content (new pages must add this; see section 6).
-4. `section.page-title` hero: `page-title_big-title` (one outlined word), `page-title_bg-image` (photo from `assets/images/background/`), `page-title_shape-one/two`, the page's single `<h1>`, and `ul.bread-crumb`.
-5. Content sections built from existing components (5.2).
-6. `section.cta-one.style-two` call to action before the footer when it fits.
-7. `footer.main-footer`, copied exactly.
-8. `.progress-wrap` back-to-top, then the same script list as other pages, in the same order, with the same `?v=` values. Page-specific scripts go last.
+1. `export const metadata = pageMetadata({ title, description, path })` from `lib/seo.ts` (section 7.1).
+2. `<JsonLd data={...} />` with the page's structured data (section 7.2).
+3. `<PageTitle bigTitle="..." title="..." crumbs={[...]} />`: outlined word, the page's single `<h1>`, breadcrumb.
+4. Content sections built from existing components (5.2).
+5. `section.cta-one.style-two` call to action before the footer when it fits.
+6. If the page needs template behaviour (a slider, a counter), add it to `initPage()` in `public/assets/js/script.js` so it starts on client-side navigation too.
 
 ### 5.2 Reusable components (use these, don't reinvent)
 
@@ -226,7 +254,7 @@ Copy an existing inner page (`contact.html` or `projects.html` is the best start
 | Portfolio | `.projects-section`, `.projects-grid`, `.project-hero`, `.project-body`, `.project-gallery` |
 | Map | `.map-one` with a titled `<iframe>` |
 
-When you add a page, also: add it to the main nav (all pages) if it is a top-level page, add it to `sitemap.xml`, add an extensionless rewrite (`/page` → `/page.html`, status 200) in `netlify.toml`, and add internal links to it from relevant existing sections.
+When you add a page, also: add it to `NAV` in `lib/site.ts` if it is a top-level page, add it to `app/sitemap.ts`, add it to `PRECACHE_PAGES` in `public/sw.js` if it should open offline on a first visit, and add internal links to it from relevant existing sections.
 
 ---
 
@@ -235,7 +263,7 @@ When you add a page, also: add it to the main nav (all pages) if it is a top-lev
 ### Required on every new or edited page
 
 - `<html lang="en">`, a unique descriptive `<title>`, and `<meta name="viewport" content="width=device-width, initial-scale=1.0">` (never disable zoom).
-- A skip link as the first focusable element: `<a class="skip-link" href="#main">Skip to content</a>`, and `<main id="main">`. Add the `.skip-link` style once at the end of `style.css` (visually hidden until focused, brand green background, white text).
+- A skip link as the first focusable element and `<main id="main">`: both come from `app/(site)/layout.tsx` (`.skip-link` style at the end of `style.css`). Don't add a second `<main>` inside a page.
 - Landmarks: `header`, `nav` (with `aria-label` if more than one), `main`, `footer`.
 - **Exactly one `<h1>` per page**, then headings in order with no skipped levels. Decorative big words (`page-title_big-title`, marquee text) must not be heading elements and should have `aria-hidden="true"`.
 - Text contrast ≥ 4.5:1 (≥ 3:1 for 24px+ or 18.66px+ bold text, icons and UI borders). Use the contrast column in section 4.1. Never put `#C6E45A` text on light backgrounds, and never put small white text on the lime end of the gradient.
@@ -255,9 +283,8 @@ When you add a page, also: add it to the main nav (all pages) if it is a top-lev
 
 - `.mobile-nav-toggler` and `.mobile-menu .close-btn` are `div`s. Change them to `<button type="button">` with `aria-label`, `aria-expanded` and `aria-controls`.
 - Decorative images use `alt="Arrow"`, `alt="Quote"`, `alt="Handshake"`. Change to `alt=""`.
-- Form fields in `contact.html` use placeholders without labels.
+- Form fields on the contact page (`app/(site)/contact/page.tsx`) use placeholders without labels.
 - `.btn-style-one` has white text over the green→lime gradient; around the lime end, contrast drops below 3:1. When restyling is approved, darken the gradient end behind text or add a text shadow. Do not do this without the owner's approval, because it is a design change.
-- No skip link and no `<main>` on existing pages.
 - `assets/images/background/page-title-1.png` is referenced by inner pages but does not exist.
 
 ---
@@ -277,7 +304,7 @@ All three come from the same base: clear facts, structured data, and crawlable H
 1. Pick **one primary query** the page should rank and be cited for, phrased the way a client would type or ask it (e.g. "Flutter app development company in Bangladesh", "how much does a Flutter app cost"). Add 3–5 related secondary queries.
 2. Check that no existing page already targets the same query. If one does, improve that page instead of creating a competing one.
 3. Decide the search intent (learn, compare, hire, contact) and make the page answer exactly that.
-4. Choose a short, lower-case, hyphenated file name that contains the main keyword (`flutter-app-development.html`).
+4. Choose a short, lower-case, hyphenated route that contains the main keyword (`/flutter-app-development`, file `app/(site)/flutter-app-development/page.tsx`).
 
 **B. While writing: on-page SEO, AEO and GEO**
 
@@ -289,16 +316,16 @@ All three come from the same base: clear facts, structured data, and crawlable H
 6. Add a visible **FAQ** of 3–6 real questions on service, pricing and contact pages, and mark it up with `FAQPage`.
 7. **Internal links**: link **to** the new page from at least 2 relevant existing pages or sections, and **from** it to at least 2 related pages (a service, a project, contact). Use descriptive anchor text.
 8. **Images**: descriptive file name, meaningful `alt`, compressed, `loading="lazy"` below the fold. Add a 1200×630 OG image in `assets/images/og/` for important pages.
-9. Keep company facts (name, address, phone, email, founder, rating) **identical** to `index.html` JSON-LD and `llms.txt`.
+9. Keep company facts (name, address, phone, email, founder, rating) **identical** to `lib/site.ts`, the home page JSON-LD (`app/(site)/page.tsx`) and `llms.txt`.
 
 **C. Head and structured data (section 7.1 and 7.2)**
 
-1. Full head block: canonical, robots, Open Graph, Twitter, `llms.txt` alternate link, the combined Google Fonts link.
-2. JSON-LD `@graph` with the page type (`WebPage`, `Service`, `ContactPage`, `CollectionPage`, `Article`, `FAQPage`), the shared `ProfessionalService` node (`@id` `https://techfiyr.com/#organization`), and `BreadcrumbList` on inner pages. Everything in it must be visible on the page.
+1. `metadata` from `pageMetadata()` (section 7.1): canonical, robots, Open Graph, Twitter, `llms.txt` alternate link.
+2. `<JsonLd>` with a JSON-LD `@graph` of the page type (`WebPage`, `Service`, `ContactPage`, `CollectionPage`, `Article`, `FAQPage`), the shared `ProfessionalService` node (`orgNode` in `lib/site.ts`), and `BreadcrumbList` on inner pages (`breadcrumbNode()`). Everything in it must be visible on the page.
 
 **D. Discovery files: update in the same change**
 
-1. `sitemap.xml`: add the URL (with its main images) and set `<lastmod>` to today. When you edit an existing page's content, update its `<lastmod>` too.
+1. `app/sitemap.ts` (served as `/sitemap.xml`): add the URL (with its main images) and set its date to today. When you edit an existing page's content, update its date too. Projects are added automatically from `lib/projects.ts`.
 2. `llms.txt`: add the page under **Pages** (or **Projects**/**Services**) with a one-line summary. Update any changed facts.
 3. `robots.txt`: no change normally. Never block a public page; use `noindex` for pages that must stay out of results.
 4. New project: also follow the project steps in section 7.4.
@@ -316,52 +343,34 @@ All three come from the same base: clear facts, structured data, and crawlable H
 2. Bing Webmaster Tools: submit the URL. Bing powers ChatGPT search and Copilot.
 3. Ask ChatGPT, Claude and Perplexity the page's primary query a few weeks later and note whether TechFiyr is cited.
 
-### 7.1 Required `<head>` for every indexable page
+### 7.1 Required head metadata for every indexable page
 
-Order and format to follow (tabs, same stylesheet/font links and `?v=` values as other pages):
+Pages don't write `<head>` tags by hand: Next.js renders them from the page's `metadata` export. Use the helper in `lib/seo.ts`, which produces the full set (title, description, canonical, robots, Open Graph, Twitter card, the `llms.txt` alternate link):
 
-```html
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Primary Keyword Phrase | TechFiyr</title>
-	<meta name="description" content="150–160 characters: what the page offers, for whom, and one proof point.">
-	<link rel="canonical" href="https://techfiyr.com/page-name.html">
-	<meta name="robots" content="index, follow, max-image-preview:large">
+```tsx
+import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 
-	<!-- Open Graph / social -->
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="TechFiyr">
-	<meta property="og:title" content="Same intent as <title>">
-	<meta property="og:description" content="Same as meta description">
-	<meta property="og:url" content="https://techfiyr.com/page-name.html">
-	<meta property="og:image" content="https://techfiyr.com/assets/images/og/page-name.jpg">
-	<meta property="og:image:alt" content="Describe the image">
-	<meta property="og:locale" content="en_US">
-	<meta name="twitter:card" content="summary_large_image">
-
-	<link rel="icon" href="assets/images/brand/favicon.png" type="image/png">
-
-	<!-- Stylesheets (same as every page) -->
-	…
-	<!-- Fonts (same three Google Fonts links) -->
-	…
-
-	<!-- Structured data -->
-	<script type="application/ld+json">…</script>
-</head>
+export const metadata: Metadata = pageMetadata({
+	title: 'Primary Keyword Phrase | TechFiyr',
+	description: '150–160 characters: what the page offers, for whom, and one proof point.',
+	path: '/page-name',
+	// optional: ogTitle, ogDescription, twitterDescription, image: { url, width, height, alt }
+});
 ```
+
+For a page generated per item (projects), export `generateMetadata` instead (see `app/(site)/projects/[slug]/page.tsx`). Icons, the manifest link and the theme colour come from `app/layout.tsx`; stylesheets and fonts from `app/(site)/layout.tsx`.
 
 Rules:
 - `<title>` ≤ 60 characters, unique, primary keyword first, brand last (`… | TechFiyr`).
 - Meta description 150–160 characters, unique, no keyword stuffing. Do not add `meta keywords` to new pages (search engines ignore it).
-- Canonical URLs are absolute and use `https://techfiyr.com`.
+- Canonical URLs are absolute, use `https://techfiyr.com` and the clean path (`/contact`, never `.html`).
 - OG images are 1200×630 JPG/WebP under `assets/images/og/`.
-- Pages that should not be indexed (`coming-soon.html`, thank-you pages, `404.html`) use `<meta name="robots" content="noindex, nofollow">` and are left out of the sitemap.
+- Pages that should not be indexed (coming soon, offline, thank-you pages, 404) export `robots: NOINDEX` from `lib/seo.ts` and are left out of `app/sitemap.ts`.
 
 ### 7.2 Structured data (JSON-LD)
 
-Use JSON-LD in the `<head>` only, never microdata. The data must match visible page content exactly; never mark up content the user can't see.
+Use JSON-LD only, never microdata, rendered with `components/JsonLd.tsx` at the top of the page component (it is in the server HTML, so crawlers that don't run JavaScript read it). The data must match visible page content exactly; never mark up content the user can't see.
 
 - **Every page**: `Organization` (or `ProfessionalService`) with the same `@id` (`https://techfiyr.com/#organization`), plus `WebSite` on the homepage and `BreadcrumbList` on inner pages.
 - **Service pages**: `Service` with `provider` → `{"@id": "https://techfiyr.com/#organization"}`, `serviceType`, `areaServed`.
@@ -414,30 +423,38 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 ### 7.4 Crawlability and performance
 
 - All content must be in the HTML, not only rendered by JavaScript. Most AI crawlers do not run JS.
-- **Projects are dynamic**: `projects.html` renders the catalog and `project.html?p=<slug>` renders the details, both from `assets/js/projects-data.js`. The whole card links to the details page. `projects.js` (`setSeo`) sets the title, description, canonical, OG tags, `<h1>` and JSON-LD per project. Google renders this; most AI crawlers do not, so for each new project also:
-  1. Add `https://techfiyr.com/project.html?p=<slug>` to `sitemap.xml`.
-  2. Add it to the `ItemList` JSON-LD and the `<noscript>` list in `projects.html`.
-  3. Add it to the Projects section of `llms.txt`.
-  4. Bump `?v=` on `projects-data.js` in `projects.html` and `project.html`.
-- Maintain `sitemap.xml` (every indexable page, absolute URLs, `<lastmod>`) and `robots.txt` at the site root (`Sitemap: https://techfiyr.com/sitemap.xml`; allow AI crawlers such as `GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended` unless the owner says otherwise).
-- Maintain `llms.txt` at the root: a short Markdown summary of who TechFiyr is, services, contact details, and links to key pages.
+- **Projects are static pages**: `/projects` lists them and `/projects/<slug>` is prerendered for every entry in `lib/projects.ts`, with its title, description, canonical, OG tags, `<h1>` and JSON-LD in the server HTML. The sitemap and the `ItemList` JSON-LD on `/projects` update themselves. For each new project also add it to the Projects section of `llms.txt`.
+- Maintain `app/sitemap.ts` (every indexable page, absolute URLs, dates) and `public/robots.txt` (`Sitemap: https://techfiyr.com/sitemap.xml`; allow AI crawlers such as `GPTBot`, `ClaudeBot`, `PerplexityBot`, `Google-Extended` unless the owner says otherwise).
+- Maintain `public/llms.txt`: a short Markdown summary of who TechFiyr is, services, contact details, and links to key pages.
 - Descriptive internal link text ("See our Flutter projects", not "click here").
-- Clean, lower-case, hyphenated file names (`mobile-app-development.html`).
+- Clean, lower-case, hyphenated routes (`/mobile-app-development`).
 - Images: compressed WebP/JPG, explicit `width`/`height`, `loading="lazy"` below the fold, `fetchpriority="high"` on the hero/LCP image only. Descriptive file names.
 - Keep Core Web Vitals healthy: no new render-blocking third-party scripts, no layout shift from late-loading content, `font-display: swap` (already in the Google Fonts URLs).
 - **Performance rules (keep them):**
-  - The `.preloader` hides on DOM ready (`script.js`), with a CSS fallback after 2.5s. Never tie it to `window.load` again; that made visitors stare at the gradient until every image had downloaded.
+  - Every page is prerendered (static HTML from the CDN) and internal links use `next/link`, which prefetches pages as they scroll into view, so navigation is instant. Don't make a page dynamic (cookies, headers, uncached fetches) without a reason.
+  - The header, footer and scripts stay loaded between pages; the template scripts are `defer` and start after hydration (`components/SiteRuntime.tsx`).
+  - The `.preloader` hides on DOM ready (`script.js`), with a CSS fallback after 2.5s, and only shows on the first page of a visit. Never tie it to `window.load` again; that made visitors stare at the gradient until every image had downloaded.
   - Load Google Fonts with the single combined URL used on every page (`Manrope 300..800`, `Outfit 100..900`, `Raleway 800`). Don't add separate font links or unused weights.
   - Every `<img>` below the fold gets `loading="lazy" decoding="async"`; the header logos and the hero don't.
-  - Preload the LCP image when it's a CSS background (see the hero preload in `index.html`).
+  - Preload the LCP image when it's a CSS background (see `preload()` in `app/(site)/page.tsx`).
   - Resize photos to the size they display at (about 2× the card width, e.g. ≤ 640px for team photos) and compress them (JPEG quality ~82, progressive) before committing.
 - Every page must remain usable with JavaScript disabled for its core text and links.
+
+### 7.7 PWA, service worker and offline
+
+| Piece | File | Notes |
+|---|---|---|
+| Manifest | `app/manifest.ts` → `/manifest.webmanifest` | Name, colours, icons (`assets/images/brand/app-icon-*.png`, maskable variant), shortcuts. |
+| Service worker | `public/sw.js` (registered in production by `components/SiteRuntime.tsx`) | Cache first for `/_next/static/*`, `/assets/*` and Google Fonts; network first (3s timeout, then the saved copy) for pages and Next.js page data; never touches `/api/*`, analytics, maps or other sites. Precaches `/`, `/projects`, `/contact`, `/offline`. |
+| Offline page | `app/offline/page.tsx` | Shown for pages that aren't saved yet when there is no connection. Stand-alone styles, noindex. |
+
+Rules: bump `VERSION` in `sw.js` when its caching rules change. Never cache POST requests, `/api/*` or anything personal. A new consent-gated third-party service must not be cached by the worker.
 
 ### 7.6 Firebase, Google Analytics and the visitor counter
 
 | Piece | File | Notes |
 |---|---|---|
-| Netlify build | `netlify.toml`, `scripts/build-config.mjs` | Build command writes `public/firebase-config.js` (git-ignored, served at `/firebase-config.js`) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
+| Netlify build | `netlify.toml`, `scripts/build-config.mjs` | `npm run build` first runs `prebuild`, which writes `public/firebase-config.js` (git-ignored, served at `/firebase-config.js`) from env vars. Missing vars → `window.TECHFIYR_FIREBASE = null`, analytics off. |
 | Google Analytics 4 | `assets/js/analytics.js` | Loads Firebase Analytics (SDK 13.0.0 from gstatic) **only after "analytics" consent**; sets `ga-disable-<ID>` and deletes `_ga` cookies when consent is withdrawn. |
 | Visitor counter API | `netlify/functions/visits.mjs` → `/api/visits` | No npm dependencies. POST counts a **unique visitor per day** (HMAC of IP + user agent with a daily key, stored in `uniques/{day}-{hash}` with `expireAt`), GET returns totals from `stats/visits`. Only counts browsers on our own origins, skips bots. GET is edge-cached 60s. On failure it returns `{ step, status, detail }` so the cause shows in the browser's Network tab and in Netlify function logs. |
 | Footer counter + map | `assets/js/visitors.js`, `assets/vendor/jsvectormap/` (v1.7.0, MIT) | Counts a visit only on arrival from another site or a typed URL (not reloads or internal clicks). No cookies or storage. Map library loads when the footer is near view. Block stays hidden if the API fails. |
@@ -466,31 +483,30 @@ Rules:
 ### 7.5 Privacy, cookies and consent (mandatory)
 
 - `assets/js/consent.js` (loaded on every page after `script.js`) shows the cookie banner and the **Cookie settings** dialog, and stores the choice in `localStorage` (`techfiyr-consent`, 12 months). Global Privacy Control counts as "reject".
-- **Nothing that sets non-essential cookies or sends data to a third party may load before consent.** For an embed use `data-consent="embedded" data-src="..." hidden` plus a `data-consent-placeholder="embedded"` element with a "Load" button (see the map on `contact.html`).
-- Adding analytics, a chat widget, video embeds, pixels or any new third-party service: add a category in `consent.js` (and bump its `VERSION`), gate the script on it, and update `cookie-policy.html` (table) and `privacy-policy.html` (what data, purpose, legal basis, provider) **in the same change**.
-- Any new form must say what the data is used for and link to `privacy-policy.html` (see `.booking-privacy` on `contact.html`).
+- **Nothing that sets non-essential cookies or sends data to a third party may load before consent.** For an embed use `data-consent="embedded" data-src="..." hidden` plus a `data-consent-placeholder="embedded"` element with a "Load" button (see the map on the contact page).
+- Adding analytics, a chat widget, video embeds, pixels or any new third-party service: add a category in `consent.js` (and bump its `VERSION`), gate the script on it, and update the Cookie Policy (table, `app/(site)/cookie-policy/page.tsx`) and the Privacy Policy (what data, purpose, legal basis, provider, `app/(site)/privacy-policy/page.tsx`) **in the same change**.
+- Any new form must say what the data is used for and link to `/privacy-policy` (see `.booking-privacy` on the contact page).
 - Every page's footer keeps the legal links: Privacy Policy, Cookie Policy, Content Policy and the `data-consent-open` "Cookie settings" button.
-- When a policy changes, update its "Last updated" date, its `<lastmod>` in `sitemap.xml`, and `dateModified` in its JSON-LD.
+- When a policy changes, update its "Last updated" date, its date in `app/sitemap.ts`, and `dateModified` in its JSON-LD.
 
 ### SEO files and where they live (keep them in sync)
 
 | File | Purpose | Update when |
 |---|---|---|
-| `<head>` of each page | Canonical, robots, Open Graph/Twitter, JSON-LD | Any page copy or fact changes |
-| `assets/js/projects.js` (`setSeo`) | Per-project title, description, canonical, OG, `<h1>` and JSON-LD on `project.html?p=<slug>` | Rarely; data comes from `projects-data.js` |
-| `projects.html` | Static `ItemList` JSON-LD and `<noscript>` project list for crawlers that don't run JS | A project is added or removed |
-| `sitemap.xml` | Every indexable URL, with images and `<lastmod>` | A page is added, removed or its content changes |
-| `robots.txt` | Allows all search engines and AI crawlers; points to the sitemap | Crawler policy changes |
-| `llms.txt` | Markdown summary of the company for AI assistants (GEO) | Services, facts, team, projects or pages change |
+| `metadata` + `<JsonLd>` in each `page.tsx` | Canonical, robots, Open Graph/Twitter, JSON-LD | Any page copy or fact changes |
+| `lib/site.ts` | Company facts, shared organisation and breadcrumb JSON-LD | A company fact changes |
+| `lib/projects.ts` | Projects: grid, details pages, their metadata and JSON-LD, sitemap entries | A project is added, removed or edited |
+| `app/sitemap.ts` | `/sitemap.xml`: every indexable URL, with images and dates | A page is added, removed or its content changes |
+| `public/robots.txt` | Allows all search engines and AI crawlers; points to the sitemap | Crawler policy changes |
+| `public/llms.txt` | Markdown summary of the company for AI assistants (GEO) | Services, facts, team, projects or pages change |
 | `.well-known/security.txt` | RFC 9116 security contact | Before the `Expires` date (yearly) |
 | `assets/images/og/techfiyr-og.jpg` | 1200×630 social sharing image | Rename the file if it changes (1-year cache) |
-| `_headers` | Content types and short cache for the discovery files; `noindex` header for `coming-soon.html` | A new discovery file is added |
+| `netlify.toml` | Legacy `.html` → clean URL redirects; content types and short cache for the discovery files; `noindex` header for `/coming-soon` and `/offline` | A page is renamed or a new discovery file is added |
 
 The homepage has exactly one `<h1>` (the first hero slide). Hero slides 2–3 use `div.slider-one_heading` and the marquee uses `div.marketing-one_word`; CSS at the end of `style.css` keeps them visually identical. Do not turn them back into headings.
 
 ### Remaining SEO debt
 
-- Project details are rendered by JavaScript, so AI crawlers that don't run JS see only the generic `project.html` shell. `llms.txt` and the `<noscript>` list on `projects.html` cover the essentials.
 - The `@font-face` for Font Awesome v4 compatibility in `style.css` points to `../webfonts/fa-v4compatibility*.html`, which were scraped HTML pages (now removed) rather than font files. That rule has never worked.
 
 ---
@@ -499,12 +515,23 @@ The homepage has exactly one `<h1>` (the first hero slide). Hero slides 2–3 us
 
 - [ ] Uses only the colours, fonts, radii and components in sections 4–5. Nothing in section 2's "never" list.
 - [ ] New CSS is appended to the end of `style.css` under a section banner; no inline styles or `<style>` blocks.
-- [ ] `?v=` bumped in **every** page that loads a changed CSS/JS file; changed images renamed.
-- [ ] Header, nav and footer identical across pages; new page linked in nav and in `sitemap.xml`.
+- [ ] `ASSET_VERSION` in `lib/site.ts` bumped for every changed CSS/JS file in `public/assets`; changed images renamed; `sw.js` `VERSION` bumped if its rules changed.
+- [ ] Header, nav and footer come from the shared layout; new page added to `NAV` (if top-level) and `app/sitemap.ts`.
 - [ ] One `<h1>`, ordered headings, skip link, `<main>`, labelled controls, `alt` text, visible focus, 4.5:1 contrast, works at 320px wide and 200% zoom, keyboard-only navigation tested, reduced-motion respected.
 - [ ] Unique title and description, canonical, OG tags, valid JSON-LD matching visible content.
 - [ ] Section 7.0 workflow done: one primary query per page, answer-first paragraphs, question-style headings, FAQ where it fits, at least 2 internal links in and 2 out.
-- [ ] `sitemap.xml` (URL and `<lastmod>`) and `llms.txt` updated in the same change.
-- [ ] Main content readable with JavaScript off; Lighthouse SEO 100 on mobile.
+- [ ] `app/sitemap.ts` (URL and date) and `public/llms.txt` updated in the same change.
+- [ ] `npm run build` passes and the page is listed as prerendered (○ or ●); main content readable with JavaScript off; Lighthouse SEO 100 on mobile.
+- [ ] Client-side navigation tested: open the page from another page via a link (not only by reload) and check its sliders, counters and widgets start, and that leaving it leaves nothing behind.
 - [ ] Copy is real and specific: no placeholders, invented numbers or fake reviews.
-- [ ] Open the page in a browser at desktop, tablet and mobile widths and compare it side by side with `contact.html` / `index.html`. If it looks like it came from a different website, it is wrong.
+- [ ] Open the page in a browser at desktop, tablet and mobile widths and compare it side by side with `/contact` and `/`. If it looks like it came from a different website, it is wrong.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
