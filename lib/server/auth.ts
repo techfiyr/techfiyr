@@ -45,7 +45,13 @@ export async function checkPassword(email: string, password: string): Promise<Si
 		if (/TOO_MANY_ATTEMPTS/.test(detail)) return { ok: false, error: 'Too many failed attempts. Wait a few minutes, or reset the password in the Firebase console.' };
 		if (/USER_DISABLED/.test(detail)) return { ok: false, error: 'This admin account is disabled in Firebase Authentication.' };
 		if (/OPERATION_NOT_ALLOWED|CONFIGURATION_NOT_FOUND/.test(detail)) return { ok: false, error: 'Email/password sign-in is not enabled in Firebase Authentication.' };
-		if (/API_KEY|referer|referrer/i.test(detail)) return { ok: false, error: 'Firebase rejected the API key. Allow techfiyr.com in the key restrictions.' };
+		if (/API_KEY|referer|referrer|identitytoolkit/i.test(detail)) {
+			console.error('[admin sign-in] Firebase rejected the API key:', detail);
+			if (/API_KEY_SERVICE_BLOCKED|identitytoolkit/i.test(detail)) return { ok: false, error: 'The API key may not call the Identity Toolkit API. In Google Cloud Console → Credentials → this key → API restrictions, add "Identity Toolkit API" (or choose "Don\'t restrict key").' };
+			if (/REFERRER_BLOCKED|referer|referrer/i.test(detail)) return { ok: false, error: `The API key's website restrictions block ${SITE_URL}/. Add techfiyr.com/* and https://techfiyr.com/* under Website restrictions.` };
+			if (/API_KEY_INVALID|not valid/i.test(detail)) return { ok: false, error: 'FIREBASE_API_KEY is not a valid key. Check its value in Netlify (Functions scope, no quotes or spaces) and redeploy.' };
+			return { ok: false, error: 'Firebase rejected the API key. See the function log for the reason.' };
+		}
 		return { ok: false, error: GENERIC };
 	}
 
