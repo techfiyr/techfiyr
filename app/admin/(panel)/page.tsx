@@ -297,7 +297,7 @@ function SetupPanel() {
 	const mode = storeMode();
 	const items: { ok: boolean; label: string; detail: string }[] = [
 		{ ok: mode === 'firestore', label: 'Content database (Firestore)', detail: mode === 'firestore' ? 'Connected with the service account' : mode === 'local' ? 'Local files in .data (development)' : 'Set the FIREBASE_* service account variables' },
-		{ ok: Boolean(env('FIREBASE_API_KEY')) && adminEmails().length > 0, label: 'Admin sign-in', detail: `${adminEmails().length} admin address${adminEmails().length === 1 ? '' : 'es'} in ADMIN_EMAILS${env('FIREBASE_API_KEY') ? ', Firebase Authentication' : ', local password'}` },
+		{ ok: Boolean(env('FIREBASE_API_KEY')), label: 'Admin sign-in', detail: adminEmails().length > 0 ? `${adminEmails().length} address${adminEmails().length === 1 ? '' : 'es'} in ADMIN_EMAILS (Firebase Authentication)` : 'Firebase Authentication (direct email & password)' },
 		{ ok: Boolean(env('SESSION_SECRET')), label: 'Session secret', detail: env('SESSION_SECRET') ? 'Set' : 'Set SESSION_SECRET (32+ random characters)' },
 		{
 			ok: hasServiceAccount(),

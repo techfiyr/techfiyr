@@ -28,12 +28,13 @@ export async function checkPassword(email: string, password: string): Promise<Si
 	if (!address || !password) return { ok: false, error: 'Enter your email address and password.' };
 	if (!isAdminEmail(address)) return { ok: false, error: GENERIC };
 
-	const apiKey = env('FIREBASE_API_KEY');
+	let apiKey = env('FIREBASE_API_KEY');
+	if (/^(".*"|'.*')$/s.test(apiKey)) apiKey = apiKey.slice(1, -1).trim();
 	if (apiKey) {
 		const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(apiKey)}`, {
 			method: 'POST',
-			// the browser API key is restricted to the site's addresses, so name the site as the referrer
-			headers: { 'Content-Type': 'application/json', Referer: `${SITE_URL}/` },
+			// the browser API key is restricted to the site's addresses, so name the site as the referrer and origin
+			headers: { 'Content-Type': 'application/json', Referer: `${SITE_URL}/`, Origin: SITE_URL },
 			body: JSON.stringify({ email: address, password, returnSecureToken: true }),
 			cache: 'no-store',
 		});
