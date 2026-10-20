@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
 		// Keep prefetched pages in the client cache so back/forward and repeat visits are instant
 		staleTimes: { dynamic: 30, static: 300 },
 	},
+	async rewrites() {
+		return [
+			{ source: '/sitemap', destination: '/sitemap.xml' },
+			{ source: '/sitemap/', destination: '/sitemap.xml' },
+			{ source: '/robots', destination: '/robots.txt' },
+			{ source: '/llms', destination: '/llms.txt' },
+		];
+	},
 };
 
 export default nextConfig;

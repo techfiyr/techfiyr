@@ -99,16 +99,25 @@
   from = "/llms"
   to = "/llms.txt"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/robots"
   to = "/robots.txt"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/sitemap"
   to = "/sitemap.xml"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/sitemap/"
+  to = "/sitemap.xml"
+  status = 301
+  force = true
 
 # ---------------------------------------------------------------------------
 # Response headers
