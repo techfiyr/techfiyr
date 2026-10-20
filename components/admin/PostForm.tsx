@@ -106,7 +106,7 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 							<span className="admin-ai-badge">Human Tone · Anti-AI Slop</span>
 						</div>
 						<p className="admin-ai-box_desc">
-							Describe your idea, notes, or client question. Gemini 2.5 Flash crafts an in-depth, human-grade article with direct answers, question headings, technical details, and an auto-generated cover photo.
+							Describe your idea, notes, or client question. Gemini 3.8 Flash crafts an in-depth, human-grade article with direct answers, question headings, technical details, and an auto-generated cover photo.
 						</p>
 						<div className="admin-field">
 							<textarea
@@ -135,7 +135,7 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 								disabled={aiLoading}
 							>
 								<i className={aiLoading ? 'fa-solid fa-rotate fa-spin' : 'fa-solid fa-pen-nib'} aria-hidden="true"></i>{' '}
-								{aiLoading ? 'Writing article with Gemini (takes ~10s)…' : 'Generate Full Draft'}
+								{aiLoading ? 'Gemini 3.8 Flash is drafting your article (reasoning & writing takes ~45–80s)…' : 'Generate Full Draft with Gemini 3.8'}
 							</button>
 							{aiPrompt && !aiLoading && (
 								<button

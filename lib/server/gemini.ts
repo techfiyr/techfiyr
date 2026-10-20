@@ -121,35 +121,74 @@ Requirements:
   "imagePrompt": A descriptive prompt for a realistic 1200x630 photograph representing the article topic`;
 
 	try {
-		const res = await fetch(
-			`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-			{
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					contents: [{ parts: [{ text: userInstruction }] }],
-					systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-					generationConfig: {
-						responseMimeType: 'application/json',
-						temperature: 0.7,
-					},
-				}),
-				cache: 'no-store',
-			}
-		);
+		const modelsToTry = [
+			env('GEMINI_MODEL') || 'gemini-3.5-flash' || 'gemini-3.8-flash',
+			'gemini-flash-latest',
+		].filter(Boolean);
 
-		if (!res.ok) {
-			const detail = await res.text();
-			console.error('[Gemini API error]', res.status, detail);
-			return { ok: false, error: `Gemini API returned error ${res.status}. Check API key quotas or permissions.` };
+		const fullPrompt = `${SYSTEM_INSTRUCTION}\n\n---\n\n${userInstruction}`;
+
+		let lastError = '';
+		let rawText = '';
+
+		for (const model of modelsToTry) {
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), 120000);
+
+			try {
+				const res = await fetch(
+					`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+					{
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							contents: [{ parts: [{ text: fullPrompt }] }],
+							generationConfig: {
+								responseMimeType: 'application/json',
+								temperature: 0.7,
+							},
+						}),
+						signal: controller.signal,
+						cache: 'no-store',
+					}
+				);
+				clearTimeout(timeout);
+
+				if (!res.ok) {
+					const detail = await res.text();
+					console.error(`[Gemini API error on ${model}]`, res.status, detail);
+					let message = `Gemini API returned error ${res.status}.`;
+					try {
+						const parsedErr = JSON.parse(detail);
+						if (parsedErr.error?.message) {
+							message = parsedErr.error.message;
+						}
+					} catch {
+						if (detail) message = detail.slice(0, 300);
+					}
+					lastError = message;
+					// If 503 (high demand) or 404, try the next model
+					if ((res.status === 503 || res.status === 404) && modelsToTry.indexOf(model) < modelsToTry.length - 1) {
+						continue;
+					}
+					return { ok: false, error: lastError };
+				}
+
+				const data = (await res.json()) as {
+					candidates?: { content?: { parts?: { text?: string }[] } }[];
+				};
+				rawText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+				if (rawText) break;
+			} catch (err) {
+				clearTimeout(timeout);
+				lastError = err instanceof Error ? err.message : 'Network error calling Gemini API';
+				if (modelsToTry.indexOf(model) < modelsToTry.length - 1) continue;
+				return { ok: false, error: lastError };
+			}
 		}
 
-		const data = (await res.json()) as {
-			candidates?: { content?: { parts?: { text?: string }[] } }[];
-		};
-		const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 		if (!rawText) {
-			return { ok: false, error: 'Gemini did not return any content. Please try a different topic prompt.' };
+			return { ok: false, error: lastError || 'Gemini did not return any content. Please try a different topic prompt.' };
 		}
 
 		let parsed: GeminiRawResponse;
