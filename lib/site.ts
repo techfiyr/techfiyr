@@ -92,5 +92,5 @@ export const ASSET_VERSION = {
 	analytics: '20261014',
 	visitors: '20261018',
 	booking: '20261018',
-	admin: '20261018.2',
+	admin: '20261020',
 };

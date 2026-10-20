@@ -16,6 +16,7 @@ import { analytics, indexNowKey, indexStatus, searchPerformance, visitors } from
 import { editionDay } from '@/lib/server/news';
 import { adminEmails } from '@/lib/server/session';
 import { storeMode } from '@/lib/server/store';
+import { hasGeminiKey } from '@/lib/server/gemini';
 import { SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = { title: 'Dashboard' };
@@ -308,6 +309,7 @@ function SetupPanel() {
 		{ ok: Boolean(env('GSC_SITE_URL')), label: 'Google Search Console', detail: env('GSC_SITE_URL') || 'Set GSC_SITE_URL' },
 		{ ok: Boolean(env('GA4_PROPERTY_ID')), label: 'Google Analytics 4 reports', detail: env('GA4_PROPERTY_ID') ? `Property ${env('GA4_PROPERTY_ID')}` : 'Set GA4_PROPERTY_ID' },
 		{ ok: Boolean(indexNowKey()), label: 'IndexNow', detail: indexNowKey() ? 'Key published at /indexnow-key.txt' : 'Set INDEXNOW_KEY' },
+		{ ok: hasGeminiKey(), label: 'Gemini AI Blog Writer', detail: hasGeminiKey() ? 'Connected (Gemini 2.5 Flash ready with anti-slop human voice)' : 'Set GEMINI_API_KEY (or API_KEY_GEMINI) for AI blog generation' },
 	];
 	return (
 		<Panel title="Site setup" meta={`${items.filter((i) => i.ok).length} of ${items.length} connected`} id="setup">

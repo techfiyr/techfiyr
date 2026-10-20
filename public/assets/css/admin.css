@@ -1889,3 +1889,65 @@ body:has(.admin-root) {
     color: var(--admin-muted);
   }
 }
+
+/* ==========================================================================
+   Gemini AI Blog Assistant
+   ========================================================================== */
+.admin-ai-box {
+  padding: 22px 24px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(var(--main-color-rgb), 0.35);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(var(--main-color-rgb), 0.04) 0%, rgba(198, 228, 90, 0.08) 100%);
+  box-shadow: 0 10px 30px rgba(var(--main-color-rgb), 0.06);
+}
+
+.admin-ai-box_header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-ai-box_title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--black-color);
+  margin: 0;
+}
+
+.admin-ai-box_title i {
+  color: var(--main-color);
+}
+
+.admin-ai-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: rgba(var(--main-color-rgb), 0.15);
+  color: var(--main-color);
+}
+
+.admin-ai-box_desc {
+  font-size: 14px;
+  color: var(--admin-muted);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.admin-ai-box_actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+

@@ -16,6 +16,7 @@ import { pingIndexNow } from '@/lib/server/insights';
 import { saveImage } from '@/lib/server/media';
 import { refreshNews } from '@/lib/server/news';
 import { store } from '@/lib/server/store';
+import { generateBlogWithGemini, type GeneratedBlogPost } from '@/lib/server/gemini';
 
 export type FormState = { error?: string; fields?: Record<string, string> } | undefined;
 
@@ -125,6 +126,14 @@ export async function deletePost(fd: FormData) {
 		if (p.status === 'published') await pingIndexNow(['/blog', postPath(p)]);
 	}
 	redirect('/admin/blog?deleted=1');
+}
+
+export async function generatePostWithAi(
+	topic: string,
+	author?: string
+): Promise<{ ok: true; post: GeneratedBlogPost } | { ok: false; error: string }> {
+	await requireAdmin();
+	return generateBlogWithGemini(topic, author);
 }
 
 // ---------- Products ----------
