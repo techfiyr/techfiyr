@@ -9,9 +9,10 @@ import PageTitle from '@/components/PageTitle';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = pageMetadata({
-	title: "Contact TechFiyr | Get a Free Quote for Your App or Web Project",
-	description: "Tell TechFiyr about your mobile app, web software, UI/UX, or CI/CD project. Email info@techfiyr.com, WhatsApp +880 1540659530, or visit us at Mirpur DOHS, Dhaka.",
+	title: 'Hire Mobile & Web Developers | Free Quote | TechFiyr',
+	description: 'Contact TechFiyr to build your Flutter, React Native, iOS, Android, or SaaS project. Book a free 30-min discovery call or email info@techfiyr.com for an estimate.',
 	path: '/contact',
+	keywords: ['hire mobile app developers', 'hire flutter developer', 'react native agency quote', 'app development estimate', 'contact techfiyr', 'outsource mobile app development'],
 });
 
 // Structured data: keep these facts identical to the home page and llms.txt

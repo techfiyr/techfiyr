@@ -6,17 +6,31 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { preload } from 'react-dom';
+import FaqSection, { faqSchema } from '@/components/FaqSection';
 import JsonLd from '@/components/JsonLd';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = {
 	...pageMetadata({
-		title: 'TechFiyr - Mobile App & Web Software Development Agency',
-		description: 'TechFiyr is a premier software development agency specializing in Mobile App Design & Development (Flutter, React Native, iOS, Android), Custom Web Software, SaaS platforms, and UI/UX Design, plus CI/CD and App Store deployment automation. Rated 5.0 on Fiverr by clients across the US, Europe, and Asia.',
+		title: 'Mobile App Development Agency | Flutter & React | TechFiyr',
+		description: 'TechFiyr is a premier mobile app and SaaS development agency. We build Flutter, React Native, iOS, Android apps & custom cloud platforms. 5.0 rated on Fiverr.',
 		path: '/',
 		ogDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr by clients across the US, Europe and Asia.',
 		twitterDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr.',
-		keywords: ['TechFiyr', 'mobile app development', 'app design', 'flutter app developer', 'react native development', 'web software development', 'saas platform', 'ui ux design', 'codemagic ci/cd', 'mobile devops', 'custom web applications', 'dhaka software agency'],
+		keywords: [
+			'TechFiyr',
+			'mobile app development agency',
+			'hire flutter app developers',
+			'react native development agency',
+			'cross platform mobile app development',
+			'custom saas development company',
+			'flutter app development services',
+			'mvp mobile app development',
+			'mobile devops codemagic ci/cd',
+			'ios and android app developers',
+			'ui ux product design prototyping',
+			'outsource mobile development',
+		],
 	}),
 	authors: [{ name: 'TechFiyr' }],
 };
@@ -173,7 +187,8 @@ const structuredData = {
 				},
 				"primaryImageOfPage": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
 				"inLanguage": "en"
-			}
+			},
+			faqSchema
 		]
 	};
 
@@ -1571,6 +1586,9 @@ export default function HomePage() {
 				</div>
 			</section>
 			{/* End Of Team One */}
+			{/* FAQ Section */}
+			<FaqSection />
+			{/* End FAQ Section */}
 			{/* Incredible One Section */}
 			{' '}
 			<section className="incredible-one">

@@ -20,11 +20,21 @@ function jsonKey(): Credentials | null {
 	fromJson = null;
 	let text = env('FIREBASE_SERVICE_ACCOUNT');
 	let source = 'FIREBASE_SERVICE_ACCOUNT';
-	if (text && !text.startsWith('{')) text = Buffer.from(text, 'base64').toString('utf8');
+	if (text && !text.startsWith('{')) {
+		if (text.endsWith('.json')) {
+			try {
+				text = readFileSync(/*turbopackIgnore: true*/ text, 'utf8');
+			} catch {}
+		} else {
+			try {
+				text = Buffer.from(text, 'base64').toString('utf8');
+			} catch {}
+		}
+	}
 	if (!text && env('FIREBASE_SERVICE_ACCOUNT_FILE')) {
 		source = 'FIREBASE_SERVICE_ACCOUNT_FILE';
 		try {
-			text = readFileSync(env('FIREBASE_SERVICE_ACCOUNT_FILE'), 'utf8');
+			text = readFileSync(/*turbopackIgnore: true*/ env('FIREBASE_SERVICE_ACCOUNT_FILE'), 'utf8');
 		} catch {
 			text = '';
 		}
