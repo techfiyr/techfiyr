@@ -97,16 +97,16 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 			<form className="admin-editor" action={action} noValidate>
 				<input type="hidden" name="id" value={post?.id || ''} />
 				<div className="admin-editor_main">
-					{/* Gemini AI Assistant Box */}
+					{/* AI Blog Assistant Box */}
 					<div className="admin-ai-box">
 						<div className="admin-ai-box_header">
 							<h3 className="admin-ai-box_title">
-								<i className="fa-solid fa-pen-nib" aria-hidden="true"></i> Write with Gemini AI
+								<i className="fa-solid fa-pen-nib" aria-hidden="true"></i> Write with AI Assistant
 							</h3>
 							<span className="admin-ai-badge">Human Tone · Anti-AI Slop</span>
 						</div>
 						<p className="admin-ai-box_desc">
-							Describe your idea, notes, or client question. Gemini 3.8 Flash crafts an in-depth, human-grade article with direct answers, question headings, technical details, and an auto-generated cover photo.
+							Describe your idea, notes, or client question. AI crafts an in-depth, human-grade article with direct answers, question headings, technical details, and an auto-generated cover photo (with multi-model fallback so you never hit high-demand limits).
 						</p>
 						<div className="admin-field">
 							<textarea
@@ -135,7 +135,7 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 								disabled={aiLoading}
 							>
 								<i className={aiLoading ? 'fa-solid fa-rotate fa-spin' : 'fa-solid fa-pen-nib'} aria-hidden="true"></i>{' '}
-								{aiLoading ? 'Gemini 3.8 Flash is drafting your article (reasoning & writing takes ~45–80s)…' : 'Generate Full Draft with Gemini 3.8'}
+								{aiLoading ? 'Drafting your article & generating realistic cover photo (~10–15s)…' : 'Generate Full Draft with AI'}
 							</button>
 							{aiPrompt && !aiLoading && (
 								<button

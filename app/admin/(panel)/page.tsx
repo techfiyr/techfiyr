@@ -309,7 +309,7 @@ function SetupPanel() {
 		{ ok: Boolean(env('GSC_SITE_URL')), label: 'Google Search Console', detail: env('GSC_SITE_URL') || 'Set GSC_SITE_URL' },
 		{ ok: Boolean(env('GA4_PROPERTY_ID')), label: 'Google Analytics 4 reports', detail: env('GA4_PROPERTY_ID') ? `Property ${env('GA4_PROPERTY_ID')}` : 'Set GA4_PROPERTY_ID' },
 		{ ok: Boolean(indexNowKey()), label: 'IndexNow', detail: indexNowKey() ? 'Key published at /indexnow-key.txt' : 'Set INDEXNOW_KEY' },
-		{ ok: hasGeminiKey(), label: 'Gemini AI Blog Writer', detail: hasGeminiKey() ? 'Connected (Gemini 3.8 Flash live model ready with anti-slop human voice)' : 'Set GEMINI_API_KEY (or API_KEY_GEMINI) for AI blog generation' },
+		{ ok: true, label: 'AI Blog & Cover Generator', detail: hasGeminiKey() ? 'Connected (Gemini multi-model cascade + Free AI fallback with automatic cover photo)' : 'Connected (Free AI generator + Pollinations cover photo ready)' },
 	];
 	return (
 		<Panel title="Site setup" meta={`${items.filter((i) => i.ok).length} of ${items.length} connected`} id="setup">
