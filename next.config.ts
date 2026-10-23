@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 /*
  * Every page is prerendered at build time (static HTML on Netlify's CDN), and links between
- * pages are prefetched, so navigation is instant. Legacy .html URLs are redirected in netlify.toml.
+ * pages are prefetched, so navigation is instant. Legacy .html URLs are redirected in netlify.toml (old project URLs in proxy.ts).
  */
 const nextConfig: NextConfig = {
 	reactStrictMode: true,

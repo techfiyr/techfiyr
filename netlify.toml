@@ -32,25 +32,7 @@
   status = 301
   force = true
 
-[[redirects]]
-  from = "/project.html"
-  query = { p = ":slug" }
-  to = "/projects/:slug"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/project"
-  query = { p = ":slug" }
-  to = "/projects/:slug"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/project.html"
-  to = "/projects"
-  status = 301
-  force = true
+# /project.html?p=<slug> and /project?p=<slug> are redirected in proxy.ts, which drops the query string
 
 [[redirects]]
   from = "/projects.html"

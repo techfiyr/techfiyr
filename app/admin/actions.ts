@@ -7,7 +7,7 @@
  * pages, an IndexNow ping for Bing and other engines).
  */
 import { randomUUID } from 'node:crypto';
-import { revalidatePath, updateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { AUTHORS, postPath, productPath, slugify, type Status } from '@/lib/content';
 import { checkPassword, endSession, requireAdmin, startSession } from '@/lib/server/auth';
@@ -37,9 +37,19 @@ async function upload(fd: FormData, key: string, folder: 'blog' | 'products'): P
 }
 
 function refresh(tag: string, paths: string[]) {
-	updateTag(tag);
-	for (const p of paths) revalidatePath(p);
-	revalidatePath('/sitemap.xml');
+	try {
+		revalidateTag(tag, { expire: 0 });
+	} catch {
+		// Ignore if static cache tagging is unavailable in this environment
+	}
+	for (const p of paths) {
+		try {
+			revalidatePath(p);
+		} catch {}
+	}
+	try {
+		revalidatePath('/sitemap.xml');
+	} catch {}
 }
 
 // ---------- Session ----------
@@ -65,7 +75,12 @@ export async function logout() {
 export async function savePost(_prev: FormState, fd: FormData): Promise<FormState> {
 	await requireAdmin();
 	const id = text(fd, 'id', 60) || randomUUID();
-	const existing = await store.get('posts', id);
+	let existing = null;
+	try {
+		existing = await store.get('posts', id);
+	} catch (err) {
+		console.warn('store.get post warning:', err);
+	}
 	const before = existing ? toPost(existing) : null;
 
 	const title = text(fd, 'title', 160);
@@ -79,7 +94,15 @@ export async function savePost(_prev: FormState, fd: FormData): Promise<FormStat
 	if (!slug) return { error: 'The address (slug) needs at least one letter or number.', fields: echo(fd) };
 	if (status === 'published' && !excerpt) return { error: 'Add a short summary before publishing: it is the card text and the search snippet.', fields: echo(fd) };
 	if (status === 'published' && body.length < 200) return { error: 'The article is too short to publish (200 characters at least).', fields: echo(fd) };
-	if ((await listPosts()).some((p) => p.slug === slug && p.id !== id)) return { error: `Another post already uses the address /blog/${slug}.`, fields: echo(fd) };
+
+	try {
+		const existingPosts = await listPosts();
+		if (existingPosts.some((p) => p.slug === slug && p.id !== id)) {
+			return { error: `Another post already uses the address /blog/${slug}.`, fields: echo(fd) };
+		}
+	} catch (err) {
+		console.warn('listPosts warning:', err);
+	}
 
 	let coverUrl = text(fd, 'coverUrl', 500);
 	try {
@@ -91,39 +114,57 @@ export async function savePost(_prev: FormState, fd: FormData): Promise<FormStat
 
 	const now = new Date().toISOString();
 	const publishedAt = status === 'published' ? before?.publishedAt || text(fd, 'publishedAt', 40) || now : before?.publishedAt || '';
-	await store.put('posts', id, {
-		slug,
-		title,
-		excerpt,
-		body,
-		coverUrl,
-		coverAlt: text(fd, 'coverAlt', 200) || title,
-		tags: lines(fd, 'tags', 12),
-		author,
-		status,
-		seoTitle: text(fd, 'seoTitle', 70),
-		seoDescription: text(fd, 'seoDescription', 170),
-		publishedAt,
-		createdAt: before?.createdAt || now,
-		updatedAt: now,
-	});
 
-	const paths = ['/blog', postPath({ slug })];
-	if (before && before.slug !== slug) paths.push(postPath(before));
-	refresh(TAGS.posts, paths);
-	if (status === 'published' || before?.status === 'published') await pingIndexNow(paths);
+	try {
+		await store.put('posts', id, {
+			slug,
+			title,
+			excerpt,
+			body,
+			coverUrl,
+			coverAlt: text(fd, 'coverAlt', 200) || title,
+			tags: lines(fd, 'tags', 12),
+			author,
+			status,
+			seoTitle: text(fd, 'seoTitle', 70),
+			seoDescription: text(fd, 'seoDescription', 170),
+			publishedAt,
+			createdAt: before?.createdAt || now,
+			updatedAt: now,
+		});
+	} catch (err) {
+		console.error('store.put posts error:', err);
+		return {
+			error: err instanceof Error ? `Could not save post to database: ${err.message}` : 'Failed to save post to database.',
+			fields: echo(fd),
+		};
+	}
+
+	try {
+		const paths = ['/blog', postPath({ slug })];
+		if (before && before.slug !== slug) paths.push(postPath(before));
+		refresh(TAGS.posts, paths);
+		if (status === 'published' || before?.status === 'published') await pingIndexNow(paths);
+	} catch (err) {
+		console.warn('refresh warning after saving post:', err);
+	}
+
 	redirect(`/admin/blog/${id}?saved=1`);
 }
 
 export async function deletePost(fd: FormData) {
 	await requireAdmin();
 	const id = text(fd, 'id', 60);
-	const doc = await store.get('posts', id);
-	if (doc) {
-		await store.remove('posts', id);
-		const p = toPost(doc);
-		refresh(TAGS.posts, ['/blog', postPath(p)]);
-		if (p.status === 'published') await pingIndexNow(['/blog', postPath(p)]);
+	try {
+		const doc = await store.get('posts', id);
+		if (doc) {
+			await store.remove('posts', id);
+			const p = toPost(doc);
+			refresh(TAGS.posts, ['/blog', postPath(p)]);
+			if (p.status === 'published') await pingIndexNow(['/blog', postPath(p)]);
+		}
+	} catch (err) {
+		console.warn('deletePost warning:', err);
 	}
 	redirect('/admin/blog?deleted=1');
 }
@@ -140,7 +181,12 @@ export async function generatePostWithAi(
 export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormState> {
 	await requireAdmin();
 	const id = text(fd, 'id', 60) || randomUUID();
-	const existing = await store.get('products', id);
+	let existing = null;
+	try {
+		existing = await store.get('products', id);
+	} catch (err) {
+		console.warn('store.get product warning:', err);
+	}
 	const before = existing ? toProduct(existing) : null;
 
 	const name = text(fd, 'name', 120);
@@ -152,7 +198,15 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
 	if (!name) return { error: 'Add the product name.', fields: echo(fd) };
 	if (!slug) return { error: 'The address (slug) needs at least one letter or number.', fields: echo(fd) };
 	if (status === 'published' && !tagline) return { error: 'Add a one-line tagline before publishing.', fields: echo(fd) };
-	if ((await listProducts()).some((p) => p.slug === slug && p.id !== id)) return { error: `Another product already uses the address /products/${slug}.`, fields: echo(fd) };
+
+	try {
+		const existingProducts = await listProducts();
+		if (existingProducts.some((p) => p.slug === slug && p.id !== id)) {
+			return { error: `Another product already uses the address /products/${slug}.`, fields: echo(fd) };
+		}
+	} catch (err) {
+		console.warn('listProducts warning:', err);
+	}
 
 	const links = [1, 2, 3]
 		.map((n) => ({ label: text(fd, `linkLabel${n}`, 40), url: text(fd, `linkUrl${n}`, 500) }))
@@ -175,43 +229,61 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
 
 	const now = new Date().toISOString();
 	const order = Number.parseInt(text(fd, 'order', 6), 10);
-	await store.put('products', id, {
-		slug,
-		name,
-		tagline,
-		description,
-		category: text(fd, 'category', 60),
-		platforms: lines(fd, 'platforms', 8),
-		price: text(fd, 'price', 60),
-		features: lines(fd, 'features', 16).map((f) => f.slice(0, 160)),
-		coverUrl,
-		coverAlt: text(fd, 'coverAlt', 200) || name,
-		gallery,
-		links,
-		status,
-		order: Number.isFinite(order) ? order : 100,
-		seoTitle: text(fd, 'seoTitle', 70),
-		seoDescription: text(fd, 'seoDescription', 170),
-		createdAt: before?.createdAt || now,
-		updatedAt: now,
-	});
 
-	const paths = ['/products', productPath({ slug })];
-	if (before && before.slug !== slug) paths.push(productPath(before));
-	refresh(TAGS.products, paths);
-	if (status === 'published' || before?.status === 'published') await pingIndexNow(paths);
+	try {
+		await store.put('products', id, {
+			slug,
+			name,
+			tagline,
+			description,
+			category: text(fd, 'category', 60),
+			platforms: lines(fd, 'platforms', 8),
+			price: text(fd, 'price', 60),
+			features: lines(fd, 'features', 16).map((f) => f.slice(0, 160)),
+			coverUrl,
+			coverAlt: text(fd, 'coverAlt', 200) || name,
+			gallery,
+			links,
+			status,
+			order: Number.isFinite(order) ? order : 100,
+			seoTitle: text(fd, 'seoTitle', 70),
+			seoDescription: text(fd, 'seoDescription', 170),
+			createdAt: before?.createdAt || now,
+			updatedAt: now,
+		});
+	} catch (err) {
+		console.error('store.put products error:', err);
+		return {
+			error: err instanceof Error ? `Could not save product to database: ${err.message}` : 'Failed to save product to database.',
+			fields: echo(fd),
+		};
+	}
+
+	try {
+		const paths = ['/products', productPath({ slug })];
+		if (before && before.slug !== slug) paths.push(productPath(before));
+		refresh(TAGS.products, paths);
+		if (status === 'published' || before?.status === 'published') await pingIndexNow(paths);
+	} catch (err) {
+		console.warn('refresh warning after saving product:', err);
+	}
+
 	redirect(`/admin/products/${id}?saved=1`);
 }
 
 export async function deleteProduct(fd: FormData) {
 	await requireAdmin();
 	const id = text(fd, 'id', 60);
-	const doc = await store.get('products', id);
-	if (doc) {
-		await store.remove('products', id);
-		const p = toProduct(doc);
-		refresh(TAGS.products, ['/products', productPath(p)]);
-		if (p.status === 'published') await pingIndexNow(['/products', productPath(p)]);
+	try {
+		const doc = await store.get('products', id);
+		if (doc) {
+			await store.remove('products', id);
+			const p = toProduct(doc);
+			refresh(TAGS.products, ['/products', productPath(p)]);
+			if (p.status === 'published') await pingIndexNow(['/products', productPath(p)]);
+		}
+	} catch (err) {
+		console.warn('deleteProduct warning:', err);
 	}
 	redirect('/admin/products?deleted=1');
 }

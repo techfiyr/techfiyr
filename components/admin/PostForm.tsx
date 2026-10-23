@@ -35,7 +35,7 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 		body: f?.body ?? post?.body ?? STARTER,
 		coverUrl: f?.coverUrl ?? post?.coverUrl ?? '',
 		coverAlt: f?.coverAlt ?? post?.coverAlt ?? '',
-		tags: f?.tags ?? post?.tags.join(', ') ?? '',
+		tags: f?.tags ?? post?.tags?.join(', ') ?? '',
 		author: f?.author ?? post?.author ?? authors[0],
 		seoTitle: f?.seoTitle ?? post?.seoTitle ?? '',
 		seoDescription: f?.seoDescription ?? post?.seoDescription ?? '',

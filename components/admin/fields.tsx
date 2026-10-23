@@ -69,6 +69,9 @@ export function TextField({ id, name, label, value, onChange, hint, max, ideal, 
 export function CoverField({ id, current, alt, onAlt, label = 'Cover image' }: { id: string; current: string; alt: string; onAlt: (v: string) => void; label?: string }) {
 	const [preview, setPreview] = useState('');
 	const [remove, setRemove] = useState(false);
+	useEffect(() => {
+		setRemove(false);
+	}, [current]);
 	useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 	const shown = remove ? '' : preview || current;
 
