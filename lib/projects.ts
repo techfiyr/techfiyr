@@ -58,11 +58,12 @@ export const PROJECTS: Project[] = [
 		client: 'MatMaps',
 		country: 'United Kingdom',
 		year: '2026',
-		cover: '/assets/images/projects/matmaps/cover.jpg',
+		cover: '/assets/images/projects/matmaps/matmaps-home-hero.jpg',
 		gallery: [
-			'/assets/images/projects/matmaps/screens.jpg',
-			'/assets/images/projects/matmaps/features.jpg',
-			'/assets/images/projects/matmaps/platform.jpg',
+			'/assets/images/projects/matmaps/matmaps-feature-list.jpg',
+			'/assets/images/projects/matmaps/matmaps-club-details-screens.jpg',
+			'/assets/images/projects/matmaps/matmaps-app-screens-carousel.jpg',
+			'/assets/images/projects/matmaps/matmaps-support-contact.jpg',
 		],
 		tags: ['Android & iOS', 'Firebase', 'Web Platform'],
 		links: {

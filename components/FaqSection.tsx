@@ -63,7 +63,7 @@ export default function FaqSection() {
 					</div>
 					<h2 className="sec-title_heading">Got Questions? We Have Answers</h2>
 					<div className="sec-title_text">
-						Learn how TechFiyr designs, develops, and deploys high-performance mobile apps and SaaS platforms for global startups.
+						Learn how TechFiyr designs, builds and ships Flutter and React Native apps and SaaS platforms for startups in the US, Europe and Asia.
 					</div>
 				</div>
 

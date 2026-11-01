@@ -20792,7 +20792,7 @@ readers do not read off random characters that represent icons */
 .marketing-one h1,
 .marketing-one .marketing-one_word {
   position: relative;
-  font-size: 110px;
+  font-size: 100px;
   line-height: 1em;
   font-weight: 900;
   display: inline-block;
@@ -24643,8 +24643,7 @@ readers do not read off random characters that represent icons */
   z-index: 1;
 }
 
-.empower-block_one-inner:hover .empower-block_one-image:before {
-}
+.empower-block_one-inner:hover .empower-block_one-image:before {}
 
 .empower-block_one-icon {
   position: absolute;
@@ -30659,8 +30658,8 @@ a.fiverr-badge-tag:hover {
 }
 
 /* let grid columns shrink below their content on small screens */
-.booking > *,
-.booking-step_pick > * {
+.booking>*,
+.booking-step_pick>* {
   min-width: 0;
 }
 
@@ -30967,6 +30966,7 @@ a.fiverr-badge-tag:hover {
 }
 
 @media (max-width: 767.98px) {
+
   .booking-main,
   .booking-info {
     padding: 26px 18px;
@@ -31372,6 +31372,7 @@ a.fiverr-badge-tag:hover {
 }
 
 @media (max-width: 991.98px) {
+
   .project-hero,
   .project-body {
     grid-template-columns: minmax(0, 1fr);
@@ -31388,6 +31389,7 @@ a.fiverr-badge-tag:hover {
 }
 
 @media (max-width: 767.98px) {
+
   .projects-section,
   .project-detail-section {
     padding: 70px 0 80px;
@@ -31483,6 +31485,7 @@ div.slider-one_heading {
 }
 
 @media (max-width: 767.98px) {
+
   /* hero buttons line up when they stack */
   .slider-one_button {
     gap: 12px;
@@ -31516,7 +31519,7 @@ div.slider-one_heading {
     padding: 225px 0 80px;
   }
 
-  .slider-one .swiper-wrapper .swiper-slide > .auto-container {
+  .slider-one .swiper-wrapper .swiper-slide>.auto-container {
     width: 100%;
   }
 
@@ -32206,6 +32209,7 @@ div.slider-one_heading {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .team-one_carousel-prev,
   .team-one_carousel-next {
     transition: none;
@@ -32256,7 +32260,7 @@ div.slider-one_heading {
    footer is no longer the direct sibling of the last section. Same spacing as
    ".incredible-one+.main-footer" above.
    ========================================================================== */
-main:has(> .incredible-one:last-child) + .main-footer {
+main:has(> .incredible-one:last-child)+.main-footer {
   margin-top: 120px;
 }
 
@@ -32463,7 +32467,7 @@ main:has(> .incredible-one:last-child) + .main-footer {
   line-height: 1.35;
 }
 
-.article-body > :first-child {
+.article-body> :first-child {
   margin-top: 0;
 }
 
@@ -32805,6 +32809,7 @@ main:has(> .incredible-one:last-child) + .main-footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .news-item,
   .news-item:hover {
     transition: none;
@@ -32828,5 +32833,167 @@ main:has(> .incredible-one:last-child) + .main-footer {
   outline: 2px solid var(--main-color);
   outline-offset: 2px;
   border-radius: 50px;
+}
+
+/* ==========================================================================
+   Home page ending with the FAQ (below "Driven by Passion & Excellence"):
+   same gap before the footer as when the page ends with .incredible-one
+   ========================================================================== */
+main:has(> .faq-two:last-child)+.main-footer {
+  margin-top: 120px;
+}/* ==========================================================================
+   Project cards (/projects): the template gives every heading position: relative,
+   which kept the title link's ::after inside the <h3>. Static here, so the
+   overlay covers the whole card; "View details" and "Live" sit above it.
+   ========================================================================== */
+.project-card_title {
+  position: static;
+}
+
+.project-card_more {
+  position: relative;
+  z-index: 2;
+}
+
+.project-card_more:hover {
+  color: var(--black-color);
+}
+
+.project-card_more:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+/* ==========================================================================
+   Project gallery (/projects/<slug>): every screenshot in the same 16:10 frame,
+   so a row of mixed-size images lines up at one height
+   ========================================================================== */
+.project-gallery img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  height: auto;
+}
+
+/* ==========================================================================
+   Project gallery slider (/projects/<slug> with more than 3 screenshots):
+   3 per view on desktop, arrows styled like the team carousel
+   ========================================================================== */
+.project-gallery_carousel {
+  margin: -10px -10px 0;
+  padding: 10px 10px 40px;
+}
+
+.project-gallery_carousel img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  height: auto;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(var(--black-color-rgb), 0.08);
+}
+
+.project-gallery_arrow {
+  position: relative;
+  gap: 6px;
+  margin-bottom: 60px;
+}
+
+.project-gallery_prev,
+.project-gallery_next {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  font-size: 16px;
+  border-radius: 50%;
+  color: var(--white-color);
+  background-color: var(--main-color);
+  background-image: linear-gradient(180deg, #237A57, #C6E45A);
+  box-shadow: 0 4px 12px rgba(35, 122, 87, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.project-gallery_prev:hover,
+.project-gallery_next:hover {
+  background-image: linear-gradient(180deg, var(--black-color), var(--black-color));
+}
+
+.project-gallery_prev:focus-visible,
+.project-gallery_next:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+.project-gallery_prev.swiper-button-disabled,
+.project-gallery_next.swiper-button-disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* every screenshot fits in one view (wide screen, 3 or fewer per view): no arrows */
+.project-gallery_arrow:has(.swiper-button-lock) {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-gallery_prev,
+  .project-gallery_next {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   WhatsApp chat button (every page, app/(site)/layout.tsx): brand gradient circle
+   fixed above the back-to-top ring
+   ========================================================================== */
+.whatsapp-float {
+  position: fixed;
+  right: 22px;
+  bottom: 92px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 26px;
+  color: var(--white-color);
+  background-color: rgba(35, 122, 87, 1);
+  background-image: linear-gradient(180deg, #237A57, #C6E45A);
+  box-shadow: 0 4px 12px rgba(35, 122, 87, 0.25);
+  transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover {
+  color: var(--white-color);
+  background-image: linear-gradient(180deg, var(--black-color), var(--black-color));
+  transform: translateY(-3px);
+}
+
+.whatsapp-float:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767.98px) {
+  .whatsapp-float {
+    right: 16px;
+    bottom: 84px;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-float {
+    transition: none;
+  }
+
+  .whatsapp-float:hover {
+    transform: none;
+  }
 }
 

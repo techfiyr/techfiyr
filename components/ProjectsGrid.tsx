@@ -29,7 +29,9 @@ function ProjectCard({ p }: { p: Project }) {
 				<p className="project-card_text">{p.summary}</p>
 				<ul className="project-tags">{(p.tags || []).map((t) => <li key={t}>{t}</li>)}</ul>
 				<div className="project-card_foot">
-					<span className="project-card_more">View details <i className="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+					<Link className="project-card_more" href={projectPath(p)}>
+						View details<span className="sr-only">: {p.title}</span> <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
+					</Link>
 					{live && (
 						<a className="project-card_live" href={live.href} target="_blank" rel="noopener">
 							<i className={live.icon} aria-hidden="true"></i> Live<span className="sr-only"> (opens in a new tab)</span>

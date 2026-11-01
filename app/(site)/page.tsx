@@ -13,7 +13,7 @@ import { pageMetadata } from '@/lib/seo';
 export const metadata: Metadata = {
 	...pageMetadata({
 		title: 'Mobile App Development Agency | Flutter & React | TechFiyr',
-		description: 'TechFiyr is a premier mobile app and SaaS development agency. We build Flutter, React Native, iOS, Android apps & custom cloud platforms. 5.0 rated on Fiverr.',
+		description: 'TechFiyr is a Dhaka-based mobile app and SaaS development agency. We build Flutter, React Native, iOS & Android apps and cloud platforms. 5.0 rated on Fiverr.',
 		path: '/',
 		ogDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr by clients across the US, Europe and Asia.',
 		twitterDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr.',
@@ -47,7 +47,7 @@ const structuredData = {
 				"logo": "https://techfiyr.com/assets/images/brand/logo.svg",
 				"image": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
 				"description": "TechFiyr is a mobile app and web software development agency in Dhaka, Bangladesh. The team designs and builds Flutter, React Native, iOS and Android apps, custom web software and SaaS platforms, UI/UX and product prototypes, and backend, cloud and CI/CD pipelines for startups and growing businesses in the US, Europe and Asia.",
-				"slogan": "Empowering Startups & Growing Businesses With High-Performance Mobile & Web Engineering",
+				"slogan": "Empowering Startups & Growing Businesses With Flutter, React Native & Web Engineering",
 				"email": "info@techfiyr.com",
 				"telephone": "+8801540659530",
 				"priceRange": "$$",
@@ -218,7 +218,7 @@ export default function HomePage() {
 										{' '}
 										<h1 className="slider-one_heading">
 											We build{' '}
-											<span>high-performance mobile apps</span>
+											<span>Flutter &amp; React Native apps</span>
 											{' '}and custom web software
 										</h1>
 										{' '}
@@ -451,7 +451,7 @@ export default function HomePage() {
 										</div>
 									</div>
 									{' '}
-									<h2 className="sec-title_heading">High-Performance Mobile &amp; Web Solutions</h2>
+									<h2 className="sec-title_heading">Mobile Apps, Web Platforms &amp; CI/CD We Build</h2>
 								</div>
 								{' '}
 								<div className="offer-one_titles">
@@ -612,9 +612,6 @@ export default function HomePage() {
 			{/* About Section */}
 			{' '}
 			<section className="about-one" id="about">
-				{/* parallax-scroll.js sets this element's transform on DOM ready, which can be just before React hydrates */}
-				<div className="about-one_vector" data-parallax="{&quot;y&quot; : 120}" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-3.png)' }} suppressHydrationWarning></div>
-				{' '}
 				<div className="about-one_pattern-layer" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-1.png)' }}></div>
 				{' '}
 				<div className="about-one_pattern-two" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-2.png)' }}></div>
@@ -647,12 +644,12 @@ export default function HomePage() {
 								<div className="about-one_years">
 									<div className="about-one_years-badge">
 										<span className="about-one_years-number">
-											2
+											11
 											<i>+</i>
 										</span>
 										{' '}
 										<span className="about-one_years-label">
-											Years of
+											Years Founder
 											<br />
 											Experience
 										</span>
@@ -834,11 +831,11 @@ export default function HomePage() {
 								</div>
 								{' '}
 								<div className="counter-one_count">
-									<span className="odometer" data-count="2"></span>
+									<span className="odometer" data-count="11"></span>
 									+
 								</div>
 								{' '}
-								<div className="counter-one_text">Years Shipping Mobile &amp; Web Products</div>
+								<div className="counter-one_text">Years of Founder Engineering Experience</div>
 							</div>
 						</div>
 						{/* Counter One */}
@@ -1252,7 +1249,7 @@ export default function HomePage() {
 								{' '}
 								<h4 className="step-block_one-heading">UI/UX &amp; Interactive Design</h4>
 								{' '}
-								<div className="step-block_one-text">Crafting modern, pixel-perfect Figma prototypes and user-centric design systems that ensure high engagement, retention, and seamless usability.</div>
+								<div className="step-block_one-text">Clickable Figma prototypes and a design system you review and approve before a single line of production code is written.</div>
 							</div>
 						</div>
 						{/* Step Block 03 */}
@@ -1268,7 +1265,7 @@ export default function HomePage() {
 								{' '}
 								<h4 className="step-block_one-heading">Agile Sprint Development</h4>
 								{' '}
-								<div className="step-block_one-text">Building high-performance mobile and web apps with clean, modular code, modern frameworks (Flutter, React, Next.js), and secure APIs.</div>
+								<div className="step-block_one-text">Building your app in Flutter, React Native or Next.js in short sprints, with clean, modular code and secure APIs you can test at every step.</div>
 							</div>
 						</div>
 						{/* Step Block 04 */}
@@ -1284,7 +1281,7 @@ export default function HomePage() {
 								{' '}
 								<h4 className="step-block_one-heading">QA, Deployment &amp; Scale</h4>
 								{' '}
-								<div className="step-block_one-text">Comprehensive end-to-end testing, seamless App Store, Google Play, and Cloud deployments, backed by dedicated post-launch support and optimization.</div>
+								<div className="step-block_one-text">End-to-end testing, then App Store, Google Play and cloud releases automated with Codemagic CI/CD, backed by post-launch support.</div>
 							</div>
 						</div>
 					</div>
@@ -1586,9 +1583,6 @@ export default function HomePage() {
 				</div>
 			</section>
 			{/* End Of Team One */}
-			{/* FAQ Section */}
-			<FaqSection />
-			{/* End FAQ Section */}
 			{/* Incredible One Section */}
 			{' '}
 			<section className="incredible-one">
@@ -1612,7 +1606,7 @@ export default function HomePage() {
 									</div>
 								</div>
 								{' '}
-								<h2 className="sec-title_heading">Engineering Next-Gen Digital Products</h2>
+								<h2 className="sec-title_heading">Apps &amp; Web Platforms for 20 Clients Across 3 Continents</h2>
 							</div>
 							{' '}
 							<div className="incredible-one_title">
@@ -1643,6 +1637,9 @@ export default function HomePage() {
 				</div>
 			</section>
 			{/* End Of Incredible One */}
+			{/* FAQ Section */}
+			<FaqSection />
+			{/* End FAQ Section */}
 		</>
 	);
 }

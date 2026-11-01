@@ -69,11 +69,8 @@ export const NAV = [
 	{ label: 'About us', href: '/#about' },
 	{ label: 'Projects', href: '/projects', match: (p: string) => p === '/projects' || p.startsWith('/projects/') },
 	{ label: 'Products', href: '/products', match: (p: string) => p === '/products' || p.startsWith('/products/') },
-	{ label: 'Blog', href: '/blog', match: (p: string) => p === '/blog' || p.startsWith('/blog/') },
-	{ label: 'AI News', href: '/news', match: (p: string) => p === '/news' },
-	{ label: 'Reviews', href: '/#testimonial' },
-	{ label: 'Process', href: '/#process' },
-	{ label: 'Team', href: '/#team' },
+	// "Blog" also stays current on /news: AI News is linked from the blog page, not from the menu
+	{ label: 'Blog', href: '/blog', match: (p: string) => p === '/blog' || p.startsWith('/blog/') || p === '/news' },
 	{ label: 'Contact', href: '/contact', match: (p: string) => p === '/contact' },
 ];
 
@@ -83,11 +80,11 @@ export const NAV = [
  */
 export const ASSET_VERSION = {
 	bootstrap: '20261003',
-	style: '20261020',
+	style: '20261101.4',
 	meanmenu: '20261003',
 	responsive: '20261003',
 	vendor: '20261003',
-	script: '20261018.2',
+	script: '20261101',
 	consent: '20261018',
 	analytics: '20261014',
 	visitors: '20261018',

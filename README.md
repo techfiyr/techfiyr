@@ -107,7 +107,7 @@ flowchart LR
 
 <table>
 	<tr>
-		<td width="45%"><a href="https://techfiyr.com/projects/matmaps"><img src="public/assets/images/projects/matmaps/cover.jpg" alt="MatMaps app screens"></a></td>
+		<td width="45%"><a href="https://techfiyr.com/projects/matmaps"><img src="public/assets/images/projects/matmaps/matmaps-home-hero.jpg" alt="MatMaps app screens"></a></td>
 		<td valign="top">
 			<h3>MatMaps</h3>
 			<p>A UK combat sports platform that helps athletes find clubs and events, and gives gym owners the tools to run their club, on Android and the web.</p>

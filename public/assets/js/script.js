@@ -393,6 +393,31 @@
 		});
 
 
+		// Project Gallery Slider (/projects/<slug>, only rendered with more than 3 screenshots):
+		// 3 per view on desktop, no autoplay
+		swiper('.project-gallery_carousel', {
+			slidesPerView: 1,
+			spaceBetween: 24,
+			watchOverflow: true,
+			navigation: {
+				nextEl: '.project-gallery_next',
+				prevEl: '.project-gallery_prev',
+			},
+			speed: reduceMotion ? 0 : 600,
+			breakpoints: {
+				'992': {
+					slidesPerView: 3,
+				},
+				'576': {
+					slidesPerView: 2,
+				},
+				'0': {
+					slidesPerView: 1,
+				},
+			},
+		});
+
+
 		// Team One Slider (home #team): slides through the team, no autoplay for reduced motion
 		swiper('.team-one_carousel', {
 			slidesPerView: 1,

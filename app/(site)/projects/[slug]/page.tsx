@@ -143,11 +143,36 @@ export default async function ProjectPage({ params }: Props) {
 								<Link className="theme-btn btn-style-one" href="/contact"><span className="btn-wrap"><span className="text-one">Book a Free Call</span><span className="text-two">Book a Free Call</span></span></Link>
 							</aside>
 						</div>
-						{(p.gallery || []).length > 0 && (
+						{/* Project Gallery: a grid for up to 3 screenshots, a slider (script.js) when there are more */}
+						{(p.gallery || []).length > 0 && (p.gallery || []).length <= 3 && (
 							<div className="project-gallery">
 								{(p.gallery || []).map((g) => <img key={g} src={g} alt={`${p.title} screenshot`} loading="lazy" decoding="async" />)}
 							</div>
 						)}
+						{(p.gallery || []).length > 3 && (
+							<>
+								<div className="project-gallery_carousel swiper-container">
+									<div className="swiper-wrapper">
+										{(p.gallery || []).map((g, i) => (
+											<div className="swiper-slide" key={g}>
+												<img src={g} alt={`${p.title} screenshot ${i + 1} of ${(p.gallery || []).length}`} loading="lazy" decoding="async" />
+											</div>
+										))}
+									</div>
+								</div>
+								{' '}
+								<div className="project-gallery_arrow d-flex justify-content-center">
+									<button type="button" className="project-gallery_prev" aria-label="Previous screenshot">
+										<i className="fa-solid fa-arrow-left fa-fw" aria-hidden="true"></i>
+									</button>
+									{' '}
+									<button type="button" className="project-gallery_next" aria-label="Next screenshot">
+										<i className="fa-solid fa-arrow-right fa-fw" aria-hidden="true"></i>
+									</button>
+								</div>
+							</>
+						)}
+						{/* End Project Gallery */}
 						<div className="project-nav"><Link href="/projects"><i className="fa-solid fa-arrow-left" aria-hidden="true"></i> All projects</Link></div>
 					</div>
 				</div>

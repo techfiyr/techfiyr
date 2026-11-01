@@ -25,7 +25,7 @@ export default function Footer() {
 						<div className="footer-text">
 							Empowering Startups &amp; Growing Businesses{' '}
 							<br />
-							{' '}With High-Performance Mobile &amp; Web Engineering
+							{' '}With Flutter, React Native &amp; Web Engineering
 						</div>
 						{/* Social Box */}
 						{' '}
