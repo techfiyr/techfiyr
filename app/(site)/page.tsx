@@ -194,7 +194,7 @@ const structuredData = {
 
 export default function HomePage() {
 	// First hero slide is the LCP image
-	preload('/assets/images/hero/hero-mobile-apps.jpg', { as: 'image', fetchPriority: 'high' });
+	preload('/assets/images/hero/hero-mobile-apps.webp', { as: 'image', fetchPriority: 'high' });
 
 	return (
 		<>
@@ -207,7 +207,7 @@ export default function HomePage() {
 					<div className="swiper-wrapper">
 						{/* Slide 1 */}
 						<div className="swiper-slide">
-							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-mobile-apps.jpg)' }}></div>
+							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-mobile-apps.webp)' }}></div>
 							{' '}
 							<div className="slider-one_pattern" style={{ backgroundImage: 'url(/assets/images/hero/hero-pattern.png)' }}></div>
 							{' '}
@@ -264,7 +264,7 @@ export default function HomePage() {
 						{/* Slide 2 */}
 						{' '}
 						<div className="swiper-slide">
-							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-saas-platforms.jpg)' }}></div>
+							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-saas-platforms.webp)' }}></div>
 							{' '}
 							<div className="slider-one_pattern" style={{ backgroundImage: 'url(/assets/images/hero/hero-pattern.png)' }}></div>
 							{' '}
@@ -312,7 +312,7 @@ export default function HomePage() {
 						{/* Slide 3 */}
 						{' '}
 						<div className="swiper-slide">
-							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-cicd-delivery.jpg)' }}></div>
+							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-cicd-delivery.webp)' }}></div>
 							{' '}
 							<div className="slider-one_pattern" style={{ backgroundImage: 'url(/assets/images/hero/hero-pattern.png)' }}></div>
 							{' '}
@@ -407,22 +407,22 @@ export default function HomePage() {
 								<div className="offer-one_images_outer">
 									{/* Image 1 */}
 									<div className="offer-one_image active">
-										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/mobile-app-development.jpg" alt="Mobile App Development" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/mobile-app-development.webp" alt="Mobile App Development" />
 									</div>
 									{/* Image 2 */}
 									{' '}
 									<div className="offer-one_image two">
-										<img width="959" height="766" loading="lazy" decoding="async" src="/assets/images/services/web-software-saas.jpg" alt="Web Software &amp; SaaS" />
+										<img width="959" height="766" loading="lazy" decoding="async" src="/assets/images/services/web-software-saas.webp" alt="Web Software &amp; SaaS" />
 									</div>
 									{/* Image 3 */}
 									{' '}
 									<div className="offer-one_image three">
-										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/ui-ux-design.jpg" alt="UI/UX Product Design" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/ui-ux-design.webp" alt="UI/UX Product Design" />
 									</div>
 									{/* Image 4 */}
 									{' '}
 									<div className="offer-one_image four">
-										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/backend-cloud-cicd.jpg" alt="Backend, Cloud &amp; CI/CD Pipelines" />
+										<img width="960" height="766" loading="lazy" decoding="async" src="/assets/images/services/backend-cloud-cicd.webp" alt="Backend, Cloud &amp; CI/CD Pipelines" />
 									</div>
 								</div>
 								{/* Award Box */}
@@ -670,13 +670,13 @@ export default function HomePage() {
 							<div className="column col-lg-6 col-md-12 col-sm-12">
 								<div className="about-one_image-outer">
 									<div className="about-one_image">
-										<img width="520" height="460" loading="lazy" decoding="async" src="/assets/images/about/about-team.jpg" alt="TechFiyr Team" />
+										<img width="520" height="460" loading="lazy" decoding="async" src="/assets/images/about/about-team.webp" alt="TechFiyr Team" />
 									</div>
 								</div>
 								{' '}
 								<div className="d-flex align-items-center flex-wrap">
 									<div className="about-one_image-two">
-										<img width="440" height="440" loading="lazy" decoding="async" src="/assets/images/about/about-workspace.png" alt="TechFiyr developer workspace" />
+										<img width="440" height="440" loading="lazy" decoding="async" src="/assets/images/about/about-workspace.webp" alt="TechFiyr developer workspace" />
 									</div>
 									{' '}
 									<div className="about-one_carousel">
@@ -776,7 +776,7 @@ export default function HomePage() {
 			{/* Achievements Section */}
 			{' '}
 			<section className="achieve-one">
-				<div className="achieve-one_bg" style={{ backgroundImage: 'url(/assets/images/backgrounds/stats-bg.png)' }}></div>
+				<div className="achieve-one_bg" style={{ backgroundImage: 'url(/assets/images/backgrounds/stats-bg.webp)' }}></div>
 				{' '}
 				<div className="auto-container">
 					<div className="sec-title title-anim light centered">
@@ -935,7 +935,7 @@ export default function HomePage() {
 															<div className="fiverr-author-avatar">T</div>
 															{' '}
 															<div className="author-info-box">
-																<h4 className="author-name">theinnerpoint</h4>
+																<h3 className="author-name">theinnerpoint</h3>
 																{' '}
 																<div className="author-meta">
 																	<span className="country-pill">🇺🇸 United States</span>
@@ -988,7 +988,7 @@ export default function HomePage() {
 															<div className="fiverr-author-avatar">S</div>
 															{' '}
 															<div className="author-info-box">
-																<h4 className="author-name">sairamchaganti</h4>
+																<h3 className="author-name">sairamchaganti</h3>
 																{' '}
 																<div className="author-meta">
 																	<span className="country-pill">🇮🇳 India</span>
@@ -1041,7 +1041,7 @@ export default function HomePage() {
 															<div className="fiverr-author-avatar">B</div>
 															{' '}
 															<div className="author-info-box">
-																<h4 className="author-name">bluebahia2018</h4>
+																<h3 className="author-name">bluebahia2018</h3>
 																{' '}
 																<div className="author-meta">
 																	<span className="country-pill">🇺🇸 United States</span>
@@ -1094,7 +1094,7 @@ export default function HomePage() {
 															<div className="fiverr-author-avatar">J</div>
 															{' '}
 															<div className="author-info-box">
-																<h4 className="author-name">jamiegale</h4>
+																<h3 className="author-name">jamiegale</h3>
 																{' '}
 																<div className="author-meta">
 																	<span className="country-pill">🇮🇪 Ireland</span>
@@ -1147,7 +1147,7 @@ export default function HomePage() {
 															<div className="fiverr-author-avatar">M</div>
 															{' '}
 															<div className="author-info-box">
-																<h4 className="author-name">messinis</h4>
+																<h3 className="author-name">messinis</h3>
 																{' '}
 																<div className="author-meta">
 																	<span className="country-pill">🇨🇭 Switzerland</span>
@@ -1231,7 +1231,7 @@ export default function HomePage() {
 									Step
 								</div>
 								{' '}
-								<h4 className="step-block_one-heading">Discovery &amp; Architecture</h4>
+								<h3 className="step-block_one-heading">Discovery &amp; Architecture</h3>
 								{' '}
 								<div className="step-block_one-text">We deep-dive into your requirements, map intuitive user journeys, and architect a robust, scalable tech foundation tailored for long-term growth.</div>
 							</div>
@@ -1247,7 +1247,7 @@ export default function HomePage() {
 									Step
 								</div>
 								{' '}
-								<h4 className="step-block_one-heading">UI/UX &amp; Interactive Design</h4>
+								<h3 className="step-block_one-heading">UI/UX &amp; Interactive Design</h3>
 								{' '}
 								<div className="step-block_one-text">Clickable Figma prototypes and a design system you review and approve before a single line of production code is written.</div>
 							</div>
@@ -1263,7 +1263,7 @@ export default function HomePage() {
 									Step
 								</div>
 								{' '}
-								<h4 className="step-block_one-heading">Agile Sprint Development</h4>
+								<h3 className="step-block_one-heading">Agile Sprint Development</h3>
 								{' '}
 								<div className="step-block_one-text">Building your app in Flutter, React Native or Next.js in short sprints, with clean, modular code and secure APIs you can test at every step.</div>
 							</div>
@@ -1279,7 +1279,7 @@ export default function HomePage() {
 									Step
 								</div>
 								{' '}
-								<h4 className="step-block_one-heading">QA, Deployment &amp; Scale</h4>
+								<h3 className="step-block_one-heading">QA, Deployment &amp; Scale</h3>
 								{' '}
 								<div className="step-block_one-text">End-to-end testing, then App Store, Google Play and cloud releases automated with Codemagic CI/CD, backed by post-launch support.</div>
 							</div>
@@ -1328,7 +1328,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="960" loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid.jpg" alt="Saurav Wahid" />
+											<img width="640" height="960" loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid.webp" alt="Saurav Wahid" />
 										</figure>
 									</div>
 									{' '}
@@ -1339,20 +1339,20 @@ export default function HomePage() {
 												<br />
 												<span className="cat">Co-Founder &amp; Team Lead</span>
 												{' '}
-												<h5 className="title">Saurav Wahid</h5>
+												<h3 className="title">Saurav Wahid</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/sauravwahid/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/sauravwahid/" target="_blank" rel="noopener" aria-label="Saurav Wahid on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/swahid" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/swahid" target="_blank" rel="noopener" aria-label="Saurav Wahid on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener" aria-label="Oracle Certified Professional (opens in a new tab)" title="Oracle Certified Professional">
+													<a href="https://www.credly.com/badges/8a5a2d48-5ff5-4f9a-b4d5-cbe49eb03732/public_url" target="_blank" rel="noopener" aria-label="Saurav Wahid's Oracle Certified Professional Badge (opens in a new tab)" title="Oracle Certified Professional">
 														<i className="fa-solid fa-certificate" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1367,7 +1367,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="651" loading="lazy" decoding="async" src="/assets/images/team/viswajit-roy.jpg" alt="Viswajit Roy" />
+											<img width="640" height="651" loading="lazy" decoding="async" src="/assets/images/team/viswajit-roy.webp" alt="Viswajit Roy" />
 										</figure>
 									</div>
 									{' '}
@@ -1378,20 +1378,20 @@ export default function HomePage() {
 												{' '}
 												<span className="cat">Co-Founder &amp; Managing Director</span>
 												{' '}
-												<h5 className="title">Viswajit Roy</h5>
+												<h3 className="title">Viswajit Roy</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/viswajitroy" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/viswajitroy" target="_blank" rel="noopener" aria-label="Viswajit Roy on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/viswajitRoy" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/viswajitRoy" target="_blank" rel="noopener" aria-label="Viswajit Roy on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://www.behance.net/royviswajie8fd" target="_blank" rel="noopener" aria-label="Behance (opens in a new tab)">
+													<a href="https://www.behance.net/royviswajie8fd" target="_blank" rel="noopener" aria-label="Viswajit Roy on Behance (opens in a new tab)">
 														<i className="fa-brands fa-behance" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1406,7 +1406,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="608" loading="lazy" decoding="async" src="/assets/images/team/ponir-saha.jpg" alt="Ponir Saha" />
+											<img width="640" height="608" loading="lazy" decoding="async" src="/assets/images/team/ponir-saha.webp" alt="Ponir Saha" />
 										</figure>
 									</div>
 									{' '}
@@ -1417,16 +1417,16 @@ export default function HomePage() {
 												{' '}
 												<span className="cat">Co-Founder &amp; CTO</span>
 												{' '}
-												<h5 className="title">Ponir Saha</h5>
+												<h3 className="title">Ponir Saha</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/ponirsaha/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/ponirsaha/" target="_blank" rel="noopener" aria-label="Ponir Saha on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/ponir-saha" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/ponir-saha" target="_blank" rel="noopener" aria-label="Ponir Saha on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1441,7 +1441,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="853" loading="lazy" decoding="async" src="/assets/images/team/masud-parvez.jpg" alt="Md Masud Parvez" />
+											<img width="640" height="853" loading="lazy" decoding="async" src="/assets/images/team/masud-parvez.webp" alt="Md Masud Parvez" />
 										</figure>
 									</div>
 									{' '}
@@ -1450,16 +1450,16 @@ export default function HomePage() {
 											<div className="left-box">
 												<span className="cat">Lead Android &amp; iOS Developer</span>
 												{' '}
-												<h5 className="title">Md Masud Parvez</h5>
+												<h3 className="title">Md Masud Parvez</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/masudparvez11/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/masudparvez11/" target="_blank" rel="noopener" aria-label="Md Masud Parvez on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/pavelsust" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/pavelsust" target="_blank" rel="noopener" aria-label="Md Masud Parvez on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1474,7 +1474,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="433" height="440" loading="lazy" decoding="async" src="/assets/images/team/awon-uz-zaman.jpg" alt="Md. Awon-Uz-Zaman" />
+											<img width="433" height="440" loading="lazy" decoding="async" src="/assets/images/team/awon-uz-zaman.webp" alt="Md. Awon-Uz-Zaman" />
 										</figure>
 									</div>
 									{' '}
@@ -1483,16 +1483,16 @@ export default function HomePage() {
 											<div className="left-box">
 												<span className="cat">Android &amp; iOS Developer</span>
 												{' '}
-												<h5 className="title">Md. Awon-Uz-Zaman</h5>
+												<h3 className="title">Md. Awon-Uz-Zaman</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/awonuzzaman/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/awonuzzaman/" target="_blank" rel="noopener" aria-label="Md. Awon-Uz-Zaman on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/awon057" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/awon057" target="_blank" rel="noopener" aria-label="Md. Awon-Uz-Zaman on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1507,7 +1507,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="640" loading="lazy" decoding="async" src="/assets/images/team/sohanur-islam.jpg" alt="Sohanur Islam" />
+											<img width="640" height="640" loading="lazy" decoding="async" src="/assets/images/team/sohanur-islam.webp" alt="Sohanur Islam" />
 										</figure>
 									</div>
 									{' '}
@@ -1516,16 +1516,16 @@ export default function HomePage() {
 											<div className="left-box">
 												<span className="cat">Full-Stack Software Engineer | Java | Angular | Spring | AI Agent Specialist | Next.js | React Native</span>
 												{' '}
-												<h5 className="title">Sohanur Islam</h5>
+												<h3 className="title">Sohanur Islam</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/sohanur-islam-b2a027145/" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/sohanur-islam-b2a027145/" target="_blank" rel="noopener" aria-label="Sohanur Islam on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/sohanur1" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/sohanur1" target="_blank" rel="noopener" aria-label="Sohanur Islam on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>
@@ -1540,7 +1540,7 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="520" height="520" loading="lazy" decoding="async" src="/assets/images/team/pranabesh-sarkar.jpg" alt="Pranabesh Sarkar" />
+											<img width="520" height="520" loading="lazy" decoding="async" src="/assets/images/team/pranabesh-sarkar.webp" alt="Pranabesh Sarkar" />
 										</figure>
 									</div>
 									{' '}
@@ -1549,16 +1549,16 @@ export default function HomePage() {
 											<div className="left-box">
 												<span className="cat">AI/ML Engineer | MLOps, Deep Learning &amp; Scalable AI Infrastructure | LLM Integration, Vector DBs &amp; Smart Products</span>
 												{' '}
-												<h5 className="title">Pranabesh Sarkar</h5>
+												<h3 className="title">Pranabesh Sarkar</h3>
 											</div>
 											{' '}
 											<div className="right-box">
 												<div className="team-one_socials">
-													<a href="https://www.linkedin.com/in/pranab-csra" target="_blank" rel="noopener" aria-label="LinkedIn (opens in a new tab)">
+													<a href="https://www.linkedin.com/in/pranab-csra" target="_blank" rel="noopener" aria-label="Pranabesh Sarkar on LinkedIn (opens in a new tab)">
 														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 													{' '}
-													<a href="https://github.com/pranab-sarkar" target="_blank" rel="noopener" aria-label="GitHub (opens in a new tab)">
+													<a href="https://github.com/pranab-sarkar" target="_blank" rel="noopener" aria-label="Pranabesh Sarkar on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
 													</a>
 												</div>

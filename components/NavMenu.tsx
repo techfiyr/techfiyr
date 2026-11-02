@@ -10,24 +10,27 @@ import { usePathname } from 'next/navigation';
 import { Fragment } from 'react';
 import { NAV } from '@/lib/site';
 
-export default function NavMenu() {
+export default function NavMenu({ id = 'navbarSupportedContent' }: { id?: string }) {
 	const pathname = usePathname() || '/';
+	const isDefault = id === 'navbarSupportedContent';
 
 	return (
 		<>
-			<div className="navbar-header">
-				{/* Toggle Button */}
-				<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-					<span className="icon-bar"></span>
-					{' '}
-					<span className="icon-bar"></span>
-					{' '}
-					<span className="icon-bar"></span>
-				</button>
-			</div>
+			{isDefault && (
+				<div className="navbar-header">
+					{/* Toggle Button */}
+					<button className="navbar-toggler" type="button" data-toggle="collapse" data-target={`#${id}`} aria-controls={id} aria-expanded="false" aria-label="Toggle navigation">
+						<span className="icon-bar"></span>
+						{' '}
+						<span className="icon-bar"></span>
+						{' '}
+						<span className="icon-bar"></span>
+					</button>
+				</div>
+			)}
 			{' '}
-			{/* The template's CSS shows both menus through this id (header and mobile), so both copies carry it */}
-			<div className="navbar-collapse scroll-nav collapse clearfix" id="navbarSupportedContent">
+			{/* The template's CSS shows both menus through this id (header and mobile) */}
+			<div className="navbar-collapse scroll-nav collapse clearfix" id={id}>
 				<ul className="navigation clearfix">
 					{NAV.map((item, i) => {
 						const current = item.match ? item.match(pathname) : false;

@@ -297,9 +297,27 @@
 
 # Short addresses for the discovery files
 [[redirects]]
+  from = "/llm"
+  to = "/llm.txt"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/llms"
   to = "/llms.txt"
   status = 200
+  force = true
+
+[[redirects]]
+  from = "/llm/"
+  to = "/llm.txt"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/llms/"
+  to = "/llms.txt"
+  status = 301
   force = true
 
 [[redirects]]
@@ -319,6 +337,11 @@
   to = "/sitemap.xml"
   status = 301
   force = true
+
+[[redirects]]
+  from = "/.well-known/ai-catalog.json"
+  to = "/ai-catalog.json"
+  status = 200
 
 # ---------------------------------------------------------------------------
 # Response headers
@@ -356,6 +379,28 @@
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
     Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/llm.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/llms-full.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/ai-catalog.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
 
 [[headers]]
   for = "/sitemap.xml"
@@ -393,5 +438,6 @@
 [[headers]]
   for = "/*"
   [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"

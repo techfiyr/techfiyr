@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
 			{ source: '/sitemap', destination: '/sitemap.xml' },
 			{ source: '/sitemap/', destination: '/sitemap.xml' },
 			{ source: '/robots', destination: '/robots.txt' },
+			{ source: '/llm', destination: '/llms.txt' },
 			{ source: '/llms', destination: '/llms.txt' },
 		];
 	},

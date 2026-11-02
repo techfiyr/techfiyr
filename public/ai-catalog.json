@@ -1,0 +1,33 @@
+{
+  "@context": "https://schema.org",
+  "catalogVersion": "1.0",
+  "provider": {
+    "name": "TechFiyr",
+    "domain": "techfiyr.com",
+    "url": "https://techfiyr.com/",
+    "contactUrl": "https://techfiyr.com/contact"
+  },
+  "resources": [
+    {
+      "urn": "urn:ai:techfiyr.com:agent:ai-assistant",
+      "type": "application/ai-agent",
+      "name": "TechFiyr AI Consultation Agent",
+      "description": "Interactive AI assistant powered by Gemini for project scoping, mobile app and web tech stack advisory, team member specialties, and consultation scheduling.",
+      "endpoint": "https://techfiyr.com/api/chat",
+      "protocol": "http-post",
+      "representativeQueries": [
+        "What services does TechFiyr provide?",
+        "Can you build a cross-platform mobile app in Flutter or React Native?",
+        "How do I schedule a consultation or meeting with TechFiyr?"
+      ]
+    },
+    {
+      "urn": "urn:ai:techfiyr.com:document:llms-txt",
+      "type": "text/markdown",
+      "name": "TechFiyr LLM Context Knowledge Base",
+      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, and portfolio case studies for autonomous agents and LLMs.",
+      "endpoint": "https://techfiyr.com/llms.txt",
+      "protocol": "http-get"
+    }
+  ]
+}

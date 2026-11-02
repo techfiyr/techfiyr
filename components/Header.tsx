@@ -110,7 +110,7 @@ export default function Header() {
 					{' '}
 					{/* Same menu as in the header */}
 					<div className="menu-outer">
-						<NavMenu />
+						<NavMenu id="mobileNavbarSupportedContent" />
 					</div>
 				</nav>
 			</div>
