@@ -6,6 +6,7 @@
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import SiteRuntime from '@/components/SiteRuntime';
+import AiChatWidget from '@/components/AiChatWidget';
 import { ASSET_VERSION as V, CONTACT } from '@/lib/site';
 
 const FONTS = 'https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&family=Outfit:wght@100..900&family=Raleway:wght@800&display=swap';
@@ -61,10 +62,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 			</div>
 			{/* End PageWrapper */}
 
-			{/* WhatsApp chat button (every page), above the back-to-top ring */}
-			<a className="whatsapp-float" href={`${CONTACT.whatsapp}?text=${encodeURIComponent("Hi TechFiyr, I'd like to discuss a project.")}`} target="_blank" rel="noopener" aria-label="Chat with TechFiyr on WhatsApp (opens in a new tab)">
-				<i className="fa-brands fa-whatsapp" aria-hidden="true"></i>
-			</a>
+			{/* WhatsApp & Gemini AI Chat Assistant (every page), above the back-to-top ring */}
+			<AiChatWidget />
 
 			{/* backtotop.js adds .active-progress on DOM ready when the page opens scrolled down, which can be just before React hydrates */}
 			<button type="button" className="progress-wrap" aria-label="Back to top" suppressHydrationWarning>

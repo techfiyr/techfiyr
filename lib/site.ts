@@ -80,7 +80,7 @@ export const NAV = [
  */
 export const ASSET_VERSION = {
 	bootstrap: '20261003',
-	style: '20261101.4',
+	style: '20261103',
 	meanmenu: '20261003',
 	responsive: '20261003',
 	vendor: '20261003',
