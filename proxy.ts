@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 
 	// Old project addresses (/project.html?p=<slug>, /project?p=<slug>): one 301 to the clean URL
 	// without the query string. Netlify redirects would carry ?p= over to the new address.
-	if (pathname === '/project' || pathname === '/project.html') {
+	if (pathname === '/project' || pathname === '/project.html' || pathname === '/project/' || pathname === '/project.html/') {
 		const slug = request.nextUrl.searchParams.get('p') || '';
 		const target = /^[a-z0-9-]+$/.test(slug) ? `/projects/${slug}` : '/projects';
 		return NextResponse.redirect(new URL(target, request.url), 301);
@@ -37,5 +37,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ['/admin', '/admin/:path*', '/project', '/project.html'],
+	matcher: ['/admin', '/admin/:path*', '/project', '/project.html', '/project/', '/project.html/'],
 };

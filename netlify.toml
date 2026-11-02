@@ -21,6 +21,12 @@
 # ---------------------------------------------------------------------------
 
 [[redirects]]
+  from = "https://www.techfiyr.com/*"
+  to = "https://techfiyr.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/index.html"
   to = "/"
   status = 301
@@ -74,6 +80,219 @@
   from = "/404.html"
   to = "/"
   status = 301
+  force = true
+
+# Legacy template pages: redirect to current sections
+[[redirects]]
+  from = "/about.html"
+  to = "/#about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about"
+  to = "/#about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about-us.html"
+  to = "/#about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about-us"
+  to = "/#about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/services.html"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/services"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/service.html"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/service-detail.html"
+  to = "/#services"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/team.html"
+  to = "/#team"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/team"
+  to = "/#team"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/team-detail.html"
+  to = "/#team"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/team-detail"
+  to = "/#team"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/our-team.html"
+  to = "/#team"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/not-found.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/products.html"
+  to = "/products"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog.html"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/news.html"
+  to = "/news"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/portfolio.html"
+  to = "/projects"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/portfolio"
+  to = "/projects"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/portfolio-detail.html"
+  to = "/projects"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/faq.html"
+  to = "/#faq"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/faq"
+  to = "/#faq"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pricing.html"
+  to = "/products"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pricing"
+  to = "/products"
+  status = 301
+  force = true
+
+# Trailing slash normalizations (prevent canonical/duplicate warnings)
+[[redirects]]
+  from = "/projects/"
+  to = "/projects"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/products/"
+  to = "/products"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/blog/"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/news/"
+  to = "/news"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/contact/"
+  to = "/contact"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/privacy-policy/"
+  to = "/privacy-policy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/cookie-policy/"
+  to = "/cookie-policy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/content-policy/"
+  to = "/content-policy"
+  status = 301
+  force = true
+
+# Deleted template asset files (410 Gone tells Googlebot to purge immediately)
+[[redirects]]
+  from = "/assets/css/color-themes/*"
+  to = "/"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/assets/webfonts/fa-v4compatibility*"
+  to = "/"
+  status = 410
+  force = true
+
+[[redirects]]
+  from = "/assets/images/footer-logo-three.html"
+  to = "/"
+  status = 410
   force = true
 
 # Short addresses for the discovery files
