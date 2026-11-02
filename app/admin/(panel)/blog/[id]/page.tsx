@@ -18,10 +18,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EditPostPage({ params, searchParams }: Props) {
 	const { id } = await params;
 	const { saved } = await searchParams;
-	let doc = id === 'new' ? null : await store.get('posts', id);
-	if (id !== 'new' && !doc && saved) {
-		await new Promise((r) => setTimeout(r, 400));
-		doc = await store.get('posts', id);
+	let doc = null;
+	try {
+		doc = id === 'new' ? null : await store.get('posts', id);
+		if (id !== 'new' && !doc && saved) {
+			await new Promise((r) => setTimeout(r, 400));
+			doc = await store.get('posts', id);
+		}
+	} catch (err) {
+		console.warn('store.get post failed:', err);
 	}
 	if (id !== 'new' && !doc) notFound();
 	const post = doc ? toPost(doc) : null;

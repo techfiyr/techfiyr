@@ -217,10 +217,13 @@ export async function saveProduct(_prev: FormState, fd: FormData): Promise<FormS
 	let coverUrl = text(fd, 'coverUrl', 500);
 	let gallery = lines(fd, 'gallery', 12).filter((g) => g.startsWith('/media/') || g.startsWith('/assets/') || g.startsWith('https://'));
 	try {
-		coverUrl = (await upload(fd, 'coverFile', 'products')) || coverUrl;
-		for (const f of fd.getAll('galleryFiles')) {
-			if (f instanceof File && f.size) gallery.push(await saveImage(f, 'products'));
-		}
+		const galleryFiles = fd.getAll('galleryFiles').filter((f): f is File => f instanceof File && Boolean(f.size));
+		const [newCover, ...newGallery] = await Promise.all([
+			upload(fd, 'coverFile', 'products'),
+			...galleryFiles.map((f) => saveImage(f, 'products')),
+		]);
+		coverUrl = newCover || coverUrl;
+		gallery.push(...newGallery);
 	} catch (err) {
 		return { error: err instanceof Error ? err.message : 'The image could not be uploaded.', fields: echo(fd) };
 	}

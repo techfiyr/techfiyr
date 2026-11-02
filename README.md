@@ -30,7 +30,7 @@
 
 <div align="center">
 
-| <h2>20</h2> | <h2>5.0 ★</h2> | <h2>2+</h2> | <h2>5</h2> |
+| <h2>20</h2> | <h2>5.0 ★</h2> | <h2>2+</h2> | <h2>7</h2> |
 |:---:|:---:|:---:|:---:|
 | Happy clients across<br>the US, Europe & Asia | Average client rating<br>on Fiverr | Years shipping mobile<br>& web products | Core designers<br>& developers |
 
@@ -140,109 +140,14 @@ flowchart LR
 
 <div align="center">
 
-| <img src="public/assets/images/team/saurav-wahid-portrait.jpg" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> |
-|:---:|:---:|:---:|:---:|:---:|
-| **[Saurav Wahid](https://www.linkedin.com/in/sauravwahid/)** | **[Viswajit Roy](https://www.linkedin.com/in/viswajitroy)** | **[Ponir Saha](https://www.linkedin.com/in/ponirsaha/)** | **[Md Masud Parvez](https://www.linkedin.com/in/masudparvez11/)** | **[Md. Awon-Uz-Zaman](https://www.linkedin.com/in/awonuzzaman/)** |
-| <sub>Co-Founder & Team Lead | Full Stack AI Native Engineer | Java | Spring | Web | Mobile App | DevOps</sub> | <sub>Co-Founder & Managing Director | Lead UI/UX Designer</sub> | <sub>Co-Founder & CTO | Software Architect | Production AI/RAG | Java | Spring | Python</sub> | <sub>Lead Android & iOS Developer</sub> | <sub>Android & iOS Developer</sub> |
+| <img src="public/assets/images/team/saurav-wahid.jpg" width="96" alt="Saurav Wahid"> | <img src="public/assets/images/team/viswajit-roy.jpg" width="96" alt="Viswajit Roy"> | <img src="public/assets/images/team/ponir-saha.jpg" width="96" alt="Ponir Saha"> | <img src="public/assets/images/team/masud-parvez.jpg" width="96" alt="Md Masud Parvez"> | <img src="public/assets/images/team/awon-uz-zaman.jpg" width="96" alt="Md. Awon-Uz-Zaman"> | <img src="public/assets/images/team/sohanur-islam.jpg" width="96" alt="Sohanur Islam"> | <img src="public/assets/images/team/pranabesh-sarkar.jpg" width="96" alt="Pranabesh Sarkar"> |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **[Saurav Wahid](https://www.linkedin.com/in/sauravwahid/)** | **[Viswajit Roy](https://www.linkedin.com/in/viswajitroy)** | **[Ponir Saha](https://www.linkedin.com/in/ponirsaha/)** | **[Md Masud Parvez](https://www.linkedin.com/in/masudparvez11/)** | **[Md. Awon-Uz-Zaman](https://www.linkedin.com/in/awonuzzaman/)** | **[Sohanur Islam](https://www.linkedin.com/in/sohanur-islam-b2a027145/)** | **[Pranabesh Sarkar](https://www.linkedin.com/in/pranab-csra)** |
+| <sub>**Co-Founder & Team Lead**<br>Senior Java Spring Web & App Developer · AI App Audits · Mobile CI/CD<br>Oracle Certified Professional, 11+ years</sub> | <sub>**Co-Founder & Managing Director**<br>Lead UI/UX Designer<br>Design Systems · Figma · 10+ yrs</sub> | <sub>**Co-Founder & CTO**<br>Software Architect<br>Production AI/RAG · Java · Python</sub> | <sub>**Lead Android & iOS Developer**<br>Native & Cross-Platform<br>App Store & Play Store</sub> | <sub>**Senior Android & iOS Developer**<br>Mobile Apps · Flutter<br>Clean Architecture</sub> | <sub>**Full-Stack Software Engineer**<br>Java · Angular · Spring<br>AI Agents · Next.js · React Native</sub> | <sub>**Senior AI/ML Engineer**<br>MLOps & Scalable AI<br>LLM Integration · Vector DBs</sub> |
 
 </div>
 
 <br>
-
----
-
-## ⚙️ About this repository
-
-This repository is the source of **[techfiyr.com](https://techfiyr.com)**: a Next.js site where every page is prerendered to static HTML and served from Netlify's CDN. Links prefetch the next page so navigation is instant, and a service worker makes the site an installable PWA that opens visited pages offline. The look and motion are the original template's own CSS and scripts. One Netlify Function powers the visitor counter.
-
-<img src="https://img.shields.io/badge/Next.js-191919?style=flat-square&logo=nextdotjs&logoColor=C6E45A" alt="Next.js"> <img src="https://img.shields.io/badge/React-191919?style=flat-square&logo=react&logoColor=C6E45A" alt="React"> <img src="https://img.shields.io/badge/TypeScript-191919?style=flat-square&logo=typescript&logoColor=C6E45A" alt="TypeScript"> <img src="https://img.shields.io/badge/PWA-191919?style=flat-square&logo=pwa&logoColor=C6E45A" alt="PWA"> <img src="https://img.shields.io/badge/Bootstrap-191919?style=flat-square&logo=bootstrap&logoColor=C6E45A" alt="Bootstrap"> <img src="https://img.shields.io/badge/GSAP-191919?style=flat-square&logo=greensock&logoColor=C6E45A" alt="GSAP"> <img src="https://img.shields.io/badge/Netlify-237A57?style=flat-square&logo=netlify&logoColor=white" alt="Netlify">
-
-### Run it locally
-
-```bash
-git clone git@github.com:techfiyr/techfiyr.git
-cd techfiyr
-npm install
-npm run dev        # http://localhost:3000
-npm run build && npm start   # production build (service worker on)
-
-# or run it in the background
-npm run server:start         # dev server (add `-- prod` for the production build)
-npm run server:status
-npm run server:stop
-```
-
-### Admin panel (CMS)
-
-`/admin` manages the blog, products and the daily AI news, and shows visitors, Google Search and indexing. Locally, without Firebase credentials, content is saved in `.data/` and you sign in with the address and password from a git-ignored `.env.local`:
-
-```bash
-ADMIN_EMAILS=you@example.com
-ADMIN_LOCAL_PASSWORD=choose-a-local-password
-```
-
-Production setup (Firebase Authentication, Storage, Search Console, the daily schedule) is in [AGENTS.md](AGENTS.md), section 7.8.
-
-Netlify features (booking form submissions, headers and redirects, Google Analytics, the footer visitor counter) only work on the deployed site, or locally with `netlify dev` and a git-ignored `.env`. Environment variables are listed in [AGENTS.md](AGENTS.md), section 7.6.
-
-### Project structure
-
-```text
-.
-├── app/                             # Next.js routes (prerendered at build time)
-│   ├── layout.tsx                   # <html>, icons, theme colour
-│   ├── (site)/layout.tsx            # Template stylesheets, header, footer, template scripts
-│   ├── (site)/page.tsx              # Home: services, about, reviews, process, team
-│   ├── (site)/projects/             # Portfolio and /projects/<slug> case studies
-│   ├── (site)/contact/              # Booking calendar, contact details, map
-│   ├── (site)/privacy-policy · cookie-policy · content-policy
-│   ├── not-found.tsx · offline/ · coming-soon/   # Stand-alone pages
-│   └── manifest.ts · sitemap.ts     # /manifest.webmanifest, /sitemap.xml
-├── components/                      # Header, NavMenu, Footer, PageTitle, ProjectsGrid, JsonLd, SiteRuntime
-├── lib/
-│   ├── site.ts                      # Company facts, nav, asset versions
-│   ├── seo.ts                       # Page metadata helper
-│   └── projects.ts                  # ← add or edit portfolio projects here
-├── styles/                          # CSS of the stand-alone pages
-├── public/                          # Static files served from the site root
-│   ├── assets/
-│   │   ├── css/                     # style.css (site styles), responsive.css (breakpoints)
-│   │   ├── js/                      # Template behaviour and widgets: script.js, booking.js,
-│   │   │                            #   consent.js, analytics.js, visitors.js
-│   │   ├── vendor/                  # Third-party libraries, one folder each (see THIRD_PARTY_NOTICES.md)
-│   │   ├── fonts/                   # Font Awesome webfonts
-│   │   └── images/                  # brand/ hero/ backgrounds/ services/ about/ team/
-│   │                                #   icons/ projects/<slug>/ og/
-│   ├── sw.js                        # Service worker (PWA, offline)
-│   ├── __forms.html                 # Netlify Forms registration for the booking form
-│   ├── .well-known/security.txt
-│   └── robots.txt · llms.txt        # Search engine and AI crawler discovery
-├── netlify/functions/visits.mjs     # /api/visits: footer visitor counter (Firestore)
-├── scripts/build-config.mjs         # Runs before the build: writes public/firebase-config.js from env vars
-├── .github/assets/                  # README artwork (not deployed)
-├── netlify.toml                     # Build, redirects from the old .html URLs, headers
-├── .editorconfig · .gitattributes   # Editor and line-ending conventions
-├── AGENTS.md                        # Design system, code style, accessibility and SEO rules
-├── THIRD_PARTY_NOTICES.md           # Bundled libraries and their licenses
-└── LICENSE
-```
-
-### Brand palette
-
-| | Token | Hex | Use |
-|---|---|---|---|
-| ![#237A57](https://img.shields.io/badge/-%20%20%20%20-237A57?style=flat-square) | `--main-color` | `#237A57` | Primary green: links, accents, buttons |
-| ![#C6E45A](https://img.shields.io/badge/-%20%20%20%20-C6E45A?style=flat-square) | `--color-two` | `#C6E45A` | Lime: gradient end, highlights |
-| ![#191919](https://img.shields.io/badge/-%20%20%20%20-191919?style=flat-square) | `--black-color` | `#191919` | Headings, dark sections |
-| ![#F2F2F2](https://img.shields.io/badge/-%20%20%20%20-F2F2F2?style=flat-square) | `--color-four` | `#F2F2F2` | Light section background |
-
-Signature gradient: `linear-gradient(90deg, #237A57 0%, #C6E45A 100%)` · Fonts: **Outfit** (headings), **Manrope** (body), **Raleway** (outlined display words).
-
-### Contributing
-
-Read **[AGENTS.md](AGENTS.md)** before changing anything. It covers the design system, code style, accessibility (WCAG 2.2 AA), and the SEO/AEO/GEO rules every page must follow. Remember to bump the file's version in `ASSET_VERSION` (`lib/site.ts`) when you change a CSS or JS file in `public/assets`.
-
----
 
 <div align="center">
 

@@ -8,6 +8,7 @@
 import { useRef, useState } from 'react';
 import { uploadInlineImage } from '@/app/admin/actions';
 import { Markdown } from '@/lib/markdown';
+import { optimizeImage } from './imageOptimizer';
 
 type Props = {
 	id: string;
@@ -57,20 +58,26 @@ export default function MarkdownEditor({ id, name, label, value, onChange, folde
 	}
 
 	async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
-		const f = e.target.files?.[0];
-		if (!f) return;
+		const raw = e.target.files?.[0];
+		if (!raw) return;
 		setUploading(true);
 		setUploadError('');
-		const fd = new FormData();
-		fd.set('file', f);
-		fd.set('folder', folder);
-		const res = await uploadInlineImage(undefined, fd);
-		setUploading(false);
-		e.target.value = '';
-		if (res?.url) {
-			const alt = f.name.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ');
-			insert(`![${alt}](${res.url} "`, '")', 'Caption (optional)', true);
-		} else setUploadError(res?.error || 'The image could not be uploaded.');
+		try {
+			const f = await optimizeImage(raw);
+			const fd = new FormData();
+			fd.set('file', f);
+			fd.set('folder', folder);
+			const res = await uploadInlineImage(undefined, fd);
+			e.target.value = '';
+			if (res?.url) {
+				const alt = f.name.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ');
+				insert(`![${alt}](${res.url} "`, '")', 'Caption (optional)', true);
+			} else setUploadError(res?.error || 'The image could not be uploaded.');
+		} catch (err) {
+			setUploadError(err instanceof Error ? err.message : 'The image could not be uploaded.');
+		} finally {
+			setUploading(false);
+		}
 	}
 
 	return (

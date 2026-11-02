@@ -8,6 +8,7 @@ import { useActionState, useState } from 'react';
 import { deleteProduct, saveProduct, type FormState } from '@/app/admin/actions';
 import { productPath, slugify, type Product } from '@/lib/content';
 import { CoverField, DeleteBox, SearchPreview, TextField } from './fields';
+import { formatBytes, optimizeImage } from './imageOptimizer';
 import MarkdownEditor from './MarkdownEditor';
 import SubmitButton from './SubmitButton';
 
@@ -16,18 +17,18 @@ const CATEGORIES = ['Mobile app', 'SaaS', 'Web app', 'Template', 'Developer tool
 export default function ProductForm({ product, saved }: { product: Product | null; saved: boolean }) {
 	const [state, action] = useActionState<FormState, FormData>(saveProduct, undefined);
 	const f = state?.fields;
-	const link = (n: number, k: 'label' | 'url') => f?.[`link${k === 'label' ? 'Label' : 'Url'}${n}`] ?? product?.links[n - 1]?.[k] ?? '';
+	const link = (n: number, k: 'label' | 'url') => f?.[`link${k === 'label' ? 'Label' : 'Url'}${n}`] ?? product?.links?.[n - 1]?.[k] ?? '';
 	const [v, setV] = useState({
 		name: f?.name ?? product?.name ?? '',
 		slug: f?.slug ?? product?.slug ?? '',
 		tagline: f?.tagline ?? product?.tagline ?? '',
 		description: f?.description ?? product?.description ?? '',
 		category: f?.category ?? product?.category ?? CATEGORIES[0],
-		platforms: f?.platforms ?? product?.platforms.join(', ') ?? '',
+		platforms: f?.platforms ?? product?.platforms?.join(', ') ?? '',
 		price: f?.price ?? product?.price ?? '',
-		features: f?.features ?? product?.features.join('\n') ?? '',
+		features: f?.features ?? product?.features?.join('\n') ?? '',
 		coverAlt: f?.coverAlt ?? product?.coverAlt ?? '',
-		gallery: f?.gallery ?? product?.gallery.join('\n') ?? '',
+		gallery: f?.gallery ?? product?.gallery?.join('\n') ?? '',
 		order: f?.order ?? String(product?.order ?? 100),
 		seoTitle: f?.seoTitle ?? product?.seoTitle ?? '',
 		seoDescription: f?.seoDescription ?? product?.seoDescription ?? '',
@@ -39,6 +40,8 @@ export default function ProductForm({ product, saved }: { product: Product | nul
 		linkUrl3: link(3, 'url'),
 	});
 	const [slugTouched, setSlugTouched] = useState(Boolean(product?.slug));
+	const [optimizingGallery, setOptimizingGallery] = useState(false);
+	const [galleryOptInfo, setGalleryOptInfo] = useState('');
 	const set = (key: keyof typeof v) => (value: string) => setV((s) => ({ ...s, [key]: value }));
 	const slug = slugTouched ? v.slug : slugify(v.name);
 	const live = product?.status === 'published';
@@ -133,8 +136,48 @@ export default function ProductForm({ product, saved }: { product: Product | nul
 						<h2>Images</h2>
 						<CoverField id="product-cover" current={product?.coverUrl || ''} alt={v.coverAlt} onAlt={set('coverAlt')} label="Main image" />
 						<div className="admin-field">
-							<label htmlFor="product-gallery-files">Add screenshots</label>
-							<input id="product-gallery-files" className="admin-file is-visible" type="file" name="galleryFiles" multiple accept="image/jpeg,image/png,image/webp,image/avif" />
+							<label htmlFor="product-gallery-files">
+								Add screenshots{' '}
+								{optimizingGallery && <span className="admin-spinner" aria-hidden="true" style={{ display: 'inline-block', verticalAlign: 'middle' }}></span>}
+							</label>
+							<input
+								id="product-gallery-files"
+								className="admin-file is-visible"
+								type="file"
+								name="galleryFiles"
+								multiple
+								accept="image/jpeg,image/png,image/webp,image/avif"
+								disabled={optimizingGallery}
+								onChange={async (e) => {
+									const files = Array.from(e.target.files || []);
+									if (!files.length) return;
+									setOptimizingGallery(true);
+									setGalleryOptInfo('');
+									try {
+										const optimized = await Promise.all(files.map((f) => optimizeImage(f)));
+										if (typeof DataTransfer !== 'undefined') {
+											const dt = new DataTransfer();
+											for (const f of optimized) dt.items.add(f);
+											e.target.files = dt.files;
+										}
+										const origBytes = files.reduce((s, f) => s + f.size, 0);
+										const optBytes = optimized.reduce((s, f) => s + f.size, 0);
+										if (optBytes < origBytes) {
+											setGalleryOptInfo(`${optimized.length} screenshot${optimized.length > 1 ? 's' : ''} optimized: ${formatBytes(optBytes)} (reduced from ${formatBytes(origBytes)})`);
+										} else {
+											setGalleryOptInfo(`${optimized.length} screenshot${optimized.length > 1 ? 's' : ''} ready (${formatBytes(optBytes)})`);
+										}
+									} finally {
+										setOptimizingGallery(false);
+									}
+								}}
+							/>
+							{galleryOptInfo && (
+								<p className="admin-hint" style={{ color: 'var(--main-color, #237A57)', fontWeight: 600 }}>
+									<i className="fa-solid fa-circle-check" aria-hidden="true"></i> {galleryOptInfo}
+								</p>
+							)}
+							<p className="admin-hint">Screenshots are auto-converted to fast WebP (max 1600px). Select multiple files at once.</p>
 						</div>
 						<div className="admin-field">
 							<label htmlFor="product-gallery">Screenshots on the page</label>

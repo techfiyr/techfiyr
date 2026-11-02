@@ -37,160 +37,160 @@ export const metadata: Metadata = {
 
 // Structured data: keep these facts identical to the page copy, the contact page and llms.txt
 const structuredData = {
-		"@context": "https://schema.org",
-		"@graph": [
-			{
-				"@type": "ProfessionalService",
-				"@id": "https://techfiyr.com/#organization",
-				"name": "TechFiyr",
-				"url": "https://techfiyr.com/",
-				"logo": "https://techfiyr.com/assets/images/brand/logo.svg",
-				"image": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
-				"description": "TechFiyr is a mobile app and web software development agency in Dhaka, Bangladesh. The team designs and builds Flutter, React Native, iOS and Android apps, custom web software and SaaS platforms, UI/UX and product prototypes, and backend, cloud and CI/CD pipelines for startups and growing businesses in the US, Europe and Asia.",
-				"slogan": "Empowering Startups & Growing Businesses With Flutter, React Native & Web Engineering",
+	"@context": "https://schema.org",
+	"@graph": [
+		{
+			"@type": "ProfessionalService",
+			"@id": "https://techfiyr.com/#organization",
+			"name": "TechFiyr",
+			"url": "https://techfiyr.com/",
+			"logo": "https://techfiyr.com/assets/images/brand/logo.svg",
+			"image": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
+			"description": "TechFiyr is a mobile app and web software development agency in Dhaka, Bangladesh. The team designs and builds Flutter, React Native, iOS and Android apps, custom web software and SaaS platforms, UI/UX and product prototypes, and backend, cloud and CI/CD pipelines for startups and growing businesses in the US, Europe and Asia.",
+			"slogan": "Empowering Startups & Growing Businesses With Flutter, React Native & Web Engineering",
+			"email": "info@techfiyr.com",
+			"telephone": "+8801540659530",
+			"priceRange": "$$",
+			"address": {
+				"@type": "PostalAddress",
+				"streetAddress": "325, Mirpur DOHS",
+				"addressLocality": "Dhaka",
+				"postalCode": "1216",
+				"addressCountry": "BD"
+			},
+			"areaServed": [
+				"United States",
+				"Europe",
+				"Asia"
+			],
+			"numberOfEmployees": {
+				"@type": "QuantitativeValue",
+				"value": 7
+			},
+			"founder": {
+				"@id": "https://techfiyr.com/#saurav-wahid"
+			},
+			"contactPoint": {
+				"@type": "ContactPoint",
+				"contactType": "sales",
 				"email": "info@techfiyr.com",
 				"telephone": "+8801540659530",
-				"priceRange": "$$",
-				"address": {
-					"@type": "PostalAddress",
-					"streetAddress": "325, Mirpur DOHS",
-					"addressLocality": "Dhaka",
-					"postalCode": "1216",
-					"addressCountry": "BD"
-				},
-				"areaServed": [
-					"United States",
-					"Europe",
-					"Asia"
+				"availableLanguage": [
+					"English",
+					"Bengali"
 				],
-				"numberOfEmployees": {
-					"@type": "QuantitativeValue",
-					"value": 5
-				},
-				"founder": {
-					"@id": "https://techfiyr.com/#saurav-wahid"
-				},
-				"contactPoint": {
-					"@type": "ContactPoint",
-					"contactType": "sales",
-					"email": "info@techfiyr.com",
-					"telephone": "+8801540659530",
-					"availableLanguage": [
-						"English",
-						"Bengali"
-					],
-					"url": "https://techfiyr.com/contact"
-				},
-				"knowsAbout": [
-					"Mobile app development",
-					"Flutter",
-					"React Native",
-					"iOS development",
-					"Android development",
-					"Next.js",
-					"React",
-					"Node.js",
-					"SaaS development",
-					"UI/UX design",
-					"Figma",
-					"Design systems",
-					"REST APIs",
-					"GraphQL",
-					"Firebase",
-					"AWS",
-					"CI/CD",
-					"Codemagic",
-					"App Store deployment",
-					"Google Play deployment"
-				],
-				"hasOfferCatalog": {
-					"@type": "OfferCatalog",
-					"name": "TechFiyr services",
-					"itemListElement": [
-						{
-							"@type": "Offer",
-							"itemOffered": {
-								"@type": "Service",
-								"name": "Mobile App Design & Development",
-								"description": "Flutter, React Native, iOS and Android apps, including App Store and Google Play deployment."
-							}
-						},
-						{
-							"@type": "Offer",
-							"itemOffered": {
-								"@type": "Service",
-								"name": "Custom Web Software & SaaS",
-								"description": "Next.js, React and Node.js web applications, admin dashboards and cloud SaaS platforms."
-							}
-						},
-						{
-							"@type": "Offer",
-							"itemOffered": {
-								"@type": "Service",
-								"name": "UI/UX & Product Prototyping",
-								"description": "Figma design, mobile UI/UX, design systems and wireframes."
-							}
-						},
-						{
-							"@type": "Offer",
-							"itemOffered": {
-								"@type": "Service",
-								"name": "Backend, Cloud & CI/CD Pipelines",
-								"description": "REST and GraphQL APIs, Firebase, AWS cloud and Codemagic CI/CD pipelines."
-							}
+				"url": "https://techfiyr.com/contact"
+			},
+			"knowsAbout": [
+				"Mobile app development",
+				"Flutter",
+				"React Native",
+				"iOS development",
+				"Android development",
+				"Next.js",
+				"React",
+				"Node.js",
+				"SaaS development",
+				"UI/UX design",
+				"Figma",
+				"Design systems",
+				"REST APIs",
+				"GraphQL",
+				"Firebase",
+				"AWS",
+				"CI/CD",
+				"Codemagic",
+				"App Store deployment",
+				"Google Play deployment"
+			],
+			"hasOfferCatalog": {
+				"@type": "OfferCatalog",
+				"name": "TechFiyr services",
+				"itemListElement": [
+					{
+						"@type": "Offer",
+						"itemOffered": {
+							"@type": "Service",
+							"name": "Mobile App Design & Development",
+							"description": "Flutter, React Native, iOS and Android apps, including App Store and Google Play deployment."
 						}
-					]
-				},
-				"sameAs": [
-					"https://github.com/techfiyr",
-					"https://www.fiverr.com/wahidsaurav",
-					"https://www.upwork.com/freelancers/sauravwahid"
+					},
+					{
+						"@type": "Offer",
+						"itemOffered": {
+							"@type": "Service",
+							"name": "Custom Web Software & SaaS",
+							"description": "Next.js, React and Node.js web applications, admin dashboards and cloud SaaS platforms."
+						}
+					},
+					{
+						"@type": "Offer",
+						"itemOffered": {
+							"@type": "Service",
+							"name": "UI/UX & Product Prototyping",
+							"description": "Figma design, mobile UI/UX, design systems and wireframes."
+						}
+					},
+					{
+						"@type": "Offer",
+						"itemOffered": {
+							"@type": "Service",
+							"name": "Backend, Cloud & CI/CD Pipelines",
+							"description": "REST and GraphQL APIs, Firebase, AWS cloud and Codemagic CI/CD pipelines."
+						}
+					}
 				]
 			},
-			{
-				"@type": "Person",
-				"@id": "https://techfiyr.com/#saurav-wahid",
-				"name": "Saurav Wahid",
-				"jobTitle": "Founder & Mobile DevOps Lead",
-				"description": "Oracle Certified Professional with 11+ years of software engineering experience.",
-				"image": "https://techfiyr.com/assets/images/team/saurav-wahid-portrait.jpg",
-				"worksFor": {
-					"@id": "https://techfiyr.com/#organization"
-				},
-				"sameAs": [
-					"https://www.linkedin.com/in/sauravwahid/",
-					"https://github.com/swahid",
-					"https://www.fiverr.com/wahidsaurav",
-					"https://www.upwork.com/freelancers/sauravwahid"
-				]
+			"sameAs": [
+				"https://github.com/techfiyr",
+				"https://www.fiverr.com/wahidsaurav",
+				"https://www.upwork.com/freelancers/sauravwahid"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#saurav-wahid",
+			"name": "Saurav Wahid",
+			"jobTitle": "Founder & Mobile DevOps Lead",
+			"description": "Oracle Certified Professional with 11+ years of software engineering experience.",
+			"image": "https://techfiyr.com/assets/images/team/saurav-wahid.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
 			},
-			{
-				"@type": "WebSite",
-				"@id": "https://techfiyr.com/#website",
-				"url": "https://techfiyr.com/",
-				"name": "TechFiyr",
-				"inLanguage": "en",
-				"publisher": {
-					"@id": "https://techfiyr.com/#organization"
-				}
+			"sameAs": [
+				"https://www.linkedin.com/in/sauravwahid/",
+				"https://github.com/swahid",
+				"https://www.fiverr.com/wahidsaurav",
+				"https://www.upwork.com/freelancers/sauravwahid"
+			]
+		},
+		{
+			"@type": "WebSite",
+			"@id": "https://techfiyr.com/#website",
+			"url": "https://techfiyr.com/",
+			"name": "TechFiyr",
+			"inLanguage": "en",
+			"publisher": {
+				"@id": "https://techfiyr.com/#organization"
+			}
+		},
+		{
+			"@type": "WebPage",
+			"@id": "https://techfiyr.com/#webpage",
+			"url": "https://techfiyr.com/",
+			"name": "TechFiyr - Mobile App & Web Software Development Agency",
+			"isPartOf": {
+				"@id": "https://techfiyr.com/#website"
 			},
-			{
-				"@type": "WebPage",
-				"@id": "https://techfiyr.com/#webpage",
-				"url": "https://techfiyr.com/",
-				"name": "TechFiyr - Mobile App & Web Software Development Agency",
-				"isPartOf": {
-					"@id": "https://techfiyr.com/#website"
-				},
-				"about": {
-					"@id": "https://techfiyr.com/#organization"
-				},
-				"primaryImageOfPage": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
-				"inLanguage": "en"
+			"about": {
+				"@id": "https://techfiyr.com/#organization"
 			},
-			faqSchema
-		]
-	};
+			"primaryImageOfPage": "https://techfiyr.com/assets/images/og/techfiyr-og.jpg",
+			"inLanguage": "en"
+		},
+		faqSchema
+	]
+};
 
 export default function HomePage() {
 	// First hero slide is the LCP image
@@ -254,8 +254,8 @@ export default function HomePage() {
 													{' '}
 													<span className="text-two">View Portfolio</span>
 												</span>
-											<span className="sr-only">{' '}(opens in a new tab)</span>
-										</a>
+												<span className="sr-only">{' '}(opens in a new tab)</span>
+											</a>
 										</div>
 									</div>
 								</div>
@@ -847,7 +847,7 @@ export default function HomePage() {
 								</div>
 								{' '}
 								<div className="counter-one_count">
-									<span className="odometer" data-count="5"></span>
+									<span className="odometer" data-count="7">7</span>
 								</div>
 								{' '}
 								<div className="counter-one_text">Core Designers &amp; Developers</div>
@@ -1328,15 +1328,15 @@ export default function HomePage() {
 								<div className="inner-box">
 									<div className="image-box">
 										<figure className="image">
-											<img width="640" height="960" loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid-portrait.jpg" alt="Saurav Wahid" />
+											<img width="640" height="960" loading="lazy" decoding="async" src="/assets/images/team/saurav-wahid.jpg" alt="Saurav Wahid" />
 										</figure>
 									</div>
 									{' '}
 									<div className="content-box">
 										<div className="d-flex justify-content-between align-items-center">
 											<div className="left-box">
-												<span className="cat">Full Stack AI Native Engineer | Java | Spring | Web | Mobile App | DevOps</span>
-												{' '}
+												<span className="cat">Senior Full-Stack Engineer | Java | Spring | AI | Mobile App | DevOps</span>
+												<br />
 												<span className="cat">Co-Founder &amp; Team Lead</span>
 												{' '}
 												<h5 className="title">Saurav Wahid</h5>

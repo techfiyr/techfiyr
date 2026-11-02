@@ -86,7 +86,7 @@ export const ASSET_VERSION = {
 	vendor: '20261003',
 	script: '20261101',
 	consent: '20261018',
-	analytics: '20261014',
+	analytics: '20261103',
 	visitors: '20261018',
 	booking: '20261018',
 	admin: '20261020',

@@ -23,7 +23,23 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 | Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. npm packages: only `next`, `react`, `react-dom` and TypeScript types. |
 | Portfolio data | `lib/projects.ts` (single source of truth for projects) |
 | Company facts | `lib/site.ts` (contact details, shared JSON-LD nodes, nav items, asset versions) |
+| Team roster | Core team of 7 senior specialists (`app/(site)/page.tsx`, `public/assets/images/team/`). Roster detailed below. |
 | CMS content | Blog posts, products and AI news in Firestore, edited at `/admin` (section 7.8). Types in `lib/content.ts`, reads in `lib/server/content.ts`. |
+
+### The core team (7 members)
+
+Single source of truth for all copy, structured data, and content generation. Keep names, roles, and specializations identical across `app/(site)/page.tsx`, `README.md`, `PRODUCT.md`, `lib/content.ts`, and `public/llms.txt`:
+
+| Member | Primary Role | Specialization / Focus | Photo (`public/assets/images/team/`) | Profiles |
+|---|---|---|---|---|
+| **Saurav Wahid** | Co-Founder & Team Lead | Senior Java Spring Web & App Developer · AI App Audits · Mobile CI/CD · DevOps · Oracle Certified Professional (11+ yrs) | `saurav-wahid.jpg` | [LinkedIn](https://www.linkedin.com/in/sauravwahid/) · [GitHub](https://github.com/swahid) |
+| **Viswajit Roy** | Co-Founder & Managing Director | Lead UI/UX Designer · Design Systems · Figma · Product Prototyping (10+ yrs) | `viswajit-roy.jpg` | [LinkedIn](https://www.linkedin.com/in/viswajitroy) · [GitHub](https://github.com/viswajitRoy) · [Behance](https://www.behance.net/royviswajie8fd) |
+| **Ponir Saha** | Co-Founder & CTO | Software Architect · Production AI/RAG · Java · Spring · Python | `ponir-saha.jpg` | [LinkedIn](https://www.linkedin.com/in/ponirsaha/) · [GitHub](https://github.com/ponir-saha) |
+| **Md Masud Parvez** | Lead Android & iOS Developer | Native & Cross-Platform Mobile Engineering · Store Release Management | `masud-parvez.jpg` | [LinkedIn](https://www.linkedin.com/in/masudparvez11/) · [GitHub](https://github.com/pavelsust) |
+| **Md. Awon-Uz-Zaman** | Senior Android & iOS Developer | Mobile App Development · Flutter · Clean Architecture | `awon-uz-zaman.jpg` | [LinkedIn](https://www.linkedin.com/in/awonuzzaman/) · [GitHub](https://github.com/awon057) |
+| **Sohanur Islam** | Full-Stack Software Engineer | Java · Angular · Spring · AI Agent Specialist · Next.js · React Native | `sohanur-islam.jpg` | [LinkedIn](https://www.linkedin.com/in/sohanur-islam-b2a027145/) · [GitHub](https://github.com/sohanur1) |
+| **Pranabesh Sarkar** | Senior AI/ML Engineer | MLOps, Deep Learning & Scalable AI Infrastructure · LLM Integration, Vector DBs & Smart Products | `pranabesh-sarkar.jpg` | [LinkedIn](https://www.linkedin.com/in/pranab-csra) · [GitHub](https://github.com/pranab-sarkar) |
+
 
 ### Repository layout
 
@@ -58,7 +74,7 @@ scripts/                build scripts (run before `next build`)
 .github/assets/         README artwork, not deployed
 ```
 
-Rules: page markup goes in `app/` and `components/`; our CSS in `public/assets/css`; our browser scripts in `public/assets/js`; libraries in `public/assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid-portrait.jpg`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
+Rules: page markup goes in `app/` and `components/`; our CSS in `public/assets/css`; our browser scripts in `public/assets/js`; libraries in `public/assets/vendor/<name>/`; images in the folder for their purpose with lower-case, hyphenated, descriptive names (`team/saurav-wahid.jpg`, not `IMG_1234.jpeg`). Delete files that nothing references instead of leaving them in the repo.
 
 ### Commands
 
@@ -424,7 +440,7 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 
 - Lead each section with a direct, 40–60 word answer to the question the section addresses, then expand. Headings phrased as the questions people ask ("How much does a Flutter app cost?") help answer engines.
 - Use real, specific, verifiable facts: services, tech stacks, timelines, locations, real project names from `projects-data.js`, real review counts and ratings. Name things precisely ("Flutter", "React Native", "Codemagic CI/CD") rather than vaguely.
-- Keep entity facts consistent (company name, address, phone, founder, rating) across every page, so AI systems can trust them.
+- Keep entity facts consistent (company name, address, phone, the 7 core team members and their exact roles from Section 1, rating) across every page, so AI systems can trust them.
 - Use semantic HTML: lists for lists, `<table>` for comparisons, `<dl>` for spec sheets, `<figure>`/`<figcaption>` for screenshots, `<time datetime="">` for dates, `<address>` for contact details.
 - Add a short visible FAQ (3–6 real questions) on service and contact pages, marked up with `FAQPage`.
 - Show authorship and freshness on articles: author name with role, published/updated dates.

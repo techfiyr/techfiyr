@@ -48,9 +48,11 @@ export async function saveImage(file: File, folder: 'blog' | 'products'): Promis
 	if (storeMode() === 'firestore' && !useBucket()) {
 		const id = docIdOf(name);
 		const chunks = Math.ceil(bytes.length / CHUNK_BYTES);
-		for (let i = 0; i < chunks; i++) {
-			await store.put('media_chunks', `${id}--${i}`, { data: new Uint8Array(bytes.subarray(i * CHUNK_BYTES, (i + 1) * CHUNK_BYTES)) });
-		}
+		await Promise.all(
+			Array.from({ length: chunks }, (_, i) =>
+				store.put('media_chunks', `${id}--${i}`, { data: new Uint8Array(bytes.subarray(i * CHUNK_BYTES, (i + 1) * CHUNK_BYTES)) })
+			)
+		);
 		// written last, so a half-finished upload is never served
 		await store.put('media', id, { name, type: file.type, size: bytes.length, chunks, createdAt: new Date().toISOString() });
 	} else if (storeMode() === 'firestore') {

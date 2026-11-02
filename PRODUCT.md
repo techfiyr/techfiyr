@@ -52,7 +52,7 @@ Mobile DevOps and Codemagic CI/CD are a real capability (the founder is Mobile D
 ## Evidence on Hand
 
 - Track record: 2+ years shipping, 20 clients across the US, Europe and Asia, 5.0 average Fiverr rating, core team of 7.
-- Team (real people, photos in `public/assets/images/team/`): Saurav Wahid (Founder & Mobile DevOps Lead, Oracle Certified Professional, 11+ years), Viswajit Roy (Co-founder, Lead UI/UX Designer, 10+ years), Ponir Saha (Co-Founder & CTO), Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer), Pranabesh Sarkar (AI/ML Engineer).
+- Team (real people, photos in `public/assets/images/team/`): Saurav Wahid (Co-Founder & Team Lead, Senior Java Spring Web & App Developer | AI App Audits | Mobile CI/CD, Oracle Certified Professional, 11+ years), Viswajit Roy (Co-Founder & Managing Director, Lead UI/UX Designer, 10+ years), Ponir Saha (Co-Founder & CTO, Software Architect), Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer), Pranabesh Sarkar (AI/ML Engineer).
 - Reviews: real Fiverr/Upwork client reviews in the testimonial carousel on the home page (`app/(site)/page.tsx`).
 - Projects: one published case study, MatMaps (UK combat sports platform, Android and web, live on Google Play and matmaps.co.uk).
 - Profiles: GitHub, Fiverr, Upwork, the founder's LinkedIn.

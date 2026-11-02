@@ -81,12 +81,13 @@ export type NewsRun = {
 
 /** People who can sign a post (Article JSON-LD needs a real author). Facts as on the home page. */
 export const AUTHORS = [
-	{ name: 'Saurav Wahid', role: 'Founder & Mobile DevOps Lead', url: 'https://www.linkedin.com/in/sauravwahid/' },
-	{ name: 'Viswajit Roy', role: 'Co-founder, Lead UI/UX Designer', url: 'https://www.linkedin.com/in/viswajitroy' },
-	{ name: 'Ponir Saha', role: 'Co-Founder & CTO', url: 'https://www.linkedin.com/in/ponirsaha/' },
+	{ name: 'Saurav Wahid', role: 'Co-Founder & Team Lead | Senior Java Spring Web & App Developer | AI App Audits | Mobile CI/CD', url: 'https://www.linkedin.com/in/sauravwahid/' },
+	{ name: 'Viswajit Roy', role: 'Co-Founder & Managing Director | Lead UI/UX Designer | 10+ Years Experience', url: 'https://www.linkedin.com/in/viswajitroy' },
+	{ name: 'Ponir Saha', role: 'Co-Founder & CTO | Software Architect', url: 'https://www.linkedin.com/in/ponirsaha/' },
 	{ name: 'Md Masud Parvez', role: 'Lead Android & iOS Developer', url: 'https://www.linkedin.com/in/masudparvez11/' },
+	{ name: 'Md. Awon-Uz-Zaman', role: 'Senior Android & iOS Developer', url: 'https://www.linkedin.com/in/awonuzzaman/' },
 	{ name: 'Sohanur Islam', role: 'Full-Stack Software Engineer', url: 'https://www.linkedin.com/in/sohanur-islam-b2a027145/' },
-	{ name: 'Pranabesh Sarkar', role: 'AI/ML Engineer', url: '' },
+	{ name: 'Pranabesh Sarkar', role: 'Senior AI/ML Engineer', url: 'https://www.linkedin.com/in/pranab-csra' },
 	{ name: 'TechFiyr Team', role: 'TechFiyr', url: '' },
 ];
 

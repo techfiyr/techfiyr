@@ -12,6 +12,11 @@
 	var config = window.TECHFIYR_FIREBASE;
 	if (!config || !config.measurementId) return;
 
+	// Skip analytics in local development to prevent polluting production GA4
+	// and to avoid 403 PERMISSION_DENIED from referer-restricted API keys on localhost.
+	var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname.endsWith('.local');
+	if (isLocal) return;
+
 	var DISABLE = 'ga-disable-' + config.measurementId;
 	var started = false;
 

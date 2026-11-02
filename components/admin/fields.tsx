@@ -5,6 +5,7 @@
  * with preview, the Google result preview, and the delete confirmation.
  */
 import { useEffect, useState } from 'react';
+import { formatBytes, optimizeImage } from './imageOptimizer';
 import SubmitButton from './SubmitButton';
 
 type TextProps = {
@@ -69,9 +70,14 @@ export function TextField({ id, name, label, value, onChange, hint, max, ideal, 
 export function CoverField({ id, current, alt, onAlt, label = 'Cover image' }: { id: string; current: string; alt: string; onAlt: (v: string) => void; label?: string }) {
 	const [preview, setPreview] = useState('');
 	const [remove, setRemove] = useState(false);
+	const [optimizing, setOptimizing] = useState(false);
+	const [optInfo, setOptInfo] = useState('');
+
 	useEffect(() => {
 		setRemove(false);
+		setOptInfo('');
 	}, [current]);
+
 	useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 	const shown = remove ? '' : preview || current;
 
@@ -83,7 +89,15 @@ export function CoverField({ id, current, alt, onAlt, label = 'Cover image' }: {
 			</div>
 			<input type="hidden" name="coverUrl" value={current} />
 			<label className="admin-btn is-quiet is-file" htmlFor={`${id}-file`}>
-				<i className="fa-solid fa-upload" aria-hidden="true"></i> {shown ? 'Replace image' : 'Upload image'}
+				{optimizing ? (
+					<>
+						<span className="admin-spinner" aria-hidden="true"></span> Optimizing image…
+					</>
+				) : (
+					<>
+						<i className="fa-solid fa-upload" aria-hidden="true"></i> {shown ? 'Replace image' : 'Upload image'}
+					</>
+				)}
 			</label>
 			<input
 				id={`${id}-file`}
@@ -92,18 +106,42 @@ export function CoverField({ id, current, alt, onAlt, label = 'Cover image' }: {
 				name="coverFile"
 				accept="image/jpeg,image/png,image/webp,image/avif"
 				aria-describedby={`${id}-hint`}
-				onChange={(e) => {
+				disabled={optimizing}
+				onChange={async (e) => {
 					const f = e.target.files?.[0];
-					setRemove(false);
-					setPreview(f ? URL.createObjectURL(f) : '');
+					if (!f) return;
+					setOptimizing(true);
+					setOptInfo('');
+					try {
+						const opt = await optimizeImage(f);
+						if (typeof DataTransfer !== 'undefined') {
+							const dt = new DataTransfer();
+							dt.items.add(opt);
+							e.target.files = dt.files;
+						}
+						setRemove(false);
+						setPreview(URL.createObjectURL(opt));
+						if (opt.size < f.size) {
+							setOptInfo(`Optimized: ${formatBytes(opt.size)} (reduced from ${formatBytes(f.size)})`);
+						} else {
+							setOptInfo(`Ready: ${formatBytes(opt.size)}`);
+						}
+					} finally {
+						setOptimizing(false);
+					}
 				}}
 			/>
+			{optInfo && (
+				<p className="admin-hint" style={{ color: 'var(--main-color, #237A57)', fontWeight: 600 }}>
+					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> {optInfo}
+				</p>
+			)}
 			{current && (
 				<label className="admin-check">
 					<input type="checkbox" name="removeCover" checked={remove} onChange={(e) => setRemove(e.target.checked)} /> Remove the image
 				</label>
 			)}
-			<p className="admin-hint" id={`${id}-hint`}>JPG, PNG, WebP or AVIF, up to 5 MB. 1600 × 1000 px works best (16:10).</p>
+			<p className="admin-hint" id={`${id}-hint`}>Auto-optimized to fast WebP (max 1600px). JPG, PNG, WebP or AVIF accepted.</p>
 			<div className="admin-field">
 				<label htmlFor={`${id}-alt`}>Image description (alt text)</label>
 				<input id={`${id}-alt`} name="coverAlt" value={alt} maxLength={200} onChange={(e) => onAlt(e.target.value)} aria-describedby={`${id}-alt-hint`} />
