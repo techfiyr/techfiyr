@@ -11,7 +11,7 @@ import { PROJECTS, projectPath } from '@/lib/projects';
 import { getNewsEdition, getPublishedPosts, getPublishedProducts } from '@/lib/server/content';
 import { absUrl } from '@/lib/site';
 
-const UPDATED = '2026-11-01';
+const UPDATED = '2026-11-03';
 
 export const revalidate = 3600;
 

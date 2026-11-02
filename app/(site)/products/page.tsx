@@ -15,9 +15,10 @@ import { ORG_ID, SITE_URL, WEBSITE_ID, absUrl, breadcrumbNode, orgNode } from '@
 export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
-	title: 'Products: Apps, SaaS & Templates by TechFiyr',
-	description: 'Apps, SaaS tools and templates designed and built by TechFiyr in Dhaka: features, platforms, pricing and links to try each one.',
+	title: 'Digital Products, SaaS Platforms & App Templates | TechFiyr',
+	description: 'Explore digital products, SaaS web software, and mobile app templates created by TechFiyr. Inspect features, live demos, platforms, and pricing tiers.',
 	path: '/products',
+	keywords: ['saas products', 'mobile app templates', 'techfiyr software', 'ready to deploy saas', 'turnkey web applications'],
 });
 
 export default async function ProductsPage() {

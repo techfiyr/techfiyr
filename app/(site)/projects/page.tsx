@@ -10,9 +10,10 @@ import { pageMetadata } from '@/lib/seo';
 import { ORG_ID, SITE_URL, WEBSITE_ID, absUrl, breadcrumbNode, orgNode } from '@/lib/site';
 
 export const metadata: Metadata = pageMetadata({
-	title: 'Projects | TechFiyr Mobile App & Web Portfolio',
-	description: 'Mobile apps and websites built by TechFiyr: live links, screenshots and project details.',
+	title: 'Mobile App & Web Development Portfolio | TechFiyr',
+	description: 'Explore production mobile apps and custom web software built by TechFiyr. Real Flutter, React Native, iOS, Android, and SaaS case studies with live store links.',
 	path: '/projects',
+	keywords: ['mobile app portfolio', 'flutter app case studies', 'react native showcase', 'techfiyr projects', 'saas web development portfolio'],
 });
 
 // Structured data: keep these facts identical to the home page and llms.txt

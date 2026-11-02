@@ -22,6 +22,14 @@ export const INDEX_ROBOTS: Metadata['robots'] = {
 	follow: true,
 	'max-image-preview': 'large',
 	'max-snippet': -1,
+	'max-video-preview': -1,
+	googleBot: {
+		index: true,
+		follow: true,
+		'max-image-preview': 'large',
+		'max-snippet': -1,
+		'max-video-preview': -1,
+	},
 };
 
 export function pageMetadata(p: PageSeo): Metadata {

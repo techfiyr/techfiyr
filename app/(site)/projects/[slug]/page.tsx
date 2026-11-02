@@ -24,10 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const p = getProject((await params).slug);
 	if (!p) return {};
 	return pageMetadata({
-		title: `${p.title} | TechFiyr Projects`,
+		title: `${p.title} - ${TYPE_LABEL[p.type] || 'App'} Case Study | TechFiyr`,
 		description: p.summary,
 		path: projectPath(p),
 		image: { url: absUrl(p.cover), alt: p.title },
+		keywords: [...(p.tags || []), p.title, `${TYPE_LABEL[p.type] || 'mobile'} app development`],
 	});
 }
 

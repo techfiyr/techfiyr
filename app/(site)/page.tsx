@@ -63,13 +63,31 @@ const structuredData = {
 				"Europe",
 				"Asia"
 			],
+			"aggregateRating": {
+				"@type": "AggregateRating",
+				"ratingValue": "5.0",
+				"reviewCount": "20",
+				"bestRating": "5",
+				"worstRating": "1"
+			},
 			"numberOfEmployees": {
 				"@type": "QuantitativeValue",
 				"value": 7
 			},
-			"founder": {
-				"@id": "https://techfiyr.com/#saurav-wahid"
-			},
+			"founder": [
+				{ "@id": "https://techfiyr.com/#saurav-wahid" },
+				{ "@id": "https://techfiyr.com/#viswajit-roy" },
+				{ "@id": "https://techfiyr.com/#ponir-saha" }
+			],
+			"employee": [
+				{ "@id": "https://techfiyr.com/#saurav-wahid" },
+				{ "@id": "https://techfiyr.com/#viswajit-roy" },
+				{ "@id": "https://techfiyr.com/#ponir-saha" },
+				{ "@id": "https://techfiyr.com/#masud-parvez" },
+				{ "@id": "https://techfiyr.com/#awon-uz-zaman" },
+				{ "@id": "https://techfiyr.com/#sohanur-islam" },
+				{ "@id": "https://techfiyr.com/#pranabesh-sarkar" }
+			],
 			"contactPoint": {
 				"@type": "ContactPoint",
 				"contactType": "sales",
@@ -151,8 +169,8 @@ const structuredData = {
 			"@type": "Person",
 			"@id": "https://techfiyr.com/#saurav-wahid",
 			"name": "Saurav Wahid",
-			"jobTitle": "Founder & Mobile DevOps Lead",
-			"description": "Oracle Certified Professional with 11+ years of software engineering experience.",
+			"jobTitle": "Co-Founder & Team Lead",
+			"description": "Senior Java Spring Web & App Developer, AI App Audits, Mobile CI/CD, DevOps. Oracle Certified Professional with 11+ years of software engineering experience.",
 			"image": "https://techfiyr.com/assets/images/team/saurav-wahid.jpg",
 			"worksFor": {
 				"@id": "https://techfiyr.com/#organization"
@@ -162,6 +180,97 @@ const structuredData = {
 				"https://github.com/swahid",
 				"https://www.fiverr.com/wahidsaurav",
 				"https://www.upwork.com/freelancers/sauravwahid"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#viswajit-roy",
+			"name": "Viswajit Roy",
+			"jobTitle": "Co-Founder & Managing Director",
+			"description": "Lead UI/UX Designer, Design Systems, Figma, Product Prototyping with 10+ years of design experience.",
+			"image": "https://techfiyr.com/assets/images/team/viswajit-roy.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/viswajitroy",
+				"https://github.com/viswajitRoy",
+				"https://www.behance.net/royviswajie8fd"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#ponir-saha",
+			"name": "Ponir Saha",
+			"jobTitle": "Co-Founder & CTO",
+			"description": "Software Architect, Production AI/RAG, Java, Spring, Python backend systems.",
+			"image": "https://techfiyr.com/assets/images/team/ponir-saha.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/ponirsaha/",
+				"https://github.com/ponir-saha"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#masud-parvez",
+			"name": "Md Masud Parvez",
+			"jobTitle": "Lead Android & iOS Developer",
+			"description": "Native & Cross-Platform Mobile Engineering, Store Release Management.",
+			"image": "https://techfiyr.com/assets/images/team/masud-parvez.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/masudparvez11/",
+				"https://github.com/pavelsust"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#awon-uz-zaman",
+			"name": "Md. Awon-Uz-Zaman",
+			"jobTitle": "Senior Android & iOS Developer",
+			"description": "Mobile App Development, Flutter, Clean Architecture.",
+			"image": "https://techfiyr.com/assets/images/team/awon-uz-zaman.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/awonuzzaman/",
+				"https://github.com/awon057"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#sohanur-islam",
+			"name": "Sohanur Islam",
+			"jobTitle": "Full-Stack Software Engineer",
+			"description": "Java, Angular, Spring, AI Agent Specialist, Next.js, React Native.",
+			"image": "https://techfiyr.com/assets/images/team/sohanur-islam.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/sohanur-islam-b2a027145/",
+				"https://github.com/sohanur1"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#pranabesh-sarkar",
+			"name": "Pranabesh Sarkar",
+			"jobTitle": "Senior AI/ML Engineer",
+			"description": "MLOps, Deep Learning & Scalable AI Infrastructure, LLM Integration, Vector Databases & Smart Products.",
+			"image": "https://techfiyr.com/assets/images/team/pranabesh-sarkar.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/pranab-csra",
+				"https://github.com/pranab-sarkar"
 			]
 		},
 		{

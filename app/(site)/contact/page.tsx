@@ -197,7 +197,7 @@ export default function ContactPage() {
 									</div>
 									{' '}
 									<div className="booking-times">
-										<h4 className="booking-times_date" data-times-date="">Choose a day</h4>
+										<h3 className="booking-times_date" data-times-date="">Choose a day</h3>
 										{' '}
 										<div className="booking-times_list" data-times-list="">
 											<p className="booking-times_empty">Pick a highlighted date to see open times.</p>
@@ -212,7 +212,7 @@ export default function ContactPage() {
 										{' '}Back
 									</button>
 									{' '}
-									<h4 className="booking-heading">Enter Details</h4>
+									<h3 className="booking-heading">Enter Details</h3>
 									{' '}
 									<form name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field" data-booking-form="">
 										<input type="hidden" name="form-name" value="booking" />
@@ -234,15 +234,18 @@ export default function ContactPage() {
 										{' '}
 										<div className="row clearfix">
 											<div className="form-group col-lg-6 col-md-6 col-sm-12">
-												<input type="text" name="name" placeholder="Your Name" autoComplete="name" required />
+												<label htmlFor="booking-name" className="sr-only">Your Name</label>
+												<input id="booking-name" type="text" name="name" placeholder="Your Name" autoComplete="name" required />
 											</div>
 											{' '}
 											<div className="form-group col-lg-6 col-md-6 col-sm-12">
-												<input type="email" name="email" placeholder="Email Address" autoComplete="email" required />
+												<label htmlFor="booking-email" className="sr-only">Email Address</label>
+												<input id="booking-email" type="email" name="email" placeholder="Email Address" autoComplete="email" required />
 											</div>
 											{' '}
 											<div className="form-group col-lg-12 col-md-12 col-sm-12">
-												<select name="service" required defaultValue="">
+												<label htmlFor="booking-service" className="sr-only">What do you need?</label>
+												<select id="booking-service" name="service" required defaultValue="">
 													<option value="" disabled>What do you need?</option>
 													<option>Mobile App Design &amp; Development</option>
 													<option>Custom Web Software &amp; SaaS</option>
@@ -253,7 +256,8 @@ export default function ContactPage() {
 											</div>
 											{' '}
 											<div className="form-group col-lg-12 col-md-12 col-sm-12">
-												<textarea name="message" placeholder="Anything we should know before the call? (optional)" />
+												<label htmlFor="booking-message" className="sr-only">Anything we should know before the call? (optional)</label>
+												<textarea id="booking-message" name="message" placeholder="Anything we should know before the call? (optional)" />
 											</div>
 											{' '}
 											<div className="form-group col-lg-12 col-md-12 col-sm-12">
@@ -283,7 +287,7 @@ export default function ContactPage() {
 										<i className="fa-solid fa-check" aria-hidden="true"></i>
 									</div>
 									{' '}
-									<h4 className="booking-heading">Request sent!</h4>
+									<h3 className="booking-heading">Request sent!</h3>
 									{' '}
 									<p className="booking-done_text" data-done-text=""></p>
 									{' '}
