@@ -27,8 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			lastModified: UPDATED,
 			images: [
 				absUrl('/assets/images/og/techfiyr-og.jpg'),
-				absUrl('/assets/images/services/mobile-app-development.jpg'),
-				absUrl('/assets/images/services/web-software-saas.jpg'),
+				absUrl('/assets/images/services/mobile-app-development.webp'),
+				absUrl('/assets/images/services/web-software-saas.webp'),
 			],
 		},
 		{ url: absUrl('/projects'), lastModified: UPDATED },

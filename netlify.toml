@@ -298,7 +298,13 @@
 # Short addresses for the discovery files
 [[redirects]]
   from = "/llm"
-  to = "/llm.txt"
+  to = "/llms.txt"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/llm.txt"
+  to = "/llms.txt"
   status = 200
   force = true
 
@@ -309,8 +315,14 @@
   force = true
 
 [[redirects]]
+  from = "/llms-full.txt"
+  to = "/llms.txt"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/llm/"
-  to = "/llm.txt"
+  to = "/llms.txt"
   status = 301
   force = true
 
