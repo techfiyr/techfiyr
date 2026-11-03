@@ -227,54 +227,9 @@
   status = 301
   force = true
 
-# Trailing slash normalizations (prevent canonical/duplicate warnings)
-[[redirects]]
-  from = "/projects/"
-  to = "/projects"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/products/"
-  to = "/products"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/blog/"
-  to = "/blog"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/news/"
-  to = "/news"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/contact/"
-  to = "/contact"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/privacy-policy/"
-  to = "/privacy-policy"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/cookie-policy/"
-  to = "/cookie-policy"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/content-policy/"
-  to = "/content-policy"
-  status = 301
-  force = true
+# Trailing slashes: no rules here. Netlify ignores a trailing slash when it matches "from", so
+# "/blog/" -> "/blog" also matched "/blog" and looped (ERR_TOO_MANY_REDIRECTS). Next.js already
+# answers "/blog/" with a 308 to "/blog" (trailingSlash is off by default).
 
 # Deleted template asset files (410 Gone tells Googlebot to purge immediately)
 [[redirects]]
