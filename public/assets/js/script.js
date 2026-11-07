@@ -78,6 +78,16 @@
 	}
 
 
+	function scrollToTarget(target, smooth) {
+		var $target = typeof target === 'string' ? $(target) : target;
+		if (!$target || !$target.length) return false;
+		var behavior = (reduceMotion || !smooth) ? 'auto' : 'smooth';
+		var top = Math.max(0, Math.round($target.offset().top - 81));
+		window.scrollTo({ top: top, behavior: behavior });
+		return true;
+	}
+
+
 	/* ==========================================================================
 	   Section links on the home page: smooth scroll and scroll-spy for the nav
 	   (what jquery.nav.js did, but it can be stopped when the visitor leaves the page)
@@ -124,18 +134,15 @@
 			e.preventDefault();
 			closeMobileMenu();
 			setCurrent($links.filter('[href="/#' + id + '"]').parent());
-			// the browser's own smooth scroll (jQuery's animation fought Bootstrap's scroll-behavior
-			// and stopped short of the section); 81px leaves room for the sticky header
 			var behavior = reduceMotion ? 'auto' : 'smooth';
 			locked = true;
 			clearTimeout(unlock);
 			unlock = setTimeout(function () {
 				locked = false;
-				// content above may have finished loading meanwhile; settle on the section's real position
-				var top = $target.offset().top - 81;
+				var top = Math.max(0, Math.round($target.offset().top - 81));
 				if (Math.abs($(window).scrollTop() - top) > 4) window.scrollTo({ top: top, behavior: behavior });
 			}, 1600);
-			window.scrollTo({ top: $target.offset().top - 81, behavior: behavior });
+			scrollToTarget($target, true);
 			history.replaceState(history.state, '', '#' + id);
 		}
 
@@ -185,6 +192,31 @@
 
 			$(document).keydown(function (e) {
 				if (e.keyCode == 27 && $('body').hasClass('mobile-menu-visible')) closeMobileMenu();
+			});
+
+			// Smooth scroll for nav links pointing to an anchor on the current page
+			$(document).on('click', '.scroll-nav .navigation a, .mobile-menu .navigation a', function (e) {
+				var href = $(this).attr('href');
+				if (!href) return;
+				var hashIndex = href.indexOf('#');
+				if (hashIndex === -1) return;
+				var pathPart = href.substring(0, hashIndex);
+				var hashPart = href.substring(hashIndex);
+				var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+				var linkPath = pathPart.replace(/\/$/, '') || '/';
+
+				if (linkPath === currentPath) {
+					var id = hashPart.substring(1);
+					var $target = $('#' + id);
+					if ($target.length) {
+						e.preventDefault();
+						closeMobileMenu();
+						scrollToTarget($target, true);
+						if (window.history && window.history.pushState) {
+							window.history.pushState(null, '', hashPart);
+						}
+					}
+				}
 			});
 		}
 
@@ -523,6 +555,17 @@
 
 		// Cookie consent: show or hide the embeds on this page (assets/js/consent.js)
 		if (window.TechfiyrConsent) window.TechfiyrConsent.apply();
+
+		// Auto-scroll to anchor when arriving with a hash (e.g. /projects#projects, /#services)
+		if (window.location.hash) {
+			var initialHash = window.location.hash.substring(1);
+			setTimeout(function () {
+				scrollToTarget('#' + initialHash, true);
+			}, 80);
+			setTimeout(function () {
+				scrollToTarget('#' + initialHash, false);
+			}, 400);
+		}
 
 		if (window.ScrollTrigger) ScrollTrigger.refresh();
 

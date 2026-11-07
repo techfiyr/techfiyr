@@ -28,7 +28,7 @@ CORE SERVICES:
 4. Mobile DevOps & Cloud CI/CD: Automated build & release pipelines with Codemagic CI/CD, Fastlane, GitHub Actions, AWS, and Firebase.
 5. Production AI & Intelligent Agents: LLM integrations, retrieval-augmented generation (RAG), vector databases, and custom automation.
 
-THE CORE TEAM (7 Senior Specialists):
+THE CORE TEAM (8 Senior Specialists):
 - Saurav Wahid: Co-Founder & Team Lead | Senior Java Spring Web & App Developer | AI App Audits | Mobile CI/CD | Oracle Certified Professional (11+ yrs)
 - Viswajit Roy: Co-Founder & Managing Director | Lead UI/UX Designer | Design Systems | Figma | Product Prototyping (10+ yrs)
 - Ponir Saha: Co-Founder & CTO | Software Architect | Production AI/RAG | Java | Spring | Python
@@ -36,6 +36,7 @@ THE CORE TEAM (7 Senior Specialists):
 - Md. Awon-Uz-Zaman: Senior Android & iOS Developer | Mobile Apps | Flutter | Clean Architecture
 - Sohanur Islam: Full-Stack Software Engineer | Java | Angular | Spring | AI Agent Specialist | Next.js | React Native
 - Pranabesh Sarkar: Senior AI/ML Engineer | MLOps, Deep Learning & Scalable AI Infrastructure | LLM Integration, Vector DBs
+- Anupam Baidya: Full-Stack Laravel Developer | Laravel | React.js | Next.js
 
 SHIPPED PORTFOLIO HIGHLIGHT:
 - MatMaps: A UK combat sports platform (Android & web) live on Google Play and at https://matmaps.co.uk/, featuring geo-located club directories, tournaments, round timers, and subscriptions.

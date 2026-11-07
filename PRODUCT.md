@@ -24,7 +24,7 @@ The edges the site leans on, in the owner's words of choice:
 
 1. **Marketplace-proven trust**: a 5.0 average rating on Fiverr with real, verifiable client reviews. Starting with TechFiyr is low risk.
 2. **Design and build in one team**: an in-house Lead UI/UX Designer (10+ years, Figma, design systems) working with the engineers, so a product goes from prototype to App Store / Google Play / cloud release without changing hands.
-3. **Senior, small team**: a core team of 7, with 10+ year leads. Clients work directly with the founder and senior people, not through a hand-off chain.
+3. **Senior, small team**: a core team of 8, with 10+ year leads. Clients work directly with the founder and senior people, not through a hand-off chain.
 
 Mobile DevOps and Codemagic CI/CD are a real capability (the founder is Mobile DevOps Lead) but were not chosen as a headline differentiator.
 
@@ -51,8 +51,8 @@ Mobile DevOps and Codemagic CI/CD are a real capability (the founder is Mobile D
 
 ## Evidence on Hand
 
-- Track record: 2+ years shipping, 20 clients across the US, Europe and Asia, 5.0 average Fiverr rating, core team of 7.
-- Team (real people, photos in `public/assets/images/team/`): Saurav Wahid (Co-Founder & Team Lead, Senior Java Spring Web & App Developer | AI App Audits | Mobile CI/CD, Oracle Certified Professional, 11+ years), Viswajit Roy (Co-Founder & Managing Director, Lead UI/UX Designer, 10+ years), Ponir Saha (Co-Founder & CTO, Software Architect), Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer), Pranabesh Sarkar (AI/ML Engineer).
+- Track record: 2+ years shipping, 20 clients across the US, Europe and Asia, 5.0 average Fiverr rating, core team of 8.
+- Team (real people, photos in `public/assets/images/team/`): Saurav Wahid (Co-Founder & Team Lead, Senior Java Spring Web & App Developer | AI App Audits | Mobile CI/CD, Oracle Certified Professional, 11+ years), Viswajit Roy (Co-Founder & Managing Director, Lead UI/UX Designer, 10+ years), Ponir Saha (Co-Founder & CTO, Software Architect), Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer), Pranabesh Sarkar (AI/ML Engineer), Anupam Baidya (Full-Stack Laravel Developer).
 - Reviews: real Fiverr/Upwork client reviews in the testimonial carousel on the home page (`app/(site)/page.tsx`).
 - Projects: one published case study, MatMaps (UK combat sports platform, Android and web, live on Google Play and matmaps.co.uk).
 - Profiles: GitHub, Fiverr, Upwork, the founder's LinkedIn.

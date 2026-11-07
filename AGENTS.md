@@ -23,10 +23,10 @@ TechFiyr is a mobile app and web software agency based in Mirpur DOHS, Dhaka, Ba
 | Third-party code | `assets/vendor/<library>/` (jQuery, Bootstrap CSS, GSAP, Swiper, WOW, Odometer, TypeIt, MeanMenu, jsVectorMap…). Never edit vendor files; list new ones in `THIRD_PARTY_NOTICES.md`. npm packages: only `next`, `react`, `react-dom` and TypeScript types. |
 | Portfolio data | `lib/projects.ts` (single source of truth for projects) |
 | Company facts | `lib/site.ts` (contact details, shared JSON-LD nodes, nav items, asset versions) |
-| Team roster | Core team of 7 senior specialists (`app/(site)/page.tsx`, `public/assets/images/team/`). Roster detailed below. |
+| Team roster | Core team of 8 senior specialists (`app/(site)/page.tsx`, `public/assets/images/team/`). Roster detailed below. |
 | CMS content | Blog posts, products and AI news in Firestore, edited at `/admin` (section 7.8). Types in `lib/content.ts`, reads in `lib/server/content.ts`. |
 
-### The core team (7 members)
+### The core team (8 members)
 
 Single source of truth for all copy, structured data, and content generation. Keep names, roles, and specializations identical across `app/(site)/page.tsx`, `README.md`, `PRODUCT.md`, `lib/content.ts`, and `public/llms.txt`:
 
@@ -39,6 +39,7 @@ Single source of truth for all copy, structured data, and content generation. Ke
 | **Md. Awon-Uz-Zaman** | Senior Android & iOS Developer | Mobile App Development · Flutter · Clean Architecture | `awon-uz-zaman.jpg` | [LinkedIn](https://www.linkedin.com/in/awonuzzaman/) · [GitHub](https://github.com/awon057) |
 | **Sohanur Islam** | Full-Stack Software Engineer | Java · Angular · Spring · AI Agent Specialist · Next.js · React Native | `sohanur-islam.jpg` | [LinkedIn](https://www.linkedin.com/in/sohanur-islam-b2a027145/) · [GitHub](https://github.com/sohanur1) |
 | **Pranabesh Sarkar** | Senior AI/ML Engineer | MLOps, Deep Learning & Scalable AI Infrastructure · LLM Integration, Vector DBs & Smart Products | `pranabesh-sarkar.jpg` | [LinkedIn](https://www.linkedin.com/in/pranab-csra) · [GitHub](https://github.com/pranab-sarkar) |
+| **Anupam Baidya** | Full-Stack Laravel Developer | Full-Stack Web Development · Laravel · React.js · Next.js · REST APIs | `anupam-baidya.jpg` | [LinkedIn](https://www.linkedin.com/in/anupam-baidya-82674978/) |
 
 
 ### Repository layout
@@ -440,7 +441,7 @@ Validate with the Schema.org validator and Google Rich Results Test before shipp
 
 - Lead each section with a direct, 40–60 word answer to the question the section addresses, then expand. Headings phrased as the questions people ask ("How much does a Flutter app cost?") help answer engines.
 - Use real, specific, verifiable facts: services, tech stacks, timelines, locations, real project names from `projects-data.js`, real review counts and ratings. Name things precisely ("Flutter", "React Native", "Codemagic CI/CD") rather than vaguely.
-- Keep entity facts consistent (company name, address, phone, the 7 core team members and their exact roles from Section 1, rating) across every page, so AI systems can trust them.
+- Keep entity facts consistent (company name, address, phone, the 8 core team members and their exact roles from Section 1, rating) across every page, so AI systems can trust them.
 - Use semantic HTML: lists for lists, `<table>` for comparisons, `<dl>` for spec sheets, `<figure>`/`<figcaption>` for screenshots, `<time datetime="">` for dates, `<address>` for contact details.
 - Add a short visible FAQ (3–6 real questions) on service and contact pages, marked up with `FAQPage`.
 - Show authorship and freshness on articles: author name with role, published/updated dates.

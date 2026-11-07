@@ -88,6 +88,7 @@ export const AUTHORS = [
 	{ name: 'Md. Awon-Uz-Zaman', role: 'Senior Android & iOS Developer', url: 'https://www.linkedin.com/in/awonuzzaman/' },
 	{ name: 'Sohanur Islam', role: 'Full-Stack Software Engineer', url: 'https://www.linkedin.com/in/sohanur-islam-b2a027145/' },
 	{ name: 'Pranabesh Sarkar', role: 'Senior AI/ML Engineer', url: 'https://www.linkedin.com/in/pranab-csra' },
+	{ name: 'Anupam Baidya', role: 'Full-Stack Laravel Developer', url: 'https://www.linkedin.com/in/anupam-baidya-82674978/' },
 	{ name: 'TechFiyr Team', role: 'TechFiyr', url: '' },
 ];
 

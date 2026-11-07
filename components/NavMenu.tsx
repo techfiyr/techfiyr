@@ -55,7 +55,7 @@ export default function NavMenu({ id = 'navbarSupportedContent' }: { id?: string
 export function HeaderQuoteButton() {
 	const pathname = usePathname() || '/';
 	return (
-		<Link href={pathname === '/contact' ? '#contact' : '/contact'} className="theme-btn btn-style-one">
+		<Link href={pathname === '/contact' ? '#contact' : '/contact#contact'} className="theme-btn btn-style-one">
 			<span className="btn-wrap">
 				<span className="text-one">Get a Free Quote</span>
 				{' '}

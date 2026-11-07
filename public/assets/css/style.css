@@ -33389,3 +33389,20 @@ button.whatsapp-float {
   }
 }
 
+/* ==========================================================================
+   Section anchor scroll offset for sticky header
+   ========================================================================== */
+#projects,
+#products,
+#blog,
+#contact,
+#services,
+#about,
+#home,
+#team,
+#process,
+#testimonial {
+  scroll-margin-top: 90px;
+}
+
+

@@ -72,7 +72,7 @@ const structuredData = {
 			},
 			"numberOfEmployees": {
 				"@type": "QuantitativeValue",
-				"value": 7
+				"value": 8
 			},
 			"founder": [
 				{ "@id": "https://techfiyr.com/#saurav-wahid" },
@@ -86,7 +86,8 @@ const structuredData = {
 				{ "@id": "https://techfiyr.com/#masud-parvez" },
 				{ "@id": "https://techfiyr.com/#awon-uz-zaman" },
 				{ "@id": "https://techfiyr.com/#sohanur-islam" },
-				{ "@id": "https://techfiyr.com/#pranabesh-sarkar" }
+				{ "@id": "https://techfiyr.com/#pranabesh-sarkar" },
+				{ "@id": "https://techfiyr.com/#anupam-baidya" }
 			],
 			"contactPoint": {
 				"@type": "ContactPoint",
@@ -271,6 +272,20 @@ const structuredData = {
 			"sameAs": [
 				"https://www.linkedin.com/in/pranab-csra",
 				"https://github.com/pranab-sarkar"
+			]
+		},
+		{
+			"@type": "Person",
+			"@id": "https://techfiyr.com/#anupam-baidya",
+			"name": "Anupam Baidya",
+			"jobTitle": "Full-Stack Laravel Developer",
+			"description": "Full-Stack Laravel Developer, React.js, Next.js web applications and robust backend systems.",
+			"image": "https://techfiyr.com/assets/images/team/anupam-baidya.jpg",
+			"worksFor": {
+				"@id": "https://techfiyr.com/#organization"
+			},
+			"sameAs": [
+				"https://www.linkedin.com/in/anupam-baidya-82674978/"
 			]
 		},
 		{
@@ -956,7 +971,7 @@ export default function HomePage() {
 								</div>
 								{' '}
 								<div className="counter-one_count">
-									<span className="odometer" data-count="7">7</span>
+									<span className="odometer" data-count="8">8</span>
 								</div>
 								{' '}
 								<div className="counter-one_text">Core Designers &amp; Developers</div>
@@ -1669,6 +1684,35 @@ export default function HomePage() {
 													{' '}
 													<a href="https://github.com/pranab-sarkar" target="_blank" rel="noopener" aria-label="Pranabesh Sarkar on GitHub (opens in a new tab)">
 														<i className="fa-brands fa-github" aria-hidden="true"></i>
+													</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							{/* Team Member 8 */}
+							{' '}
+							<div className="team-one_one swiper-slide">
+								<div className="inner-box">
+									<div className="image-box">
+										<figure className="image">
+											<img width="400" height="400" loading="lazy" decoding="async" src="/assets/images/team/anupam-baidya.webp" alt="Anupam Baidya" />
+										</figure>
+									</div>
+									{' '}
+									<div className="content-box">
+										<div className="d-flex justify-content-between align-items-center">
+											<div className="left-box">
+												<span className="cat">Full-Stack Laravel Developer | React.js | Next.js</span>
+												{' '}
+												<h3 className="title">Anupam Baidya</h3>
+											</div>
+											{' '}
+											<div className="right-box">
+												<div className="team-one_socials">
+													<a href="https://www.linkedin.com/in/anupam-baidya-82674978/" target="_blank" rel="noopener" aria-label="Anupam Baidya on LinkedIn (opens in a new tab)">
+														<i className="fa-brands fa-linkedin-in" aria-hidden="true"></i>
 													</a>
 												</div>
 											</div>

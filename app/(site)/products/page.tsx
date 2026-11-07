@@ -53,7 +53,7 @@ export default async function ProductsPage() {
 			<PageTitle bigTitle="Products" title="Our Products" crumbs={[{ label: 'Home', href: '/' }, { label: 'Products' }]} />
 
 			{/* Products Grid (from the CMS) */}
-			<section className="projects-section">
+			<section className="projects-section" id="products">
 				<div className="auto-container">
 					<div className="sec-title centered">
 						<div className="sec-title_title">

@@ -47,7 +47,7 @@ export default function ProjectsPage() {
 			<PageTitle bigTitle="Projects" title="Our Projects" crumbs={[{ label: 'Home', href: '/' }, { label: 'Projects' }]} />
 
 			{/* Projects Grid (cards come from lib/projects.ts) */}
-			<section className="projects-section">
+			<section className="projects-section" id="projects">
 				<div className="auto-container">
 					<div className="sec-title centered">
 						<div className="sec-title_title">

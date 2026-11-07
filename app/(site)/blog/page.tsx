@@ -49,7 +49,7 @@ export default async function BlogPage() {
 			<PageTitle bigTitle="Blog" title="Blog" crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
 
 			{/* Blog Posts (from the CMS) */}
-			<section className="projects-section">
+			<section className="projects-section" id="blog">
 				<div className="auto-container">
 					<div className="sec-title centered">
 						<div className="sec-title_title">
