@@ -11,6 +11,8 @@
  * in Search Console and as a Viewer in Google Analytics.
  */
 import { unstable_cache } from 'next/cache';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { SITE_URL } from '@/lib/site';
 import { GoogleError, SCOPES, accessToken, env, googleError, hasServiceAccount } from './google';
 import { store, storeMode } from './store';
@@ -204,7 +206,15 @@ export async function analytics(): Promise<Source<Analytics>> {
 }
 
 // ---------- IndexNow (Bing, Yandex, Seznam, Naver…) ----------
-export const indexNowKey = () => (/^[a-zA-Z0-9-]{8,128}$/.test(env('INDEXNOW_KEY')) ? env('INDEXNOW_KEY') : '');
+export const indexNowKey = () => {
+	const fromEnv = env('INDEXNOW_KEY');
+	if (/^[a-zA-Z0-9-]{8,128}$/.test(fromEnv)) return fromEnv;
+	try {
+		const fromFile = readFileSync(join(process.cwd(), 'public/indexnow-key.txt'), 'utf8').trim();
+		if (/^[a-zA-Z0-9-]{8,128}$/.test(fromFile)) return fromFile;
+	} catch {}
+	return '';
+};
 
 /** Tell IndexNow engines that these pages changed. Only runs on the production site. */
 export async function pingIndexNow(paths: string[]): Promise<void> {
