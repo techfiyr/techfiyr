@@ -305,8 +305,8 @@ export async function deleteProduct(fd: FormData) {
 export async function fetchNewsNow() {
 	await requireAdmin();
 	const run = await refreshNews();
-	refresh(TAGS.news, ['/news']);
-	if (run.stored) await pingIndexNow(['/news']);
+	refresh(TAGS.news, ['/news', '/blog']);
+	if (run.stored) await pingIndexNow(['/news', '/blog']);
 	redirect(`/admin/news?fetched=${run.stored}`);
 }
 
@@ -319,7 +319,7 @@ export async function updateNews(fd: FormData) {
 		if (action === 'delete') await store.remove('news', id);
 		else if (action === 'hide' || action === 'show') await store.put('news', id, { ...doc, hidden: action === 'hide' });
 		else if (action === 'pin' || action === 'unpin') await store.put('news', id, { ...doc, pinned: action === 'pin' });
-		refresh(TAGS.news, ['/news']);
+		refresh(TAGS.news, ['/news', '/blog']);
 	}
 	redirect('/admin/news');
 }

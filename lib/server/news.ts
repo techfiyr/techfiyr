@@ -4,9 +4,9 @@
  * scheduled function netlify/functions/news-daily.mjs (through app/api/news/refresh/route.ts),
  * or from the admin panel with "Fetch now".
  *
- * What is stored and shown: the headline, the publisher, the date, the feed's own short summary
- * and a link to the original article. Article text and images are never copied, and the public
- * page loads nothing from the publishers (no third-party requests before consent).
+ * What is stored and shown: the headline, the publisher, the date, the feed's short summary,
+ * the publisher's thumbnail image (from the feed or Open Graph card when omitted), and a link to
+ * the original article. Full article text is never copied.
  *
  * Picking the top 10: stories from the last 36 hours (widening to 7 days on a quiet day), newest
  * first, at most two per publisher, near-duplicate headlines across publishers counted once, and
@@ -49,9 +49,9 @@ function decodeEntities(s: string): string {
 
 const unwrap = (s: string) => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1');
 
-/** Text inside the first <tag>…</tag> (namespaced names like media:content are allowed). */
+/** Text inside the first <tag>…</tag> (namespaced names like media:content are allowed, self-closing ignored). */
 function tagText(xml: string, tag: string): string {
-	const m = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'i').exec(xml);
+	const m = new RegExp(`<${tag}(?:\\s+[^>]*(?<!/))?>([\\s\\S]*?)</${tag}>`, 'i').exec(xml);
 	return m ? unwrap(m[1]).trim() : '';
 }
 
@@ -60,8 +60,8 @@ function attr(xml: string, tag: string, name: string, where?: RegExp): string {
 	let m: RegExpExecArray | null;
 	while ((m = re.exec(xml))) {
 		if (where && !where.test(m[1])) continue;
-		const a = new RegExp(`\\b${name}\\s*=\\s*"([^"]*)"`, 'i').exec(m[1]);
-		if (a) return decodeEntities(a[1]);
+		const a = new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i').exec(m[1]);
+		if (a) return decodeEntities((a[1] ?? a[2] ?? '').trim());
 	}
 	return '';
 }
@@ -76,24 +76,130 @@ function plain(html: string, max: number): string {
 	return `${cut.slice(0, cut.lastIndexOf(' ') > max * 0.6 ? cut.lastIndexOf(' ') : max).replace(/[,.;:\s]+$/, '')}…`;
 }
 
-function parseFeed(xml: string, source: string): FeedItem[] {
+function normalizeImageUrl(raw: string, base?: string): string {
+	const clean = decodeEntities(raw).trim();
+	if (!clean || /^data:/i.test(clean)) return '';
+	if (/(?:1x1|spacer|blank\.gif|pixel|feedburner|gravatar)/i.test(clean)) return '';
+	try {
+		const resolved = base ? new URL(clean, base).toString() : clean.startsWith('//') ? `https:${clean}` : clean;
+		if (!/^https:\/\//i.test(resolved)) return '';
+		if (/\.svg(?:$|[?#])/i.test(resolved)) return '';
+		return resolved;
+	} catch {
+		return /^https:\/\//i.test(clean) ? clean : '';
+	}
+}
+
+function extractBodyImage(html: string, base: string): string {
+	const decoded = decodeEntities(unwrap(html));
+	const re = /<img\b[^>]*\b(?:src|data-src)\s*=\s*(?:"([^"]+)"|'([^']+)')/gi;
+	let m: RegExpExecArray | null;
+	while ((m = re.exec(decoded))) {
+		const url = normalizeImageUrl(m[1] ?? m[2] ?? '', base);
+		if (url) return url;
+	}
+	return '';
+}
+
+function isWeakSummary(summary: string): boolean {
+	if (!summary || summary.length < 40) return true;
+	return /^this story originally appeared in\b/i.test(summary);
+}
+
+function metaContent(head: string, keys: string[]): string {
+	const tags = head.match(/<meta\b[^>]*>/gi) || [];
+	for (const key of keys) {
+		const target = key.toLowerCase();
+		for (const tag of tags) {
+			const name = /(?:^|\s)(?:property|name)\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(tag);
+			const matched = (name?.[1] ?? name?.[2] ?? '').trim().toLowerCase();
+			if (matched !== target) continue;
+			const content = /(?:^|\s)content\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(tag);
+			const val = (content?.[1] ?? content?.[2] ?? '').trim();
+			if (val) return decodeEntities(val);
+		}
+	}
+	return '';
+}
+
+async function readHead(url: string): Promise<string> {
+	try {
+		const res = await fetch(url, {
+			headers: {
+				'User-Agent': USER_AGENT,
+				Accept: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8',
+			},
+			cache: 'no-store',
+			signal: AbortSignal.timeout(6000),
+		});
+		if (!res.ok || !res.body) return '';
+		const reader = res.body.getReader();
+		const decoder = new TextDecoder();
+		let html = '';
+		while (html.length < 65536) {
+			const { value, done } = await reader.read();
+			if (done) break;
+			html += decoder.decode(value, { stream: true });
+			if (/<\/head>/i.test(html)) break;
+		}
+		reader.cancel().catch(() => {});
+		return html.slice(0, 65536);
+	} catch {
+		return '';
+	}
+}
+
+export async function enrichItem(item: FeedItem): Promise<FeedItem> {
+	const needImage = !item.imageUrl;
+	const needSummary = isWeakSummary(item.summary);
+	if (!needImage && !needSummary) return item;
+
+	const head = await readHead(item.url);
+	if (!head) return item;
+
+	let imageUrl = item.imageUrl;
+	if (needImage) {
+		const ogImg = metaContent(head, ['og:image:secure_url', 'og:image', 'twitter:image:src', 'twitter:image']);
+		imageUrl = normalizeImageUrl(ogImg, item.url);
+	}
+
+	let summary = item.summary;
+	if (needSummary) {
+		const ogDesc = metaContent(head, ['og:description', 'description', 'twitter:description']);
+		const cleaned = plain(ogDesc, 240);
+		if (cleaned && (!summary || cleaned.length >= 40)) summary = cleaned;
+	}
+
+	return { ...item, imageUrl, summary };
+}
+
+export function parseFeed(xml: string, source: string): FeedItem[] {
 	const blocks = xml.match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) || [];
 	return blocks.slice(0, 40).map((b) => {
-		const link = tagText(b, 'link') || attr(b, 'link', 'href', /rel\s*=\s*"alternate"|type\s*=\s*"text\/html"/i) || attr(b, 'link', 'href');
+		const rawLink =
+			tagText(b, 'link') ||
+			attr(b, 'link', 'href', /rel\s*=\s*(?:"alternate"|'alternate')|type\s*=\s*(?:"text\/html"|'text\/html')/i) ||
+			attr(b, 'link', 'href');
+		const url = decodeEntities(rawLink.trim());
 		const date = tagText(b, 'pubDate') || tagText(b, 'published') || tagText(b, 'updated') || tagText(b, 'dc:date');
 		const parsed = new Date(date);
-		const summary = tagText(b, 'description') || tagText(b, 'summary') || tagText(b, 'content');
-		const image =
-			attr(b, 'media:content', 'url', /medium\s*=\s*"image"|type\s*=\s*"image/i) ||
+		const rawDesc = tagText(b, 'description') || tagText(b, 'summary');
+		const rawContent = tagText(b, 'content:encoded') || tagText(b, 'content');
+		const summary = plain(rawDesc || rawContent, 240);
+		const rawImage =
+			attr(b, 'media:content', 'url', /medium\s*=\s*(?:"image"|'image')|type\s*=\s*(?:"image|'image)/i) ||
 			attr(b, 'media:thumbnail', 'url') ||
-			attr(b, 'enclosure', 'url', /type\s*=\s*"image/i) ||
-			(/<img[^>]+src="([^"]+)"/i.exec(decodeEntities(unwrap(summary + tagText(b, 'content'))))?.[1] ?? '');
+			attr(b, 'media:content', 'url', /^(?!.*type\s*=\s*(?:"(?:video|audio)|'(?:video|audio)))/i) ||
+			attr(b, 'enclosure', 'url', /type\s*=\s*(?:"image|'image)/i) ||
+			attr(b, 'itunes:image', 'href') ||
+			extractBodyImage(rawDesc + rawContent, url);
+		const imageUrl = normalizeImageUrl(rawImage, url);
 		return {
 			title: plain(tagText(b, 'title'), 200),
-			url: decodeEntities(link.trim()),
+			url,
 			source,
-			summary: plain(summary, 240),
-			imageUrl: /^https:\/\//.test(image) ? image : '',
+			summary,
+			imageUrl,
 			publishedAt: Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString(),
 		};
 	}).filter((i) => i.title && /^https?:\/\//.test(i.url) && i.publishedAt);
@@ -157,7 +263,7 @@ export async function refreshNews(): Promise<NewsRun> {
 	const byId = new Map(existing.map((d) => [d.id, d]));
 	const shownBefore = new Set(existing.filter((d) => d.day !== day).map((d) => d.id));
 
-	const edition = pickEdition(all, shownBefore);
+	const edition = await Promise.all(pickEdition(all, shownBefore).map(enrichItem));
 	// a second run on the same day replaces that day's edition, keeping pinned and hidden choices
 	for (const d of existing) {
 		if (d.day === day && !d.pinned && !edition.some((e) => idOf(e.url) === d.id)) await store.remove('news', d.id);
@@ -174,6 +280,23 @@ export async function refreshNews(): Promise<NewsRun> {
 			hidden: prev?.hidden === true,
 			pinned: prev?.pinned === true,
 		});
+	}
+
+	// backfill missing thumbnails or weak summaries on pinned stories so cards always stay complete
+	const pickedIds = new Set(edition.map((e) => idOf(e.url)));
+	for (const d of existing) {
+		if (d.pinned !== true || pickedIds.has(d.id)) continue;
+		const title = typeof d.title === 'string' ? d.title : '';
+		const url = typeof d.url === 'string' ? d.url : '';
+		const source = typeof d.source === 'string' ? d.source : '';
+		const summary = typeof d.summary === 'string' ? d.summary : '';
+		const imageUrl = typeof d.imageUrl === 'string' ? d.imageUrl : '';
+		const publishedAt = typeof d.publishedAt === 'string' ? d.publishedAt : '';
+		if (!url || (!isWeakSummary(summary) && imageUrl)) continue;
+		const enriched = await enrichItem({ title, url, source, summary, imageUrl, publishedAt });
+		if (enriched.imageUrl !== imageUrl || enriched.summary !== summary) {
+			await store.put('news', d.id, { ...d, imageUrl: enriched.imageUrl, summary: enriched.summary });
+		}
 	}
 
 	// keep a month of history; pinned stories stay until they are unpinned

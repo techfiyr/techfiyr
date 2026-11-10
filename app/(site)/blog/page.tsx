@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { PostCard } from '@/components/ContentCards';
 import JsonLd from '@/components/JsonLd';
 import PageTitle from '@/components/PageTitle';
+import TopNewsCarousel from '@/components/TopNewsCarousel';
 import { postPath } from '@/lib/content';
-import { getPublishedPosts } from '@/lib/server/content';
+import { getNewsEdition, getPublishedPosts } from '@/lib/server/content';
 import { pageMetadata } from '@/lib/seo';
 import { ORG_ID, SITE_URL, WEBSITE_ID, absUrl, breadcrumbNode, orgNode } from '@/lib/site';
 
@@ -16,12 +17,12 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata({
 	title: 'App Development Blog: Flutter, SaaS & Costs | TechFiyr',
-	description: 'Practical guides from TechFiyr’s designers and engineers on Flutter, React Native, SaaS builds, app costs, timelines and store releases.',
+	description: 'Daily top AI news briefing alongside practical guides from TechFiyr’s designers and engineers on Flutter, React Native, SaaS builds, app costs and store releases.',
 	path: '/blog',
 });
 
 export default async function BlogPage() {
-	const posts = await getPublishedPosts();
+	const [posts, news] = await Promise.all([getPublishedPosts(), getNewsEdition()]);
 
 	const structuredData = {
 		'@context': 'https://schema.org',
@@ -37,6 +38,30 @@ export default async function BlogPage() {
 				inLanguage: 'en',
 				blogPost: posts.map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: absUrl(postPath(p)), datePublished: p.publishedAt, author: { '@type': 'Person', name: p.author } })),
 			},
+			...(news.items.length
+				? [
+					{
+						'@type': 'ItemList',
+						'@id': `${SITE_URL}/blog#top-ai-news`,
+						name: "Today's Top AI News",
+						url: `${SITE_URL}/blog#top-ai-news`,
+						numberOfItems: news.items.length,
+						itemListElement: news.items.map((n, idx) => ({
+							'@type': 'ListItem',
+							position: idx + 1,
+							item: {
+								'@type': 'NewsArticle',
+								headline: n.title,
+								url: n.url,
+								datePublished: n.publishedAt,
+								publisher: { '@type': 'Organization', name: n.source },
+								...(n.summary ? { description: n.summary } : {}),
+								...(n.imageUrl ? { image: n.imageUrl } : {}),
+							},
+						})),
+					},
+				]
+				: []),
 			orgNode,
 			breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }]),
 		],
@@ -47,6 +72,10 @@ export default async function BlogPage() {
 			<JsonLd data={structuredData} />
 
 			<PageTitle bigTitle="Blog" title="Blog" crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
+
+			{/* Top AI News Strip (refreshed daily from CMS / AI news feeds) */}
+			<TopNewsCarousel items={news.items} day={news.day} />
+			{/* End Top AI News Strip */}
 
 			{/* Blog Posts (from the CMS) */}
 			<section className="projects-section" id="blog">

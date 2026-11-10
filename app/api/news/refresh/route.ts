@@ -26,7 +26,8 @@ export async function POST(req: Request) {
 		const run = await refreshNews();
 		revalidateTag(TAGS.news, { expire: 0 });
 		revalidatePath('/news');
-		if (run.stored) await pingIndexNow(['/news']);
+		revalidatePath('/blog');
+		if (run.stored) await pingIndexNow(['/news', '/blog']);
 		return Response.json(run, { status: run.ok ? 200 : 502 });
 	} catch (err) {
 		console.error('news refresh:', err instanceof Error ? err.message : err);

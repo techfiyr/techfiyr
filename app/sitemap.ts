@@ -11,7 +11,7 @@ import { PROJECTS, projectPath } from '@/lib/projects';
 import { getNewsEdition, getPublishedPosts, getPublishedProducts } from '@/lib/server/content';
 import { absUrl } from '@/lib/site';
 
-const UPDATED = '2026-11-03';
+const UPDATED = '2026-11-11';
 
 export const revalidate = 3600;
 
@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			lastModified: p.updatedAt.slice(0, 10) || UPDATED,
 			images: [...imageUrl(p.coverUrl), ...p.gallery.map(absUrl)],
 		})),
-		{ url: absUrl('/blog'), lastModified: latest([UPDATED, ...posts.map((p) => p.updatedAt.slice(0, 10))]) },
+		{ url: absUrl('/blog'), lastModified: latest([UPDATED, news.day, ...posts.map((p) => p.updatedAt.slice(0, 10))]), changeFrequency: 'daily' as const },
 		...posts.map((p) => ({
 			url: absUrl(postPath(p)),
 			lastModified: p.updatedAt.slice(0, 10) || UPDATED,
