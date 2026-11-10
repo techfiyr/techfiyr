@@ -28,8 +28,7 @@ import {
 	type NegotiationSessionRecord,
 	type NegotiationTurn,
 } from './agent-store';
-import { geminiApiKey } from './gemini';
-import { env } from './google';
+import { geminiApiKey, geminiModels } from './gemini';
 
 export const SALES_AGENT_SYSTEM_INSTRUCTION = `You are Saurav Wahid's Autonomous Lead Solutions Architect and Sales Closer at TechFiyr (${SALES_AGENT_EMAIL} | https://techfiyr.com).
 Your mission is to scope, negotiate, and close custom software projects with human clients and autonomous buyer agents via email and A2A channels.
@@ -160,14 +159,7 @@ async function callGeminiSalesCloser(
 	const apiKey = geminiApiKey();
 	if (!apiKey) return { text: '', usedLlm: false };
 
-	const modelsToTry = [
-		env('GEMINI_MODEL'),
-		'gemini-2.5-flash',
-		'gemini-2.0-flash',
-		'gemini-1.5-flash',
-		'gemini-2.0-flash-lite',
-		'gemini-1.5-pro',
-	].filter((m): m is string => Boolean(m));
+	const modelsToTry = geminiModels();
 
 	const guardrailContext = `PROGRAMMATIC PRICING GUARDRAIL VERDICT (NON-NEGOTIABLE):
 - Decision: ${evaluation.decision} (${evaluation.reasonCode})

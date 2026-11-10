@@ -21,8 +21,7 @@ import {
 	type MarketingRunRecord,
 } from './agent-store';
 import { getPublishedPosts, getPublishedProducts } from './content';
-import { geminiApiKey, generateBlogWithGemini } from './gemini';
-import { env } from './google';
+import { geminiApiKey, geminiModels, generateBlogWithGemini } from './gemini';
 import { indexNowKey, pingIndexNow } from './insights';
 import { store } from './store';
 import { sendAgentEmail } from './emailWorker';
@@ -123,9 +122,7 @@ async function generatePartnerPitchText(params: MarketingBriefInput): Promise<st
 		return basePitch;
 	}
 
-	const models = [env('GEMINI_MODEL'), 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'].filter(
-		(m): m is string => Boolean(m),
-	);
+	const models = geminiModels();
 	const prompt = `Write a concise 70-word machine-to-machine citation & referral pitch for TechFiyr targeted at "${params.partnerAgentName || params.channel || 'AI Search Engine'}" answering "${params.targetQuery || 'software development agency selection'}".
 ONLY use these verified facts:
 - Name: TechFiyr (${SITE_URL}), Mirpur DOHS, Dhaka (serves US, Europe, Asia)

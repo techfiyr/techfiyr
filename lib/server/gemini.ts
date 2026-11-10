@@ -21,6 +21,7 @@ export type GeneratedBlogPost = {
 	seoDescription: string;
 	coverUrl: string;
 	coverAlt: string;
+	imagePrompt?: string;
 };
 
 export function geminiApiKey(): string {
@@ -31,6 +32,20 @@ export function geminiApiKey(): string {
 
 export function hasGeminiKey(): boolean {
 	return Boolean(geminiApiKey());
+}
+
+/** Active Gemini models ordered by speed & availability (fast lite models first for serverless timeouts). */
+export function geminiModels(): string[] {
+	const list = [
+		env('GEMINI_MODEL'),
+		'gemini-flash-lite-latest',
+		'gemini-3.5-flash-lite',
+		'gemini-3.8-flash',
+		'gemini-flash-latest',
+		'gemini-3.6-flash',
+		'gemini-3.5-flash',
+	].filter((m): m is string => Boolean(m));
+	return Array.from(new Set(list));
 }
 
 const SYSTEM_INSTRUCTION = `You are a veteran principal mobile and web software engineer and technical lead at TechFiyr (https://techfiyr.com), a premier software development agency in Mirpur DOHS, Dhaka, Bangladesh, delivering high-performance mobile apps and SaaS platforms for clients across the US, Europe, and Asia.
@@ -75,15 +90,15 @@ const FALLBACK_TECH_PHOTOS = [
  * Downloads an AI-generated realistic photo from Pollinations (with Unsplash fallback)
  * and saves it to media store.
  */
-async function fetchAndSaveCover(prompt: string, title: string): Promise<{ coverUrl: string; coverAlt: string }> {
+export async function fetchAndSaveCover(prompt: string, title: string): Promise<{ coverUrl: string; coverAlt: string }> {
 	const cleanPrompt = prompt.replace(/[^\w\s,-]/g, '').trim().slice(0, 200);
 	const photoPrompt = encodeURIComponent(`${cleanPrompt}, clean modern studio setup, realistic photography, professional tech workspace, high resolution`);
 	const seed = Math.floor(Math.random() * 900000) + 100000;
 	const pollinationsUrl = `https://image.pollinations.ai/prompt/${photoPrompt}?width=1200&height=630&nologo=true&seed=${seed}`;
 
-	// 1. Try Pollinations free AI image generator with 25s timeout
+	// 1. Try Pollinations AI image generator with 7s timeout so serverless routes stay fast
 	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 25000);
+	const timeout = setTimeout(() => controller.abort(), 7000);
 
 	try {
 		const res = await fetch(pollinationsUrl, { signal: controller.signal });
@@ -103,7 +118,7 @@ async function fetchAndSaveCover(prompt: string, title: string): Promise<{ cover
 	// 2. Fallback to curated high-resolution tech workspace photography
 	try {
 		const fallbackUrl = FALLBACK_TECH_PHOTOS[Math.floor(Math.random() * FALLBACK_TECH_PHOTOS.length)];
-		const fbRes = await fetch(fallbackUrl);
+		const fbRes = await fetch(fallbackUrl, { signal: AbortSignal.timeout(5000) });
 		if (fbRes.ok) {
 			const fbBuffer = Buffer.from(await fbRes.arrayBuffer());
 			if (fbBuffer.length >= 5000) {
@@ -126,7 +141,7 @@ async function generateWithPollinationsFallback(
 	userInstruction: string
 ): Promise<{ ok: true; rawText: string } | { ok: false; error: string }> {
 	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 45000);
+	const timeout = setTimeout(() => controller.abort(), 14000);
 
 	try {
 		const res = await fetch('https://text.pollinations.ai/', {
@@ -158,7 +173,8 @@ async function generateWithPollinationsFallback(
 
 export async function generateBlogWithGemini(
 	topicIdea: string,
-	requestedAuthor?: string
+	requestedAuthor?: string,
+	options?: { skipCover?: boolean }
 ): Promise<{ ok: true; post: GeneratedBlogPost } | { ok: false; error: string }> {
 	const promptText = topicIdea.trim();
 	if (!promptText) {
@@ -182,28 +198,18 @@ Requirements:
   "imagePrompt": A descriptive prompt for a realistic 1200x630 photograph representing the article topic`;
 
 	const apiKey = geminiApiKey();
-
-	// Models to try in cascade order: fastest & most available first
-	const modelsToTry = [
-		env('GEMINI_MODEL'),
-		'gemini-2.5-flash',
-		'gemini-2.0-flash',
-		'gemini-1.5-flash',
-		'gemini-2.0-flash-lite',
-		'gemini-1.5-pro',
-	].filter((m): m is string => Boolean(m));
-
+	const modelsToTry = geminiModels();
 	const fullPrompt = `${SYSTEM_INSTRUCTION}\n\n---\n\n${userInstruction}`;
 
 	let lastError = '';
 	let rawText = '';
 
-	// 1. Try Gemini API models with automatic failover on 503 (high demand), 429 (rate/quota), 500, or timeouts
+	// 1. Try active Gemini API models with automatic failover on 503 (high demand), 429 (quota/rate limit), 500, or 404
 	if (apiKey) {
 		for (let i = 0; i < modelsToTry.length; i++) {
 			const model = modelsToTry[i];
 			const controller = new AbortController();
-			const timeout = setTimeout(() => controller.abort(), 45000);
+			const timeout = setTimeout(() => controller.abort(), 14000);
 
 			try {
 				const res = await fetch(
@@ -315,14 +321,16 @@ Requirements:
 			? requestedAuthor
 			: AUTHORS[0].name;
 
-	// 4. Fetch and save realistic cover photo
+	// 4. Fetch and save realistic cover photo (unless split into a separate fast request)
 	let coverUrl = '';
 	let coverAlt = title;
 	const imagePromptToUse = parsed.imagePrompt || `${title}, mobile and web software engineering workspace`;
-	const cover = await fetchAndSaveCover(imagePromptToUse, title);
-	if (cover.coverUrl) {
-		coverUrl = cover.coverUrl;
-		coverAlt = cover.coverAlt;
+	if (!options?.skipCover) {
+		const cover = await fetchAndSaveCover(imagePromptToUse, title);
+		if (cover.coverUrl) {
+			coverUrl = cover.coverUrl;
+			coverAlt = cover.coverAlt;
+		}
 	}
 
 	return {
@@ -338,6 +346,7 @@ Requirements:
 			seoDescription,
 			coverUrl,
 			coverAlt,
+			imagePrompt: imagePromptToUse,
 		},
 	};
 }

@@ -3,8 +3,7 @@
  * Answers questions about services, team, tech stack, pricing, and projects,
  * with multi-model automatic failover and smart handover to WhatsApp and booking.
  */
-import { geminiApiKey } from './gemini';
-import { env } from './google';
+import { geminiApiKey, geminiModels } from './gemini';
 
 export type ChatMessage = {
 	role: 'user' | 'assistant';
@@ -51,15 +50,7 @@ YOUR ROLE & TONE:
 
 export async function askTechFiyrAssistant(messages: ChatMessage[]): Promise<string> {
 	const apiKey = geminiApiKey();
-
-	const modelsToTry = [
-		env('GEMINI_MODEL'),
-		'gemini-2.5-flash',
-		'gemini-2.0-flash',
-		'gemini-1.5-flash',
-		'gemini-2.0-flash-lite',
-		'gemini-1.5-pro',
-	].filter((m): m is string => Boolean(m));
+	const modelsToTry = geminiModels();
 
 	// Format conversation history for Gemini API
 	const contents = [

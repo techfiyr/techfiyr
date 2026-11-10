@@ -7,8 +7,9 @@
  * style headings, a real author, and a search title and description within Google's limits.
  */
 import { useActionState, useState } from 'react';
-import { deletePost, generatePostWithAi, savePost, type FormState } from '@/app/admin/actions';
+import { deletePost, savePost, type FormState } from '@/app/admin/actions';
 import { postPath, readingMinutes, slugify, type Post } from '@/lib/content';
+import type { GeneratedBlogPost } from '@/lib/server/gemini';
 import { CoverField, DeleteBox, SearchPreview, TextField } from './fields';
 import MarkdownEditor from './MarkdownEditor';
 import SubmitButton from './SubmitButton';
@@ -60,30 +61,59 @@ export default function PostForm({ post, authors, saved }: { post: Post | null; 
 		setAiError('');
 		setAiSuccess('');
 		try {
-			const res = await generatePostWithAi(q, v.author);
-			if (!res.ok) {
-				setAiError(res.error);
-			} else {
-				const p = res.post;
-				setV((prev) => ({
-					...prev,
-					title: p.title,
-					slug: p.slug,
-					excerpt: p.excerpt,
-					body: p.body,
-					tags: p.tags,
-					author: p.author,
-					seoTitle: p.seoTitle,
-					seoDescription: p.seoDescription,
-					coverUrl: p.coverUrl || prev.coverUrl,
-					coverAlt: p.coverAlt || prev.coverAlt,
-				}));
-				setSlugTouched(true);
-				setAiSuccess(
-					p.coverUrl
-						? '✨ Article and real cover image generated with human engineering voice! Review, refine, and publish below.'
-						: '✨ Article generated with human engineering voice! Review, refine, and publish below.'
-				);
+			const genRes = await fetch('/api/admin/blog/generate', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ topic: q, author: v.author }),
+			});
+			const res = (await genRes.json().catch(() => null)) as
+				| { ok: true; post: GeneratedBlogPost }
+				| { ok: false; error?: string }
+				| null;
+
+			if (!genRes.ok || !res || !res.ok) {
+				setAiError(res && !res.ok && res.error ? res.error : `AI request failed (${genRes.status}). Please try again.`);
+				return;
+			}
+
+			const p = res.post;
+			setV((prev) => ({
+				...prev,
+				title: p.title,
+				slug: p.slug,
+				excerpt: p.excerpt,
+				body: p.body,
+				tags: p.tags,
+				author: p.author,
+				seoTitle: p.seoTitle,
+				seoDescription: p.seoDescription,
+				coverUrl: p.coverUrl || prev.coverUrl,
+				coverAlt: p.coverAlt || prev.coverAlt,
+			}));
+			setSlugTouched(true);
+			setAiSuccess('Article drafted! Fetching cover photo...');
+
+			try {
+				const covRes = await fetch('/api/admin/blog/cover', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ prompt: p.imagePrompt || p.title, title: p.title }),
+				});
+				const cov = (await covRes.json().catch(() => null)) as
+					| { ok?: boolean; coverUrl?: string; coverAlt?: string }
+					| null;
+				if (covRes.ok && cov?.coverUrl) {
+					setV((prev) => ({
+						...prev,
+						coverUrl: cov.coverUrl || prev.coverUrl,
+						coverAlt: cov.coverAlt || prev.coverAlt,
+					}));
+					setAiSuccess('Article and cover photo generated! Review, refine, and publish below.');
+				} else {
+					setAiSuccess('Article generated! (Cover image skipped or upload manually below.)');
+				}
+			} catch {
+				setAiSuccess('Article generated! (Cover image skipped or upload manually below.)');
 			}
 		} catch (err) {
 			setAiError(err instanceof Error ? err.message : 'Generation failed. Please try again.');
