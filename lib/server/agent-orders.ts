@@ -1,17 +1,19 @@
 /*
- * Shared quote and order orchestration for TechFiyr A2A Commerce (server only).
- * Used identically by REST (/api/v1/agent-order, /api/agent/*), MCP (/api/mcp),
- * A2A (/api/agent/a2a), and the Gemini Sales Closer tool-call execution.
+ * Shared quote, AI-Developer-Ready SRS, and order orchestration for TechFiyr A2A & Email Commerce.
+ * Used identically by Zoho Email Worker, Gemini Sales Agent, REST (/api/v1/agent-order, /api/agent/*),
+ * MCP (/api/mcp), A2A (/api/agent/a2a), and the Admin Dashboard.
  */
 import { AGENT_SERVICES, GUARDRAILS } from '@/lib/agent/catalog';
 import {
 	enforceOrderGuardrails,
 	evaluateProjectSpec,
+	VALID_PAYMENT_RAILS,
 	type PaymentRail,
 	type QuoteEvaluation,
 	type QuoteInput,
 } from '@/lib/agent/pricing';
 import { SITE_URL } from '@/lib/site';
+import { normalizeSrs, srsToMarkdown, type AiDeveloperSrs } from '@/types/srs';
 import { notifyFounderOrderEvent } from './agent-notify';
 import { createPaymentForOrder } from './agent-payments';
 import {
@@ -25,11 +27,11 @@ import {
 	saveQuote,
 	type AgentOrderRecord,
 	type AgentQuoteRecord,
+	type MilestoneStatus,
 	type OrderPhaseState,
 } from './agent-store';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const VALID_RAILS: PaymentRail[] = ['stripe', 'crypto_escrow_base', 'crypto_escrow_solana', 'invoice'];
 
 export type CreateQuoteParams = QuoteInput & {
 	clientAgentId?: string;
@@ -80,12 +82,14 @@ export async function createAgentQuote(params: CreateQuoteParams): Promise<{
 }
 
 export type CreateOrderParams = {
+	inquiryId?: string;
 	quoteId?: string;
 	clientAgentId?: string;
 	clientDid?: string;
 	clientEmail: string;
 	callbackUrl?: string;
 	projectTitle: string;
+	executiveOverview?: string;
 	scopeSummary: string;
 	techStack?: string[];
 	agreedPriceUSD?: number;
@@ -95,6 +99,9 @@ export type CreateOrderParams = {
 	integrationsCount?: number;
 	requiresCustomAiTraining?: boolean;
 	paymentPreference?: PaymentRail;
+	cryptoTxHash?: string;
+	payoneerReference?: string;
+	srsOverride?: Partial<AiDeveloperSrs>;
 };
 
 export type CreateOrderResult =
@@ -128,7 +135,7 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			ok: false,
 			status: 400,
 			code: 'INVALID_CLIENT_EMAIL',
-			error: 'A valid clientEmail address is required for SOW issuance, payment links, and repository transfer.',
+			error: 'A valid clientEmail address is required for SOW issuance, payment coordinates, and repository transfer.',
 		};
 	}
 
@@ -173,7 +180,6 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 	const integrationsCount = params.integrationsCount ?? existingQuote?.evaluation.scopeMetrics.integrationsCount;
 	const requiresCustomAiTraining = params.requiresCustomAiTraining ?? existingQuote?.input.requiresCustomAiTraining;
 
-	// If no explicit price/days passed, use the quote or deterministic recommended values
 	const previewEval = evaluateProjectSpec({
 		projectTitle,
 		description: scopeSummary,
@@ -194,7 +200,6 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			? Math.round(params.deliveryDays)
 			: existingQuote?.evaluation.requiredDeliveryDays || previewEval.requiredDeliveryDays;
 
-	// Hard programmatic boundary check (cannot be bypassed by LLM or client agent)
 	const guardrailCheck = enforceOrderGuardrails({
 		agreedPriceUSD,
 		deliveryDays,
@@ -218,11 +223,11 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 
 	const evaluation = guardrailCheck.evaluation;
 	const rail: PaymentRail =
-		params.paymentPreference && VALID_RAILS.includes(params.paymentPreference)
+		params.paymentPreference && VALID_PAYMENT_RAILS.includes(params.paymentPreference)
 			? params.paymentPreference
-			: existingQuote?.input.paymentPreference && VALID_RAILS.includes(existingQuote.input.paymentPreference)
+			: existingQuote?.input.paymentPreference && VALID_PAYMENT_RAILS.includes(existingQuote.input.paymentPreference)
 				? existingQuote.input.paymentPreference
-				: 'stripe';
+				: 'crypto_usdc_solana';
 
 	const orderId = generateId('tf_ord');
 	const { rawToken, tokenHash } = generateOrderToken();
@@ -238,6 +243,15 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 		rail,
 	});
 
+	const srsJson = normalizeSrs(params.srsOverride, {
+		projectId: orderId,
+		projectTitle,
+		scopeSummary: params.executiveOverview?.trim() || scopeSummary,
+		techStack: evaluation.normalizedStack,
+		deliveryDays,
+	});
+	const srsMarkdown = srsToMarkdown(srsJson);
+
 	const phases: OrderPhaseState[] = evaluation.phases.map((p, idx) => ({
 		...p,
 		status: idx === 0 ? 'in_progress' : 'pending',
@@ -249,21 +263,35 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			? params.callbackUrl.trim().slice(0, 500)
 			: undefined;
 
+	const initialMilestoneStatus: MilestoneStatus =
+		params.cryptoTxHash || params.payoneerReference ? 'UPFRONT_PAID' : 'AWAITING_DEPOSIT';
+
 	const order: AgentOrderRecord = {
 		id: orderId,
 		orderTokenHash: tokenHash,
+		inquiry_id: params.inquiryId,
 		quoteId: existingQuote?.id,
 		clientAgentId: (params.clientAgentId || existingQuote?.clientAgentId || 'autonomous-buyer').slice(0, 120),
 		clientDid: (params.clientDid || existingQuote?.clientDid || '').slice(0, 200) || undefined,
+		client_contact: clientEmail,
 		clientEmail,
 		callbackUrl,
 		projectTitle,
+		executive_overview: srsJson.executive_overview,
 		scopeSummary,
 		techStack: evaluation.normalizedStack,
+		total_price_usd: agreedPriceUSD,
 		agreedPriceUSD,
+		timeline_days: deliveryDays,
 		deliveryDays,
 		tier: evaluation.tier,
+		milestone_status: initialMilestoneStatus,
 		milestones: evaluation.milestones,
+		crypto_chain: payment.crypto_chain || rail,
+		crypto_tx_hash: (params.cryptoTxHash || '').trim().slice(0, 200),
+		payoneer_reference: (params.payoneerReference || '').trim().slice(0, 200),
+		srs_markdown: srsMarkdown,
+		srs_json: srsJson,
 		sow: {
 			sowId: `SOW-${orderId.replace(/^tf_ord_/, '').toUpperCase()}`,
 			issuedAt: now,
@@ -271,21 +299,23 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			clientEmail,
 			clientAgentId: (params.clientAgentId || 'autonomous-buyer').slice(0, 120),
 			deliverables: service.deliverables,
-			acceptanceCriteria: [
-				'TypeScript / linter / unit tests pass inside clean Docker build',
-				'Cloud staging URL live and verified against SOW scope',
-				'GitHub repository transfer / org invite delivered to client principal',
-			],
+			acceptanceCriteria: srsJson.acceptance_criteria.map((c) => `[${c.id}] ${c.assertion}`),
 			guardrailsVerified: true,
 		},
 		currentPhase: phases[0].id,
 		phases,
-		payment,
+		payment: {
+			...payment,
+			...(initialMilestoneStatus === 'UPFRONT_PAID' ? { status: 'upfront_25_paid' } : {}),
+			...(params.cryptoTxHash ? { crypto_tx_hash: params.cryptoTxHash.trim() } : {}),
+			...(params.payoneerReference ? { payoneer_reference: params.payoneerReference.trim() } : {}),
+		},
 		deliverables: {},
 		notifications: {
-			whatsappSent: false,
+			emailAlertSent: false,
 			webhookSent: false,
 		},
+		created_at: now,
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -316,6 +346,10 @@ export async function updateOrderFulfillment(
 	patch: {
 		currentPhase?: string;
 		phaseStatus?: 'pending' | 'in_progress' | 'completed';
+		milestoneStatus?: MilestoneStatus;
+		cryptoChain?: string;
+		cryptoTxHash?: string;
+		payoneerReference?: string;
 		repoUrl?: string;
 		stagingUrl?: string;
 		deliveryReportUrl?: string;
@@ -348,10 +382,26 @@ export async function updateOrderFulfillment(
 		}
 	}
 
+	const milestoneStatus = patch.milestoneStatus || order.milestone_status;
+	const inferredPaymentStatus: AgentOrderRecord['payment']['status'] =
+		patch.paymentStatus ||
+		(milestoneStatus === 'UPFRONT_PAID'
+			? 'upfront_25_paid'
+			: milestoneStatus === 'MVP_DELIVERED'
+				? 'staging_50_paid'
+				: milestoneStatus === 'FULLY_PAID'
+					? 'fully_paid'
+					: order.payment.status);
+
 	const updated: AgentOrderRecord = {
 		...order,
 		currentPhase,
 		phases: updatedPhases,
+		milestone_status: milestoneStatus,
+		crypto_chain: patch.cryptoChain !== undefined ? patch.cryptoChain.slice(0, 80) : order.crypto_chain,
+		crypto_tx_hash: patch.cryptoTxHash !== undefined ? patch.cryptoTxHash.slice(0, 200) : order.crypto_tx_hash,
+		payoneer_reference:
+			patch.payoneerReference !== undefined ? patch.payoneerReference.slice(0, 200) : order.payoneer_reference,
 		deliverables: {
 			...order.deliverables,
 			...(patch.repoUrl ? { repoUrl: patch.repoUrl.slice(0, 400) } : {}),
@@ -360,7 +410,11 @@ export async function updateOrderFulfillment(
 		},
 		payment: {
 			...order.payment,
-			...(patch.paymentStatus ? { status: patch.paymentStatus, updatedAt: now } : {}),
+			status: inferredPaymentStatus,
+			...(patch.cryptoChain ? { crypto_chain: patch.cryptoChain } : {}),
+			...(patch.cryptoTxHash ? { crypto_tx_hash: patch.cryptoTxHash } : {}),
+			...(patch.payoneerReference ? { payoneer_reference: patch.payoneerReference } : {}),
+			updatedAt: now,
 		},
 		updatedAt: now,
 	};
@@ -368,4 +422,3 @@ export async function updateOrderFulfillment(
 	await saveOrder(updated);
 	return updated;
 }
-

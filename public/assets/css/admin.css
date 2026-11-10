@@ -95,6 +95,17 @@
 .fa-upload::before { content: "\f093"; }
 .fa-xmark::before { content: "\f00d"; }
 .fa-bars::before { content: "\f0c9"; }
+.fa-robot::before { content: "\f544"; }
+.fa-envelope::before { content: "\f0e0"; }
+.fa-comments::before { content: "\f086"; }
+.fa-clipboard-check::before { content: "\f46c"; }
+.fa-copy::before { content: "\f0c5"; }
+.fa-download::before { content: "\f019"; }
+.fa-coins::before { content: "\f51e"; }
+.fa-clock::before { content: "\f017"; }
+.fa-bolt::before { content: "\f0e7"; }
+.fa-paper-plane::before { content: "\f1d8"; }
+.fa-check::before { content: "\f00c"; }
 
 .fa-heading.is-small {
   font-size: 0.75em;
@@ -1949,5 +1960,398 @@ body:has(.admin-root) {
   align-items: center;
   gap: 12px;
   margin-top: 14px;
+}
+
+/* ==========================================================================
+   Agent Sales & SRS Hub (/admin/agent)
+   ========================================================================== */
+.agent-summary-bar {
+  margin-bottom: 22px;
+}
+
+.agent-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.agent-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.agent-tabs {
+  margin-bottom: 0 !important;
+}
+
+.agent-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid var(--admin-line);
+  border-radius: 50px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--admin-body);
+  background-color: var(--white-color);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.agent-tab span {
+  padding: 1px 8px;
+  border-radius: 50px;
+  font-size: 12px;
+  background-color: var(--color-four);
+  color: var(--black-color);
+}
+
+.agent-tab.is-active {
+  color: var(--white-color);
+  border-color: var(--main-color);
+  background-color: var(--main-color);
+}
+
+.agent-tab.is-active span {
+  color: var(--black-color);
+  background-color: var(--color-two);
+}
+
+.agent-live-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agent-split {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.5fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.agent-threads {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-thread-btn {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--admin-line);
+  border-radius: 16px;
+  font: inherit;
+  text-align: left;
+  background-color: var(--admin-bg);
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.agent-thread-btn.is-active,
+.agent-thread-btn:hover {
+  border-color: var(--main-color);
+  background-color: rgba(var(--main-color-rgb), 0.06);
+}
+
+.agent-thread-top,
+.agent-thread-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agent-thread-subject {
+  font-weight: 700;
+  color: var(--black-color);
+}
+
+.agent-thread-preview {
+  font-size: 13px;
+  color: var(--admin-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-thread-meta {
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+.agent-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-chat-log {
+  display: grid;
+  gap: 12px;
+  max-height: 520px;
+  overflow-y: auto;
+  margin: 0 0 20px;
+  padding: 4px 2px;
+  list-style: none;
+}
+
+.agent-msg {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--admin-line);
+  background-color: var(--admin-bg);
+}
+
+.agent-msg.is-agent {
+  border-color: rgba(var(--main-color-rgb), 0.25);
+  background-color: rgba(var(--main-color-rgb), 0.05);
+}
+
+.agent-msg-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.agent-msg-body {
+  margin: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.agent-msg-id {
+  margin-top: 6px !important;
+  font-size: 11px;
+  color: var(--admin-muted);
+}
+
+.agent-reply-form textarea,
+.agent-form-grid input,
+.agent-form-grid select,
+.agent-spec-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(var(--main-color-rgb), 0.28);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--black-color);
+  background-color: var(--admin-field);
+}
+
+.agent-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.agent-orders-wrap,
+.agent-specs-wrap {
+  display: grid;
+  gap: 22px;
+}
+
+.agent-order-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.agent-order-card.is-selected {
+  border-color: var(--main-color);
+  box-shadow: 0 18px 50px rgba(35, 122, 87, 0.14);
+}
+
+.agent-order-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.agent-order-id {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--main-color);
+}
+
+.agent-order-price {
+  text-align: right;
+}
+
+.agent-order-price strong {
+  display: block;
+  font-family: "Outfit", serif;
+  font-size: 24px;
+  color: var(--black-color);
+}
+
+.agent-order-price span {
+  font-size: 12px;
+  color: var(--admin-muted);
+}
+
+.agent-order-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.agent-progress {
+  height: 8px;
+  margin-bottom: 16px;
+  border-radius: 50px;
+  background-color: var(--color-four);
+  overflow: hidden;
+}
+
+.agent-progress-bar {
+  display: block;
+  height: 100%;
+  border-radius: 50px;
+  background-image: linear-gradient(90deg, #237a57 0%, #c6e45a 100%);
+}
+
+.agent-order-meta {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 13px;
+}
+
+.agent-order-meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agent-order-meta dt {
+  color: var(--admin-muted);
+}
+
+.agent-order-meta dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.agent-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agent-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.agent-form-grid label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.agent-spec-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.agent-spec-actions,
+.agent-spec-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agent-spec-modes {
+  margin-bottom: 18px;
+}
+
+.agent-srs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.agent-srs-card {
+  padding: 18px 20px;
+  border: 1px solid var(--admin-line);
+  border-radius: 18px;
+  background-color: var(--admin-bg);
+}
+
+.agent-srs-card.is-full {
+  grid-column: 1 / -1;
+}
+
+.agent-srs-card h3 {
+  margin-bottom: 10px;
+  font-size: 17px;
+}
+
+.agent-srs-card ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.agent-srs-sub + .agent-srs-sub {
+  margin-top: 12px;
+}
+
+.agent-stack-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.agent-code-block {
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 18px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--white-color);
+  background-color: var(--black-color);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 991.98px) {
+  .agent-split,
+  .agent-order-cards,
+  .agent-srs-grid,
+  .agent-form-grid,
+  .agent-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 

@@ -41,10 +41,12 @@
     "openApiSpec": "https://techfiyr.com/openapi.json"
   },
   "ucp:paymentMethods": [
-    "stripe_checkout",
-    "usdc_escrow_base",
-    "usdc_escrow_solana",
-    "machine_sow_invoice"
+    "crypto_usdc_solana",
+    "crypto_usdc_base",
+    "crypto_usdt_trc20",
+    "crypto_usdt_polygon",
+    "payoneer",
+    "bank_invoice"
   ],
   "itemListElement": [
     {

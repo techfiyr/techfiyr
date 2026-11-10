@@ -1,7 +1,7 @@
 /*
  * GET & PATCH /api/agent/orders/[orderId]:
- *   GET checks delivery phase, staging URLs, SOW, and payment status (requires order accessToken or operator key).
- *   PATCH advances fulfillment phases / attaches deliverables (requires operator Authorization: Bearer <AGENT_API_KEY>).
+ *   GET checks delivery phase, milestone status, SRS, and payment state (requires order accessToken or operator key).
+ *   PATCH advances fulfillment phases, milestone_status, or payment tx hashes (requires operator key).
  */
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { updateOrderFulfillment } from '@/lib/server/agent-orders';
@@ -11,6 +11,7 @@ import {
 	isOrderAuthorized,
 	publicOrderView,
 	type AgentOrderRecord,
+	type MilestoneStatus,
 } from '@/lib/server/agent-store';
 
 export const runtime = 'nodejs';
@@ -64,12 +65,16 @@ export async function PATCH(req: Request, context: { params: Promise<{ orderId: 
 			? body.phaseStatus
 			: undefined;
 
+	const validMilestones: MilestoneStatus[] = ['AWAITING_DEPOSIT', 'UPFRONT_PAID', 'MVP_DELIVERED', 'FULLY_PAID'];
+	const milestoneStatus = validMilestones.includes(body.milestoneStatus as MilestoneStatus)
+		? (body.milestoneStatus as MilestoneStatus)
+		: undefined;
+
 	const validPaymentStatuses: AgentOrderRecord['payment']['status'][] = [
-		'pending_payment',
-		'awaiting_payment_rails',
-		'escrow_locked',
-		'paid',
-		'released',
+		'awaiting_upfront_25',
+		'upfront_25_paid',
+		'staging_50_paid',
+		'fully_paid',
 	];
 	const paymentStatus = validPaymentStatuses.includes(body.paymentStatus as AgentOrderRecord['payment']['status'])
 		? (body.paymentStatus as AgentOrderRecord['payment']['status'])
@@ -78,6 +83,10 @@ export async function PATCH(req: Request, context: { params: Promise<{ orderId: 
 	const updated = await updateOrderFulfillment(orderId, {
 		currentPhase: typeof body.currentPhase === 'string' ? body.currentPhase : undefined,
 		phaseStatus,
+		milestoneStatus,
+		cryptoChain: typeof body.cryptoChain === 'string' ? body.cryptoChain : undefined,
+		cryptoTxHash: typeof body.cryptoTxHash === 'string' ? body.cryptoTxHash : undefined,
+		payoneerReference: typeof body.payoneerReference === 'string' ? body.payoneerReference : undefined,
 		repoUrl: typeof body.repoUrl === 'string' ? body.repoUrl : undefined,
 		stagingUrl: typeof body.stagingUrl === 'string' ? body.stagingUrl : undefined,
 		deliveryReportUrl: typeof body.deliveryReportUrl === 'string' ? body.deliveryReportUrl : undefined,
@@ -90,4 +99,3 @@ export async function PATCH(req: Request, context: { params: Promise<{ orderId: 
 
 	return agentJson({ ok: true, order: publicOrderView(updated) });
 }
-

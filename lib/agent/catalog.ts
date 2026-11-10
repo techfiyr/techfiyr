@@ -1,6 +1,6 @@
 /*
  * Canonical TechFiyr Agent-to-Agent (A2A) Commerce catalog, pricing guardrails,
- * supported tech stacks, and 7-day delivery engine phases.
+ * supported tech stacks, accepted Crypto/Payoneer payment rails, and 7-day delivery phases.
  * Company facts and team roster stay synced with lib/site.ts and lib/content.ts.
  */
 import { AUTHORS } from '@/lib/content';
@@ -8,6 +8,7 @@ import { CONTACT, SITE_NAME, SITE_URL } from '@/lib/site';
 
 export const AGENT_PROTOCOL_VERSION = '1.0.0';
 export const MCP_PROTOCOL_VERSION = '2025-03-26';
+export const SALES_AGENT_EMAIL = 'saurav.wahid@techfiyr.com';
 
 export const GUARDRAILS = {
 	currency: 'USD',
@@ -19,6 +20,11 @@ export const GUARDRAILS = {
 	maxMobileScreens7Day: 4,
 	maxThirdPartyIntegrations7Day: 3,
 	quoteValidityHours: 168,
+	milestoneSchedule: {
+		upfrontDepositPercent: 25,
+		mvpStagingPercent: 50,
+		finalHandoverPercent: 25,
+	},
 } as const;
 
 export type ServiceTierId = 'rapid_7day' | 'extended_14day';
@@ -46,16 +52,16 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 600,
 		deliveryDays: 7,
-		supportedStacks: ['Next.js', 'React', 'Node.js', 'FastAPI', 'PostgreSQL', 'Firebase', 'Docker'],
+		supportedStacks: ['Next.js', 'React', 'Node.js', 'PostgreSQL', 'Supabase', 'Docker'],
 		scopeLimits7Day: [
 			'Up to 5 CRUD entities',
 			'Standard auth + role-based access',
 			'Up to 3 third-party API/webhook integrations',
 		],
 		deliverables: [
-			'Architecture spec & DB schema',
-			'Production-ready source repository (GitHub transfer)',
-			'Dockerized staging deployment + automated test suite',
+			'Day 1: Schema + modular monorepo boilerplate (25% deposit)',
+			'Day 4: Staging MVP deployment + core workflows (50% milestone)',
+			'Day 7: Automated QA, Docker build & GitHub repository handover (25% final)',
 		],
 	},
 	{
@@ -63,14 +69,14 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		name: 'Mobile App Engineering (Flutter & React Native)',
 		category: 'mobile',
 		summary:
-			'Cross-platform iOS and Android engineering with Flutter or React Native, Firebase/REST integration, and Codemagic CI/CD store pipelines.',
+			'Cross-platform iOS and Android engineering with Flutter or React Native, Firebase/Supabase/REST integration, and Codemagic CI/CD store pipelines.',
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 900,
 		deliveryDays: 7,
-		supportedStacks: ['Flutter', 'React Native', 'Firebase', 'Node.js', 'PostgreSQL', 'Codemagic CI/CD', 'iOS', 'Android'],
+		supportedStacks: ['Flutter', 'React Native', 'Firebase', 'Supabase', 'Node.js', 'PostgreSQL', 'Codemagic CI/CD', 'iOS', 'Android'],
 		scopeLimits7Day: [
 			'Up to 4 core mobile screens for 7-day MVP',
-			'Firebase Auth/Firestore or single REST API backend',
+			'Firebase/Supabase or single REST API backend',
 			'Up to 3 third-party SDK/API integrations',
 		],
 		deliverables: [
@@ -84,11 +90,11 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		name: 'Cloud, SaaS & Microservices Backend',
 		category: 'web_saas',
 		summary:
-			'Production-grade REST & GraphQL APIs, admin dashboards, and multi-tenant SaaS systems using Next.js, Node.js, Spring Boot, Python/FastAPI, or Laravel.',
+			'Production-grade REST & GraphQL APIs, admin dashboards, and multi-tenant SaaS systems using Next.js, React, Node.js, PostgreSQL/Supabase, FastAPI, Spring Boot, or Laravel.',
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 750,
 		deliveryDays: 7,
-		supportedStacks: ['Next.js', 'React', 'Node.js', 'Java Spring Boot', 'Python', 'FastAPI', 'Laravel', 'PostgreSQL', 'MongoDB', 'Docker', 'AWS'],
+		supportedStacks: ['Next.js', 'React', 'Node.js', 'PostgreSQL', 'Supabase', 'FastAPI', 'Java Spring Boot', 'Laravel', 'Docker', 'AWS'],
 		scopeLimits7Day: [
 			'Up to 5 CRUD entities and authentication',
 			'Admin or client dashboard UI',
@@ -109,7 +115,7 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		defaultTier: 'extended_14day',
 		basePriceUSD: 1500,
 		deliveryDays: 14,
-		supportedStacks: ['Python', 'FastAPI', 'Next.js', 'Node.js', 'Gemini API', 'Vector DB', 'MCP', 'Docker'],
+		supportedStacks: ['Python', 'FastAPI', 'Next.js', 'Node.js', 'PostgreSQL', 'Supabase', 'Gemini API', 'Vector DB', 'MCP', 'Docker'],
 		scopeLimits7Day: [
 			'Single-endpoint MCP/A2A wrapper or prompt pipeline fits 7 days ($850+)',
 			'Bespoke RAG ingestion, multi-agent graphs, or custom AI workflows require 14 days ($1,500+)',
@@ -171,13 +177,14 @@ export const SUPPORTED_TECH_MAP: Record<string, string> = {
 	php: 'Laravel / PHP',
 	postgresql: 'PostgreSQL',
 	postgres: 'PostgreSQL',
+	supabase: 'Supabase',
+	prisma: 'Prisma',
 	mysql: 'MySQL',
 	mongodb: 'MongoDB',
 	mongo: 'MongoDB',
 	redis: 'Redis',
 	firebase: 'Firebase',
 	firestore: 'Cloud Firestore',
-	supabase: 'Supabase',
 	docker: 'Docker',
 	aws: 'AWS',
 	netlify: 'Netlify',
@@ -186,7 +193,6 @@ export const SUPPORTED_TECH_MAP: Record<string, string> = {
 	'github actions': 'GitHub Actions',
 	rest: 'REST API',
 	graphql: 'GraphQL',
-	stripe: 'Stripe',
 	figma: 'Figma',
 	gemini: 'Gemini API',
 	rag: 'RAG / Vector DB',
@@ -227,37 +233,37 @@ export const DELIVERY_ENGINE_7DAY: DeliveryPhase[] = [
 	{
 		id: 'day_1_structuring',
 		dayWindow: 'Day 1',
-		phase: 'Requirement Structuring',
+		phase: 'Schema + Boilerplate Lock (25% Deposit)',
 		execution:
-			'Spec parser generates DB schema, API design, and wireframes; human engineering lead review triggered.',
+			'AI-Developer-Ready SRS validated; modular monorepo scaffold, DB schema, and auth boilerplate initialized.',
 	},
 	{
-		id: 'day_2_4_codegen',
-		dayWindow: 'Day 2-4',
-		phase: 'Fast AI & Senior Code Gen',
+		id: 'day_2_3_codegen',
+		dayWindow: 'Day 2-3',
+		phase: 'Core Feature & API Engineering',
 		execution:
-			'Monorepo template scaffolded; features, typed APIs, unit tests, and integrations implemented.',
+			'Backend APIs, business logic, and frontend/mobile screens implemented with automated unit checks.',
 	},
 	{
-		id: 'day_5_container_qa',
-		dayWindow: 'Day 5',
-		phase: 'Containerization & QA',
+		id: 'day_4_mvp_staging',
+		dayWindow: 'Day 4',
+		phase: 'Staging MVP Delivery (50% Milestone)',
 		execution:
-			'Automated linting, type-checking, security audit, Docker build validation, and integration tests.',
+			'Live cloud staging URL / preview build delivered for client agent verification and 50% milestone settlement.',
 	},
 	{
-		id: 'day_6_staging_deploy',
-		dayWindow: 'Day 6',
-		phase: 'Deployment & Staging',
+		id: 'day_5_6_container_qa',
+		dayWindow: 'Day 5-6',
+		phase: 'Docker Containerization & Hardening',
 		execution:
-			'Deployment to cloud staging URL; machine-readable delivery verification report generated for client agent.',
+			'Automated linting, type-checking, security audit, Docker build validation, and acceptance criteria verification.',
 	},
 	{
 		id: 'day_7_handover_release',
 		dayWindow: 'Day 7',
-		phase: 'Handover & Release',
+		phase: 'Final Release & Handover (25% Final)',
 		execution:
-			'Source repository transfer (GitHub org invite), credential exchange, and final escrow payout release.',
+			'Source repository transfer (GitHub org invite), deployment docs, and final 25% milestone settlement.',
 	},
 ];
 
@@ -265,37 +271,37 @@ export const DELIVERY_ENGINE_14DAY: DeliveryPhase[] = [
 	{
 		id: 'day_1_2_architecture',
 		dayWindow: 'Day 1-2',
-		phase: 'Architecture & Data Modeling',
+		phase: 'Architecture, Schema & Boilerplate (25% Deposit)',
 		execution:
-			'Full system architecture, ER schema, vector/AI evaluation plan, and API contracts approved.',
+			'Full system architecture, ER schema, vector/AI evaluation plan, and monorepo scaffold locked.',
 	},
 	{
-		id: 'day_3_9_implementation',
-		dayWindow: 'Day 3-9',
-		phase: 'Core & Integration Sprints',
+		id: 'day_3_7_implementation',
+		dayWindow: 'Day 3-7',
+		phase: 'Core Backend, AI/RAG & UI Sprints',
 		execution:
 			'Backend services, frontend/mobile views, custom AI/RAG pipelines, and third-party integrations built.',
 	},
 	{
-		id: 'day_10_12_qa_hardening',
-		dayWindow: 'Day 10-12',
+		id: 'day_8_mvp_staging',
+		dayWindow: 'Day 8',
+		phase: 'Staging MVP Delivery (50% Milestone)',
+		execution:
+			'Cloud staging or TestFlight/APK build delivered for automated/client acceptance testing.',
+	},
+	{
+		id: 'day_9_13_qa_hardening',
+		dayWindow: 'Day 9-13',
 		phase: 'Containerization, Security & E2E QA',
 		execution:
 			'Docker hardening, integration testing, performance profiling, and store compliance verification.',
 	},
 	{
-		id: 'day_13_staging_uat',
-		dayWindow: 'Day 13',
-		phase: 'Staging & Automated Verification',
-		execution:
-			'Cloud staging or TestFlight/Play internal release deployed with automated verification report.',
-	},
-	{
 		id: 'day_14_handover_release',
 		dayWindow: 'Day 14',
-		phase: 'Production Handover & Release',
+		phase: 'Production Handover & Release (25% Final)',
 		execution:
-			'GitHub repo transfer, CI/CD secrets handover, documentation, and final milestone/escrow release.',
+			'GitHub repo transfer, CI/CD secrets handover, documentation, and final 25% milestone settlement.',
 	},
 ];
 
@@ -308,7 +314,7 @@ export function buildAgentCatalog() {
 			location: '325, Mirpur DOHS, Dhaka 1216, Bangladesh',
 			serves: ['United States', 'Europe', 'Asia', 'Global Remote'],
 			email: CONTACT.email,
-			whatsapp: CONTACT.phoneDisplay,
+			salesAgentEmail: SALES_AGENT_EMAIL,
 			profiles: {
 				github: CONTACT.github,
 				fiverr: CONTACT.fiverr,
@@ -341,28 +347,46 @@ export function buildAgentCatalog() {
 		},
 		paymentRails: [
 			{
-				id: 'stripe',
-				label: 'Stripe Checkout / Agentic Payment Link',
-				currency: 'USD',
-				settlement: 'Upfront or 50/50 milestone invoice',
-			},
-			{
-				id: 'crypto_escrow_base',
-				label: 'Programmable USDC Escrow (Base)',
+				id: 'crypto_usdc_solana',
+				label: 'USDC on Solana (SPL)',
 				currency: 'USDC',
-				settlement: 'Smart account lock -> auto-release on Day 6/7 verification',
+				network: 'Solana (SPL)',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
 			},
 			{
-				id: 'crypto_escrow_solana',
-				label: 'Programmable USDC Escrow (Solana)',
+				id: 'crypto_usdc_base',
+				label: 'USDC on Base (EVM)',
 				currency: 'USDC',
-				settlement: 'Escrow lock -> auto-release on CI/staging verification',
+				network: 'Base (EVM)',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
 			},
 			{
-				id: 'invoice',
-				label: 'Formal Machine-Readable SOW Invoice',
+				id: 'crypto_usdt_trc20',
+				label: 'USDT (TRC20) — Binance P2P Offramp Ready',
+				currency: 'USDT',
+				network: 'TRON (TRC20)',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
+			},
+			{
+				id: 'crypto_usdt_polygon',
+				label: 'USDT (Polygon) — Binance P2P Offramp Ready',
+				currency: 'USDT',
+				network: 'Polygon (PoS)',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
+			},
+			{
+				id: 'payoneer',
+				label: 'Payoneer Virtual Receiving Account (USD)',
 				currency: 'USD',
-				settlement: 'Manual Stripe / Fiverr / Upwork / Wire confirmation',
+				network: 'Payoneer Global Receiving',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
+			},
+			{
+				id: 'bank_invoice',
+				label: 'Manual Bank Transfer Invoice (SWIFT / Wire)',
+				currency: 'USD',
+				network: 'International Wire',
+				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
 			},
 		],
 		endpoints: {
@@ -381,4 +405,3 @@ export function buildAgentCatalog() {
 		},
 	};
 }
-

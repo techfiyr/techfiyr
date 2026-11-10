@@ -310,6 +310,19 @@ function SetupPanel() {
 		{ ok: Boolean(env('GA4_PROPERTY_ID')), label: 'Google Analytics 4 reports', detail: env('GA4_PROPERTY_ID') ? `Property ${env('GA4_PROPERTY_ID')}` : 'Set GA4_PROPERTY_ID' },
 		{ ok: Boolean(indexNowKey()), label: 'IndexNow', detail: indexNowKey() ? 'Key published at /indexnow-key.txt' : 'Set INDEXNOW_KEY' },
 		{ ok: true, label: 'AI Blog & Cover Generator', detail: hasGeminiKey() ? 'Connected (Gemini multi-model cascade + Free AI fallback with automatic cover photo)' : 'Connected (Free AI generator + Pollinations cover photo ready)' },
+		{
+			ok: Boolean(env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD')),
+			label: 'Zoho Mail Sales Agent',
+			detail: env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD') ? `Connected (${env('ZOHO_EMAIL')})` : 'Set ZOHO_EMAIL & ZOHO_APP_PASSWORD for autonomous inbox replies',
+		},
+		{
+			ok: Boolean(env('CRYPTO_USDC_SOLANA_ADDRESS') || env('CRYPTO_USDC_BASE_ADDRESS') || env('PAYONEER_RECEIVING_ACCOUNT')),
+			label: 'Crypto / Payoneer Rails',
+			detail:
+				env('CRYPTO_USDC_SOLANA_ADDRESS') || env('CRYPTO_USDC_BASE_ADDRESS') || env('PAYONEER_RECEIVING_ACCOUNT')
+					? 'Payment wallet / Payoneer configured'
+					: 'Set CRYPTO_USDC_SOLANA_ADDRESS, CRYPTO_USDC_BASE_ADDRESS, or PAYONEER_RECEIVING_ACCOUNT',
+		},
 	];
 	return (
 		<Panel title="Site setup" meta={`${items.filter((i) => i.ok).length} of ${items.length} connected`} id="setup">

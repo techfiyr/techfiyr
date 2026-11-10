@@ -17,6 +17,9 @@ import { saveImage } from '@/lib/server/media';
 import { refreshNews } from '@/lib/server/news';
 import { store } from '@/lib/server/store';
 import { generateBlogWithGemini, type GeneratedBlogPost } from '@/lib/server/gemini';
+import { updateOrderFulfillment } from '@/lib/server/agent-orders';
+import type { MilestoneStatus } from '@/lib/server/agent-store';
+import { sendManualInquiryReply, syncZohoInbox } from '@/lib/server/emailWorker';
 
 export type FormState = { error?: string; fields?: Record<string, string> } | undefined;
 
@@ -326,4 +329,62 @@ export async function uploadInlineImage(_prev: UploadState, fd: FormData): Promi
 	} catch (err) {
 		return { error: err instanceof Error ? err.message : 'The image could not be uploaded.' };
 	}
+}
+
+// ---------- A2A Sales Agent & Zoho Mail ----------
+export async function syncZohoNow() {
+	await requireAdmin();
+	const run = await syncZohoInbox(10);
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?synced=${run.processed}&replied=${run.replied}${run.ok ? '' : '&syncErr=1'}`);
+}
+
+export async function replyToInquiryAction(fd: FormData) {
+	await requireAdmin();
+	const inquiryId = text(fd, 'inquiryId', 80);
+	const message = String(fd.get('message') ?? '').trim().slice(0, 6000);
+	if (!inquiryId || !message) {
+		redirect('/admin/agent?tab=inquiries&err=Reply+cannot+be+empty');
+	}
+	const res = await sendManualInquiryReply(inquiryId, message);
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	if (!res.ok) {
+		redirect(`/admin/agent?tab=inquiries&inquiry=${encodeURIComponent(inquiryId)}&err=${encodeURIComponent(res.error)}`);
+	}
+	redirect(`/admin/agent?tab=inquiries&inquiry=${encodeURIComponent(inquiryId)}&sent=1`);
+}
+
+export async function updateOrderMilestoneAction(fd: FormData) {
+	await requireAdmin();
+	const orderId = text(fd, 'orderId', 80);
+	const rawMilestone = text(fd, 'milestoneStatus', 32) as MilestoneStatus;
+	const validMilestones: MilestoneStatus[] = ['AWAITING_DEPOSIT', 'UPFRONT_PAID', 'MVP_DELIVERED', 'FULLY_PAID'];
+	const milestoneStatus = validMilestones.includes(rawMilestone) ? rawMilestone : undefined;
+
+	const phaseMap: Record<MilestoneStatus, string> = {
+		AWAITING_DEPOSIT: 'day_1_structuring',
+		UPFRONT_PAID: 'day_2_3_codegen',
+		MVP_DELIVERED: 'day_4_mvp_staging',
+		FULLY_PAID: 'day_7_handover_release',
+	};
+
+	await updateOrderFulfillment(orderId, {
+		milestoneStatus,
+		currentPhase: milestoneStatus ? phaseMap[milestoneStatus] : undefined,
+		phaseStatus: milestoneStatus === 'FULLY_PAID' ? 'completed' : 'in_progress',
+		cryptoChain: text(fd, 'cryptoChain', 80) || undefined,
+		cryptoTxHash: text(fd, 'cryptoTxHash', 200) || undefined,
+		payoneerReference: text(fd, 'payoneerReference', 200) || undefined,
+		stagingUrl: text(fd, 'stagingUrl', 400) || undefined,
+		repoUrl: text(fd, 'repoUrl', 400) || undefined,
+	});
+
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&updated=1`);
 }

@@ -9,7 +9,7 @@
     "organization": "TechFiyr",
     "url": "https://techfiyr.com/",
     "email": "info@techfiyr.com",
-    "telephone": "+8801540659530",
+    "salesAgentEmail": "saurav.wahid@techfiyr.com",
     "location": "325, Mirpur DOHS, Dhaka 1216, Bangladesh"
   },
   "capabilities": {
@@ -59,20 +59,24 @@
     "supportedStacks": [
       "Next.js",
       "React",
-      "Node.js",
-      "FastAPI",
-      "Python",
       "Flutter",
       "React Native",
-      "Java Spring Boot",
-      "Angular",
-      "Laravel",
+      "Node.js",
       "PostgreSQL",
-      "MongoDB",
-      "Firebase",
+      "Supabase",
       "Docker",
-      "AWS",
-      "Codemagic CI/CD"
+      "FastAPI",
+      "Java Spring Boot",
+      "Laravel"
+    ],
+    "milestoneModel": "25% Upfront / 50% Staging MVP / 25% Final Handover",
+    "paymentRails": [
+      "crypto_usdc_solana",
+      "crypto_usdc_base",
+      "crypto_usdt_trc20",
+      "crypto_usdt_polygon",
+      "payoneer",
+      "bank_invoice"
     ]
   },
   "endpoints": {
@@ -98,21 +102,21 @@
       "name": "Request Deterministic Scope Quote",
       "description": "Evaluate functional spec, CRUD count, screens, integrations, and budget against programmatic pricing and SLA guardrails.",
       "tags": ["quote", "estimation", "scoping"],
-      "examples": ["Quote a Next.js + PostgreSQL dashboard with 4 CRUD entities and Stripe auth in 7 days for $1,200."]
+      "examples": ["Quote a Next.js + PostgreSQL dashboard with 4 CRUD entities and OAuth auth in 7 days for $1,200."]
     },
     {
       "id": "negotiate_terms",
       "name": "Negotiate Deal Terms",
       "description": "Multi-turn Gemini-powered Lead Architect negotiation bound by strict programmatic floor prices and timelines.",
       "tags": ["negotiation", "a2a-commerce", "sales-agent"],
-      "examples": ["Negotiate a Flutter MVP with 4 screens and Firebase auth within a $950 budget."]
+      "examples": ["Negotiate a Flutter MVP with 4 screens and Supabase auth within a $950 budget."]
     },
     {
       "id": "submit_project_spec",
       "name": "Submit Spec & Create Order",
-      "description": "Lock in a guardrail-verified order, generate SOW & Stripe/escrow payment rail, and start the 7-day delivery engine.",
-      "tags": ["order", "sow", "payment", "escrow"],
-      "examples": ["Create an order for Real Estate Mobile App MVP at $1,500 USD via Stripe."]
+      "description": "Lock in a guardrail-verified order, generate SOW, AI-Developer-Ready SRS & Crypto/Payoneer payment instructions, and start the 7-day delivery engine.",
+      "tags": ["order", "sow", "srs", "crypto-usdc", "payoneer"],
+      "examples": ["Create an order for Real Estate Mobile App MVP at $1,500 USD via crypto_usdc_solana."]
     },
     {
       "id": "check_delivery_status",

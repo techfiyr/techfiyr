@@ -1,7 +1,7 @@
 /*
  * Deterministic Pricing Matrix & Guardrail Engine for TechFiyr A2A Commerce.
  * Programmatically enforces floor prices ($600 USD 7-day / $1,500 USD 14-day),
- * scope boundaries (CRUD entities, mobile screens, integrations), and supported stacks.
+ * 25% / 50% / 25% milestone model, scope boundaries, and supported stacks.
  */
 import {
 	AGENT_SERVICES,
@@ -14,7 +14,22 @@ import {
 	type ServiceTierId,
 } from './catalog';
 
-export type PaymentRail = 'stripe' | 'crypto_escrow_base' | 'crypto_escrow_solana' | 'invoice';
+export type PaymentRail =
+	| 'crypto_usdc_solana'
+	| 'crypto_usdc_base'
+	| 'crypto_usdt_trc20'
+	| 'crypto_usdt_polygon'
+	| 'payoneer'
+	| 'bank_invoice';
+
+export const VALID_PAYMENT_RAILS: PaymentRail[] = [
+	'crypto_usdc_solana',
+	'crypto_usdc_base',
+	'crypto_usdt_trc20',
+	'crypto_usdt_polygon',
+	'payoneer',
+	'bank_invoice',
+];
 
 export type QuoteInput = {
 	projectTitle?: string;
@@ -108,7 +123,6 @@ export function normalizeTechStack(rawStack: string[] = []): {
 			continue;
 		}
 
-		// Partial keyword match against supported tech map
 		const matchedKey = Object.keys(SUPPORTED_TECH_MAP).find(
 			(k) => lower === k || (k.length >= 4 && lower.includes(k)),
 		);
@@ -150,25 +164,37 @@ function selectServiceId(platform: ReturnType<typeof inferPlatform>, explicitId?
 	return 'rapid-mvp-7day';
 }
 
-function buildMilestones(totalUSD: number, days: number): MilestoneItem[] {
-	const firstAmount = Math.round(totalUSD * 0.5);
-	const secondAmount = totalUSD - firstAmount;
+/** Strict 25% Upfront / 50% MVP Staging / 25% Final Code Handover milestone schedule. */
+export function buildMilestones(totalUSD: number, days: number): MilestoneItem[] {
+	const upfrontUSD = Math.round(totalUSD * 0.25);
+	const stagingUSD = Math.round(totalUSD * 0.5);
+	const finalUSD = totalUSD - upfrontUSD - stagingUSD;
+	const midDay = days <= 7 ? 4 : Math.round(days * 0.55);
+
 	return [
 		{
 			step: 1,
-			name: days <= 7 ? 'Day 1 Escrow Lock & Architecture Start' : 'Day 1-2 Architecture & Escrow Lock',
-			percent: 50,
-			amountUSD: firstAmount,
+			name: '25% Upfront Deposit (Schema + Boilerplate Kickoff)',
+			percent: 25,
+			amountUSD: upfrontUSD,
 			dueDay: 1,
-			trigger: 'Order acceptance & DB/API specification kickoff',
+			trigger: 'Order confirmation & Day 1 schema/boilerplate scaffold',
 		},
 		{
 			step: 2,
-			name: days <= 7 ? 'Day 6-7 Staging Verification & Repo Handover' : 'Day 13-14 Staging QA & Production Release',
+			name: `50% MVP Staging Delivery (Day ${midDay})`,
 			percent: 50,
-			amountUSD: secondAmount,
+			amountUSD: stagingUSD,
+			dueDay: midDay,
+			trigger: 'Live staging MVP URL / preview build deployed & verified',
+		},
+		{
+			step: 3,
+			name: `25% Final Code Handover (Day ${days})`,
+			percent: 25,
+			amountUSD: finalUSD,
 			dueDay: days,
-			trigger: 'Automated CI test pass, staging deployment & GitHub repository transfer',
+			trigger: 'Automated acceptance tests pass & GitHub repository transfer',
 		},
 	];
 }
@@ -211,8 +237,6 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 	}
 
 	const stackCheck = normalizeTechStack(input.techStack || []);
-
-	// Also catch explicitly unsupported stacks mentioned in prose
 	const proseUnsupported = UNSUPPORTED_STACK_KEYWORDS.filter((kw) => combinedLower.includes(kw));
 	const allUnsupported = Array.from(new Set([...stackCheck.unsupported, ...proseUnsupported]));
 
@@ -220,7 +244,7 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		return {
 			decision: 'rejected',
 			reasonCode: 'UNSUPPORTED_TECH_STACK',
-			reason: `Unsupported stack requested (${allUnsupported.join(', ')}). Supported production recipes: Next.js + PostgreSQL, Next.js + FastAPI + Docker, Flutter + Firebase, React Native + Node.js, Java Spring Boot + Angular, or Laravel + Next.js.`,
+			reason: `Unsupported stack requested (${allUnsupported.join(', ')}). Supported stacks: Next.js/React, Flutter/React Native, Node.js/PostgreSQL/Supabase, Docker.`,
 			tier: 'extended_14day',
 			serviceId: 'web-saas-backend',
 			currency: 'USD',
@@ -248,13 +272,12 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		stackCheck.supported.length > 0
 			? stackCheck.supported
 			: inferPlatform(input, []) === 'mobile'
-				? ['Flutter', 'Firebase', 'Codemagic CI/CD']
+				? ['Flutter', 'Supabase', 'Docker']
 				: ['Next.js', 'Node.js', 'PostgreSQL', 'Docker'];
 
 	const platform = inferPlatform(input, normalizedStack);
 	const serviceId = selectServiceId(platform, input.serviceId);
 
-	// Scope metrics (explicit input wins; otherwise conservative defaults)
 	const crudEntities = clampInt(input.crudEntities, 1, 100, platform === 'design' ? 1 : 3);
 	const mobileScreens = clampInt(
 		input.mobileScreens,
@@ -295,7 +318,6 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		? GUARDRAILS.extendedMinPriceUSD
 		: GUARDRAILS.minFloorPriceUSD;
 
-	// Build transparent line items
 	const service = AGENT_SERVICES.find((s) => s.id === serviceId) || AGENT_SERVICES[0];
 	const baseUSD = Math.max(floorPriceUSD, service.basePriceUSD);
 	const lineItems: PricingLineItem[] = [
@@ -353,7 +375,7 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 
 	let decision: QuoteDecision = 'approved';
 	let reasonCode: QuoteEvaluation['reasonCode'] = 'APPROVED';
-	let reason = `Scope verified within ${requiredDeliveryDays}-day SLA boundaries.`;
+	let reason = `Scope verified within ${requiredDeliveryDays}-day SLA boundaries (25% upfront / 50% staging MVP / 25% final handover).`;
 	let proposedPriceUSD = recommendedPriceUSD;
 
 	if (budget !== undefined && budget < GUARDRAILS.minFloorPriceUSD) {
@@ -376,7 +398,7 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		reason = `Requested turnaround (${requestedDays} days) cannot accommodate verified QA/staging for this scope. Required SLA is ${requiredDeliveryDays} days (${triggers.length ? triggers.join('; ') : 'minimum 7-day sprint SLA'}).`;
 	} else if (budget !== undefined && budget >= minimumAcceptableUSD && budget < recommendedPriceUSD) {
 		proposedPriceUSD = Math.round(budget);
-		reason = `Client budget ($${proposedPriceUSD} USD) accepted within negotiation band ($${minimumAcceptableUSD}–$${recommendedPriceUSD} USD) for ${requiredDeliveryDays}-day delivery.`;
+		reason = `Client budget ($${proposedPriceUSD} USD) accepted within negotiation band ($${minimumAcceptableUSD}–$${recommendedPriceUSD} USD) for ${requiredDeliveryDays}-day delivery (25% / 50% / 25% milestones).`;
 	}
 
 	const phases = requiredDeliveryDays <= 7 ? DELIVERY_ENGINE_7DAY : DELIVERY_ENGINE_14DAY;
@@ -462,4 +484,3 @@ export function enforceOrderGuardrails(params: {
 
 	return { ok: true, evaluation };
 }
-

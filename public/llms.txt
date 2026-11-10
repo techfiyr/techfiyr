@@ -33,11 +33,13 @@ Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, q
 ### Programmatic Guardrails & 7-Day Delivery Engine
 
 - **Floor Price**: $600 USD strict minimum baseline (orders below $600 USD are auto-rejected).
-- **7-Day Rapid MVP SLA**: Web (Next.js/React + Node.js/FastAPI/PostgreSQL with up to 5 CRUD entities, auth, max 3 integrations) or Mobile (Flutter/React Native with up to 4 core screens, Firebase/REST, max 3 integrations).
+- **Milestone Schedule**: 25% Upfront Deposit (Day 1 schema + boilerplate), 50% Staging MVP Delivery (Day 4), 25% Final Code Handover (Day 7).
+- **Accepted Payments**: USDC (Solana SPL / Base EVM), USDT (TRC20 / Polygon, Binance P2P ready), Payoneer Virtual Receiving Account, or Bank Transfer Invoice (no Stripe).
+- **7-Day Rapid MVP SLA**: Web (Next.js/React + Node.js/PostgreSQL/Supabase + Docker with up to 5 CRUD entities, auth, max 3 integrations) or Mobile (Flutter/React Native with up to 4 core screens, max 3 integrations).
 - **14-Day Extended Tier**: Projects exceeding 5 CRUD entities, 4 mobile screens, 3 integrations, or requiring custom AI/RAG/multi-agent infrastructure start at $1,500 USD and 14 days.
-- **Supported Tech Stacks**: Next.js, React, Node.js, FastAPI, Python, Flutter, React Native, Java Spring Boot, Angular, Laravel, PostgreSQL, MongoDB, Firebase, Docker, AWS, Codemagic CI/CD.
-- **7-Day Execution**: Day 1 Requirement Structuring -> Day 2-4 AI & Senior Code Gen -> Day 5 Docker Containerization & QA -> Day 6 Cloud Staging & Report -> Day 7 GitHub Repo Handover & Payout Release.
-- **Agent Sales Contact**: info@techfiyr.com
+- **Supported Tech Stacks**: Next.js, React, Flutter, React Native, Node.js, PostgreSQL, Supabase, Docker, FastAPI, Python, Java Spring Boot, Laravel, AWS.
+- **7-Day Execution**: Day 1 Schema & Boilerplate (25%) -> Day 2-3 Feature & API Engineering -> Day 4 Staging MVP (50%) -> Day 5-6 Docker Containerization & QA -> Day 7 GitHub Repo Handover & Release (25%).
+- **Agent Sales Email (Zoho IMAP/SMTP)**: saurav.wahid@techfiyr.com (general agency contact: info@techfiyr.com)
 
 ## Services
 

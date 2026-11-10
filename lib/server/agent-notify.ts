@@ -1,28 +1,29 @@
 /*
- * Founder notification dispatcher for closed A2A deals and payment events (server only).
- * Supports Twilio WhatsApp API, Meta WhatsApp Cloud API, and generic JSON webhooks
- * (Slack/Discord/n8n) via native fetch without external dependencies.
+ * Founder notification dispatcher for closed A2A / Email deals (server only).
+ * No Twilio or SMS — uses Zoho SMTP email alert and/or optional HTTPS webhook.
  */
-import { CONTACT } from '@/lib/site';
+import nodemailer from 'nodemailer';
+import { SALES_AGENT_EMAIL } from '@/lib/agent/catalog';
 import type { AgentOrderRecord } from './agent-store';
 import { env } from './google';
 
 export type NotificationResult = {
-	whatsappSent: boolean;
+	emailAlertSent: boolean;
 	webhookSent: boolean;
 	detail?: string;
 };
 
-function formatWhatsAppBody(order: AgentOrderRecord, eventLabel: string): string {
+function formatAlertText(order: AgentOrderRecord, eventLabel: string): string {
 	return [
 		eventLabel,
 		`Order: ${order.id}`,
-		`Client: ${order.clientEmail} (${order.clientAgentId})`,
+		`Client: ${order.client_contact} (${order.clientAgentId})`,
 		`Project: ${order.projectTitle}`,
-		`Price: $${order.agreedPriceUSD} USD (${order.payment.status})`,
-		`Timeline: ${order.deliveryDays} Days`,
+		`Price: $${order.total_price_usd} USD (25% deposit: $${order.payment.upfrontDepositUSD} USD)`,
+		`Payment Rail: ${order.payment.rail} (${order.milestone_status})`,
+		`Timeline: ${order.timeline_days} Days`,
 		`Stack: ${order.techStack.join(', ')}`,
-		`Action: Review SOW (${order.sow.sowId}) and start Day 1 requirement structuring.`,
+		`Action: Inspect AI-Developer-Ready SRS and Day 1 scaffold in /admin/agent.`,
 	].join('\n');
 }
 
@@ -32,79 +33,40 @@ export async function notifyFounderOrderEvent(
 ): Promise<NotificationResult> {
 	const label =
 		event === 'payment_confirmed'
-			? 'Payment Confirmed for AI Agent Order!'
-			: 'Deal Closed by AI Agent!';
-	const messageText = formatWhatsAppBody(order, label);
-	const targetNumber = env('FOUNDER_WHATSAPP_TO') || CONTACT.telephone;
+			? 'Payment Milestone Confirmed for AI Agent Order'
+			: 'Deal Closed by TechFiyr Sales Agent';
+	const messageText = formatAlertText(order, label);
 
-	let whatsappSent = false;
+	let emailAlertSent = false;
 	let webhookSent = false;
 	const notes: string[] = [];
 
-	// 1. Twilio WhatsApp API (optional)
-	const twilioSid = env('TWILIO_ACCOUNT_SID');
-	const twilioToken = env('TWILIO_AUTH_TOKEN');
-	const twilioFrom = env('TWILIO_WHATSAPP_FROM');
-	if (twilioSid && twilioToken && twilioFrom) {
+	// 1. Optional Zoho SMTP founder alert (when Zoho credentials + FOUNDER_ALERT_EMAIL are configured)
+	const zohoUser = env('ZOHO_EMAIL') || SALES_AGENT_EMAIL;
+	const zohoPass = env('ZOHO_APP_PASSWORD');
+	const alertRecipient = env('FOUNDER_ALERT_EMAIL');
+	if (zohoUser && zohoPass && alertRecipient) {
 		try {
-			const to = targetNumber.startsWith('whatsapp:') ? targetNumber : `whatsapp:${targetNumber}`;
-			const from = twilioFrom.startsWith('whatsapp:') ? twilioFrom : `whatsapp:${twilioFrom}`;
-			const form = new URLSearchParams({ From: from, To: to, Body: messageText });
-			const auth = Buffer.from(`${twilioSid}:${twilioToken}`).toString('base64');
-
-			const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(twilioSid)}/Messages.json`, {
-				method: 'POST',
-				headers: {
-					Authorization: `Basic ${auth}`,
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: form.toString(),
-				cache: 'no-store',
+			const port = Number(env('ZOHO_SMTP_PORT') || '465');
+			const transporter = nodemailer.createTransport({
+				host: env('ZOHO_SMTP_HOST') || 'smtp.zoho.com',
+				port,
+				secure: port === 465,
+				auth: { user: zohoUser, pass: zohoPass },
 			});
-
-			if (res.ok) {
-				whatsappSent = true;
-			} else {
-				notes.push(`twilio:${res.status}`);
-			}
+			await transporter.sendMail({
+				from: `"TechFiyr Sales Agent" <${zohoUser}>`,
+				to: alertRecipient,
+				subject: `[TechFiyr Agent] ${label}: ${order.projectTitle} ($${order.total_price_usd})`,
+				text: `${messageText}\n\n--- SRS SUMMARY ---\n${order.srs_markdown.slice(0, 3000)}`,
+			});
+			emailAlertSent = true;
 		} catch (err) {
-			notes.push(`twilio_err:${err instanceof Error ? err.message.slice(0, 80) : 'unknown'}`);
+			notes.push(`zoho_alert:${err instanceof Error ? err.message.slice(0, 80) : 'err'}`);
 		}
 	}
 
-	// 2. Meta WhatsApp Cloud API fallback (optional)
-	if (!whatsappSent) {
-		const waToken = env('WHATSAPP_CLOUD_TOKEN');
-		const waPhoneId = env('WHATSAPP_PHONE_NUMBER_ID');
-		if (waToken && waPhoneId) {
-			try {
-				const cleanPhone = targetNumber.replace(/[^\d]/g, '');
-				const res = await fetch(`https://graph.facebook.com/v21.0/${encodeURIComponent(waPhoneId)}/messages`, {
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${waToken}`,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						messaging_product: 'whatsapp',
-						to: cleanPhone,
-						type: 'text',
-						text: { body: messageText },
-					}),
-					cache: 'no-store',
-				});
-				if (res.ok) {
-					whatsappSent = true;
-				} else {
-					notes.push(`wa_cloud:${res.status}`);
-				}
-			} catch (err) {
-				notes.push(`wa_cloud_err:${err instanceof Error ? err.message.slice(0, 80) : 'unknown'}`);
-			}
-		}
-	}
-
-	// 3. Generic Founder Webhook (Slack / Discord / n8n / custom hub)
+	// 2. Optional JSON webhook (Slack / Discord / n8n / CI trigger)
 	const webhookUrl = env('AGENT_ORDER_WEBHOOK_URL');
 	if (webhookUrl && /^https:\/\//i.test(webhookUrl)) {
 		try {
@@ -116,39 +78,33 @@ export async function notifyFounderOrderEvent(
 					text: messageText,
 					order: {
 						id: order.id,
+						inquiry_id: order.inquiry_id,
 						sowId: order.sow.sowId,
-						clientEmail: order.clientEmail,
-						clientAgentId: order.clientAgentId,
+						client_contact: order.client_contact,
 						projectTitle: order.projectTitle,
-						scopeSummary: order.scopeSummary,
-						techStack: order.techStack,
-						agreedPriceUSD: order.agreedPriceUSD,
-						deliveryDays: order.deliveryDays,
-						tier: order.tier,
-						paymentStatus: order.payment.status,
-						checkoutUrl: order.payment.checkoutUrl,
+						total_price_usd: order.total_price_usd,
+						timeline_days: order.timeline_days,
+						milestone_status: order.milestone_status,
+						payment_rail: order.payment.rail,
+						srs_json: order.srs_json,
 					},
 				}),
 				cache: 'no-store',
 			});
-			if (res.ok) {
-				webhookSent = true;
-			} else {
-				notes.push(`webhook:${res.status}`);
-			}
+			if (res.ok) webhookSent = true;
+			else notes.push(`webhook:${res.status}`);
 		} catch (err) {
-			notes.push(`webhook_err:${err instanceof Error ? err.message.slice(0, 80) : 'unknown'}`);
+			notes.push(`webhook_err:${err instanceof Error ? err.message.slice(0, 80) : 'err'}`);
 		}
 	}
 
-	if (!whatsappSent && !webhookSent && notes.length === 0) {
+	if (!emailAlertSent && !webhookSent && notes.length === 0) {
 		notes.push('no_alert_channel_configured');
 	}
 
 	return {
-		whatsappSent,
+		emailAlertSent,
 		webhookSent,
 		detail: notes.length ? notes.join(', ') : undefined,
 	};
 }
-

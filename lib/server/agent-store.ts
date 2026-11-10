@@ -1,13 +1,39 @@
 /*
  * Persistence and access-control helpers for the TechFiyr A2A agent layer (server only).
- * Stores quotes, orders, negotiation sessions, and A2A tasks through lib/server/store.ts
- * (Cloud Firestore in production, .data/ JSON files locally).
+ * Stores Inquiries, Orders (with AI-Developer-Ready SRS Markdown & JSON), Quotes,
+ * Negotiation Sessions, and A2A Tasks through lib/server/store.ts (Firestore / .data/).
  */
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { DeliveryPhase } from '@/lib/agent/catalog';
 import type { MilestoneItem, PaymentRail, QuoteEvaluation, QuoteInput } from '@/lib/agent/pricing';
+import type { AiDeveloperSrs } from '@/types/srs';
 import { env } from './google';
 import { store, storeMode } from './store';
+
+export type InquiryStatus = 'PENDING' | 'NEGOTIATING' | 'CLOSED' | 'REJECTED';
+
+export type InquiryMessage = {
+	timestamp: string;
+	role: 'client' | 'sales_agent';
+	text: string;
+	messageId?: string;
+};
+
+export type InquiryRecord = {
+	id: string;
+	sender_email: string;
+	sender_name?: string;
+	subject: string;
+	thread_id: string;
+	status: InquiryStatus;
+	channel: 'zoho_email' | 'a2a' | 'mcp';
+	messages: InquiryMessage[];
+	order_id?: string;
+	created_at: string;
+	updated_at: string;
+};
+
+export type MilestoneStatus = 'AWAITING_DEPOSIT' | 'UPFRONT_PAID' | 'MVP_DELIVERED' | 'FULLY_PAID';
 
 export type AgentQuoteRecord = {
 	id: string;
@@ -30,19 +56,19 @@ export type OrderPhaseState = DeliveryPhase & {
 
 export type OrderPaymentState = {
 	rail: PaymentRail;
-	status: 'pending_payment' | 'awaiting_payment_rails' | 'escrow_locked' | 'paid' | 'released';
+	status: 'awaiting_upfront_25' | 'upfront_25_paid' | 'staging_50_paid' | 'fully_paid';
 	amountUSD: number;
-	currency: 'USD' | 'USDC';
+	upfrontDepositUSD: number;
+	stagingMilestoneUSD: number;
+	finalHandoverUSD: number;
+	currency: 'USD' | 'USDC' | 'USDT';
 	invoiceId: string;
-	checkoutUrl?: string;
-	stripeSessionId?: string;
-	escrow?: {
-		network: string;
-		token: string;
-		address: string;
-		memo: string;
-		releaseCondition: string;
-	};
+	crypto_chain?: string;
+	wallet_address?: string;
+	crypto_tx_hash?: string;
+	payoneer_account?: string;
+	payoneer_reference?: string;
+	binance_p2p_ready?: boolean;
 	instructions: string;
 	updatedAt: string;
 };
@@ -50,18 +76,29 @@ export type OrderPaymentState = {
 export type AgentOrderRecord = {
 	id: string;
 	orderTokenHash: string;
+	inquiry_id?: string;
 	quoteId?: string;
 	clientAgentId: string;
 	clientDid?: string;
+	client_contact: string;
 	clientEmail: string;
 	callbackUrl?: string;
 	projectTitle: string;
+	executive_overview: string;
 	scopeSummary: string;
 	techStack: string[];
+	total_price_usd: number;
 	agreedPriceUSD: number;
+	timeline_days: number;
 	deliveryDays: number;
 	tier: 'rapid_7day' | 'extended_14day';
+	milestone_status: MilestoneStatus;
 	milestones: MilestoneItem[];
+	crypto_chain: string;
+	crypto_tx_hash: string;
+	payoneer_reference: string;
+	srs_markdown: string;
+	srs_json: AiDeveloperSrs;
 	sow: {
 		sowId: string;
 		issuedAt: string;
@@ -81,10 +118,11 @@ export type AgentOrderRecord = {
 		deliveryReportUrl?: string;
 	};
 	notifications: {
-		whatsappSent: boolean;
+		emailAlertSent: boolean;
 		webhookSent: boolean;
 		detail?: string;
 	};
+	created_at: string;
 	createdAt: string;
 	updatedAt: string;
 };
@@ -98,6 +136,7 @@ export type NegotiationTurn = {
 
 export type NegotiationSessionRecord = {
 	id: string;
+	inquiryId?: string;
 	createdAt: string;
 	updatedAt: string;
 	clientAgentId: string;
@@ -126,11 +165,23 @@ export type A2ATaskRecord = {
 	updatedAt: string;
 };
 
+export type EmailSyncRun = {
+	ranAt: string;
+	ok: boolean;
+	checked: number;
+	processed: number;
+	replied: number;
+	closedDeals: number;
+	errors: string[];
+};
+
 const COLLECTIONS = {
+	inquiries: 'agent_inquiries',
 	quotes: 'agent_quotes',
 	orders: 'agent_orders',
 	sessions: 'agent_sessions',
 	tasks: 'agent_tasks',
+	meta: 'meta',
 } as const;
 
 export function canPersistAgentStore(): boolean {
@@ -163,7 +214,6 @@ export function extractBearer(req: Request): string {
 	return (req.headers.get('x-order-token') || req.headers.get('x-agent-key') || '').trim();
 }
 
-/** Pipeline / operator key check (used for listing all orders or advancing delivery phases). */
 export function isOperatorAuthorized(req: Request): boolean {
 	const operatorKey = env('AGENT_API_KEY') || env('CRON_SECRET');
 	if (!operatorKey || operatorKey.length < 16) return false;
@@ -183,6 +233,40 @@ function cleanDoc<T>(data: T): Record<string, unknown> {
 	return JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
 }
 
+// ---------- Inquiries ----------
+export async function saveInquiry(inquiry: InquiryRecord): Promise<boolean> {
+	if (!canPersistAgentStore()) return false;
+	await store.put(COLLECTIONS.inquiries, inquiry.id, cleanDoc(inquiry));
+	return true;
+}
+
+export async function getInquiry(id: string): Promise<InquiryRecord | null> {
+	if (!canPersistAgentStore() || !id) return null;
+	const doc = await store.get(COLLECTIONS.inquiries, id);
+	return doc ? (doc as unknown as InquiryRecord) : null;
+}
+
+export async function listInquiries(): Promise<InquiryRecord[]> {
+	if (!canPersistAgentStore()) return [];
+	const docs = await store.list(COLLECTIONS.inquiries);
+	return docs
+		.map((d) => d as unknown as InquiryRecord)
+		.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+}
+
+export async function findInquiryByThread(threadIds: string[], senderEmail: string): Promise<InquiryRecord | null> {
+	const all = await listInquiries();
+	const cleanSender = senderEmail.trim().toLowerCase();
+	const idSet = new Set(threadIds.map((t) => t.trim()).filter(Boolean));
+
+	for (const inq of all) {
+		if (idSet.has(inq.thread_id)) return inq;
+		if (inq.messages.some((m) => m.messageId && idSet.has(m.messageId))) return inq;
+	}
+	return all.find((inq) => inq.sender_email.toLowerCase() === cleanSender && inq.status !== 'CLOSED' && inq.status !== 'REJECTED') || null;
+}
+
+// ---------- Quotes ----------
 export async function saveQuote(quote: AgentQuoteRecord): Promise<boolean> {
 	if (!canPersistAgentStore()) return false;
 	await store.put(COLLECTIONS.quotes, quote.id, cleanDoc(quote));
@@ -195,6 +279,7 @@ export async function getQuote(id: string): Promise<AgentQuoteRecord | null> {
 	return doc ? (doc as unknown as AgentQuoteRecord) : null;
 }
 
+// ---------- Orders ----------
 export async function saveOrder(order: AgentOrderRecord): Promise<void> {
 	await store.put(COLLECTIONS.orders, order.id, cleanDoc(order));
 }
@@ -210,9 +295,10 @@ export async function listOrders(): Promise<AgentOrderRecord[]> {
 	const docs = await store.list(COLLECTIONS.orders);
 	return docs
 		.map((d) => d as unknown as AgentOrderRecord)
-		.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+		.sort((a, b) => ((a.created_at || a.createdAt) < (b.created_at || b.createdAt) ? 1 : -1));
 }
 
+// ---------- Sessions & Tasks ----------
 export async function saveSession(session: NegotiationSessionRecord): Promise<boolean> {
 	if (!canPersistAgentStore()) return false;
 	await store.put(COLLECTIONS.sessions, session.id, cleanDoc(session));
@@ -237,9 +323,19 @@ export async function getA2ATask(id: string): Promise<A2ATaskRecord | null> {
 	return doc ? (doc as unknown as A2ATaskRecord) : null;
 }
 
+export async function saveEmailSyncRun(run: EmailSyncRun): Promise<void> {
+	if (!canPersistAgentStore()) return;
+	await store.put(COLLECTIONS.meta, 'email-sync', cleanDoc(run));
+}
+
+export async function lastEmailSyncRun(): Promise<EmailSyncRun | null> {
+	if (!canPersistAgentStore()) return null;
+	const doc = await store.get(COLLECTIONS.meta, 'email-sync');
+	return doc ? (doc as unknown as EmailSyncRun) : null;
+}
+
 /** Strips sensitive internal hashes before returning order state to an authorized caller. */
 export function publicOrderView(order: AgentOrderRecord) {
 	const { orderTokenHash: _drop, ...safe } = order;
 	return safe;
 }
-

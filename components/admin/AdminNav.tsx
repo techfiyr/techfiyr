@@ -11,6 +11,7 @@ import { logout } from '@/app/admin/actions';
 
 const ITEMS = [
 	{ href: '/admin', label: 'Dashboard', icon: 'fa-gauge-high', exact: true },
+	{ href: '/admin/agent', label: 'Agent Sales', icon: 'fa-robot' },
 	{ href: '/admin/blog', label: 'Blog', icon: 'fa-pen-nib' },
 	{ href: '/admin/products', label: 'Products', icon: 'fa-box-open' },
 	{ href: '/admin/news', label: 'AI news', icon: 'fa-newspaper' },
