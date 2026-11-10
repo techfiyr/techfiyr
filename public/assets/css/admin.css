@@ -106,6 +106,8 @@
 .fa-bolt::before { content: "\f0e7"; }
 .fa-paper-plane::before { content: "\f1d8"; }
 .fa-check::before { content: "\f00c"; }
+.fa-magnifying-glass::before { content: "\f002"; }
+.fa-shield-halved::before { content: "\f3ed"; }
 
 .fa-heading.is-small {
   font-size: 0.75em;
@@ -1973,6 +1975,72 @@ body:has(.admin-root) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.agent-stats-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.agent-marketing-fields {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.agent-marketing-fields.is-spaced {
+  margin-top: 12px;
+}
+
+.agent-marketing-fields label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.agent-marketing-fields input,
+.agent-marketing-fields select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(var(--main-color-rgb), 0.28);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--black-color);
+  background-color: var(--admin-field);
+}
+
+.agent-query-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.agent-marketing-checks {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--admin-body);
+}
+
+.agent-marketing-checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-marketing-runs {
+  display: grid;
+  gap: 14px;
+}
+
+.agent-run-draft-link {
+  margin-top: 8px !important;
+}
+
+.agent-pitch-pre {
+  margin-top: 10px !important;
+}
+
 .agent-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -2350,7 +2418,8 @@ body:has(.admin-root) {
   .agent-order-cards,
   .agent-srs-grid,
   .agent-form-grid,
-  .agent-stats {
+  .agent-stats,
+  .agent-stats-four {
     grid-template-columns: minmax(0, 1fr);
   }
 }

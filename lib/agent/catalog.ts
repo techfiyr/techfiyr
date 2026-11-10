@@ -8,7 +8,7 @@ import { CONTACT, SITE_NAME, SITE_URL } from '@/lib/site';
 
 export const AGENT_PROTOCOL_VERSION = '1.0.0';
 export const MCP_PROTOCOL_VERSION = '2025-03-26';
-export const SALES_AGENT_EMAIL = 'saurav.wahid@techfiyr.com';
+export const SALES_AGENT_EMAIL = 'techfiyr.dev@gmail.com';
 
 export const GUARDRAILS = {
 	currency: 'USD',

@@ -19,7 +19,14 @@ import { store } from '@/lib/server/store';
 import { generateBlogWithGemini, type GeneratedBlogPost } from '@/lib/server/gemini';
 import { updateOrderFulfillment } from '@/lib/server/agent-orders';
 import type { MilestoneStatus } from '@/lib/server/agent-store';
-import { sendManualInquiryReply, syncZohoInbox } from '@/lib/server/emailWorker';
+import { sendManualInquiryReply, syncMailInbox } from '@/lib/server/emailWorker';
+import {
+	auditSeoGeoAeo,
+	runMarketingCampaign,
+	sendMarketingOutreachEmail,
+	triggerIndexNowSweep,
+	type MarketingChannel,
+} from '@/lib/server/marketingAgent';
 
 export type FormState = { error?: string; fields?: Record<string, string> } | undefined;
 
@@ -331,10 +338,10 @@ export async function uploadInlineImage(_prev: UploadState, fd: FormData): Promi
 	}
 }
 
-// ---------- A2A Sales Agent & Zoho Mail ----------
+// ---------- A2A Sales Agent & Mail (Gmail / Zoho) ----------
 export async function syncZohoNow() {
 	await requireAdmin();
-	const run = await syncZohoInbox(10);
+	const run = await syncMailInbox(10);
 	try {
 		revalidatePath('/admin/agent');
 	} catch {}
@@ -387,4 +394,77 @@ export async function updateOrderMilestoneAction(fd: FormData) {
 		revalidatePath('/admin/agent');
 	} catch {}
 	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&updated=1`);
+}
+
+// ---------- SEO / GEO / AEO Marketing Agent ----------
+export async function runMarketingAuditAction() {
+	await requireAdmin();
+	const report = await auditSeoGeoAeo(true);
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=marketing&audited=${report.score}`);
+}
+
+export async function pingIndexNowAction() {
+	await requireAdmin();
+	const sweep = await triggerIndexNowSweep(true);
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=marketing&pinged=${sweep.urls.length}`);
+}
+
+export async function runMarketingCampaignAction(fd: FormData) {
+	await requireAdmin();
+	const targetQuery = text(fd, 'targetQuery', 180);
+	if (!targetQuery) {
+		redirect('/admin/agent?tab=marketing&err=Enter+a+target+search+query+for+the+marketing+agent');
+	}
+	const rawChannel = text(fd, 'channel', 24) as MarketingChannel;
+	const autoSaveDraft = fd.get('autoSaveDraft') === 'on';
+	const pingSearchEngines = fd.get('pingSearchEngines') === 'on';
+
+	const result = await runMarketingCampaign({
+		targetQuery,
+		channel: rawChannel || 'google',
+		autoSaveDraft,
+		pingSearchEngines,
+	});
+
+	try {
+		revalidatePath('/admin/agent');
+		if (result.generatedPost?.saved) {
+			revalidatePath('/admin/blog');
+		}
+	} catch {}
+
+	const postParam = result.generatedPost?.id ? `&draftPost=${encodeURIComponent(result.generatedPost.id)}` : '';
+	redirect(`/admin/agent?tab=marketing&campaign=1${postParam}`);
+}
+
+export async function sendMarketingEmailAction(fd: FormData) {
+	await requireAdmin();
+	const to = text(fd, 'to', 200);
+	const targetQuery = text(fd, 'targetQuery', 180);
+	const channel = (text(fd, 'channel', 24) || 'a2a') as MarketingChannel;
+	const customMessage = String(fd.get('customMessage') ?? '').trim().slice(0, 4000);
+	const includeAudit = fd.get('includeAudit') === 'on';
+
+	const res = await sendMarketingOutreachEmail({
+		to,
+		targetQuery,
+		channel,
+		customMessage: customMessage || undefined,
+		includeAudit,
+	});
+
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+
+	if (!res.ok) {
+		redirect(`/admin/agent?tab=marketing&err=${encodeURIComponent(res.error)}`);
+	}
+	redirect(`/admin/agent?tab=marketing&mktSent=${encodeURIComponent(to)}`);
 }

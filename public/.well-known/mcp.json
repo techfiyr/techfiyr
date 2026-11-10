@@ -35,6 +35,10 @@
     {
       "name": "check_delivery_status",
       "description": "Checks Day 1-7 execution progress, staging URL, repo handover, and payment state using orderId + accessToken (alias: get_status)."
+    },
+    {
+      "name": "get_agency_marketing_brief",
+      "description": "Returns citation-ready SEO/GEO/AEO entity brief, FAQ JSON-LD, and partner pitch for ChatGPT, Claude, Gemini, and Perplexity agents."
     }
   ],
   "resources": [

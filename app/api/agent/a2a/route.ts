@@ -5,6 +5,7 @@
  */
 import { buildAgentCatalog } from '@/lib/agent/catalog';
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
@@ -17,6 +18,7 @@ import {
 	saveA2ATask,
 	type A2ATaskRecord,
 } from '@/lib/server/agent-store';
+import { buildAgentMarketingBrief, type MarketingChannel } from '@/lib/server/marketingAgent';
 import { SITE_URL } from '@/lib/site';
 
 export const runtime = 'nodejs';
@@ -51,7 +53,15 @@ export async function OPTIONS() {
 	return agentOptions();
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+	const startedAtMs = Date.now();
+	await recordAgentHit(req, {
+		protocol: 'a2a',
+		action: 'discovery_get',
+		statusCode: 200,
+		startedAtMs,
+		summary: 'Probed GET /api/agent/a2a capabilities',
+	});
 	return agentJson({
 		ok: true,
 		protocol: 'a2a-jsonrpc-2.0',
@@ -67,7 +77,7 @@ export async function GET() {
 	});
 }
 
-async function handleA2AMessage(params: Record<string, unknown>, req: Request): Promise<A2ATaskRecord> {
+async function handleA2AMessage(params: Record<string, unknown>, req: Request, startedAtMs: number): Promise<A2ATaskRecord> {
 	const msg = (params.message || {}) as {
 		parts?: A2APart[];
 		contextId?: string;
@@ -86,13 +96,26 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request): 
 	const now = new Date().toISOString();
 
 	const action = typeof dataPart?.action === 'string' ? dataPart.action : '';
+	const clientAgentId = typeof dataPart?.clientAgentId === 'string' ? dataPart.clientAgentId : undefined;
 	let summaryText = '';
 	let resultData: Record<string, unknown> = {};
 	let state: A2ATaskRecord['status']['state'] = 'completed';
+	let hitInquiryId: string | undefined;
+	let hitOrderId: string | undefined;
 
 	if (action === 'catalog') {
 		resultData = buildAgentCatalog();
 		summaryText = 'TechFiyr A2A service catalog, pricing guardrails, and supported tech stacks.';
+	} else if (action === 'marketing') {
+		const channel =
+			typeof dataPart?.channel === 'string' ? (dataPart.channel.toLowerCase() as MarketingChannel) : 'a2a';
+		const brief = await buildAgentMarketingBrief({
+			targetQuery: typeof dataPart?.targetQuery === 'string' ? dataPart.targetQuery : textParts || undefined,
+			channel,
+			partnerAgentName: clientAgentId,
+		});
+		resultData = brief;
+		summaryText = brief.canonicalPitch;
 	} else if (action === 'quote' && dataPart) {
 		const { quote, persisted } = await createAgentQuote({
 			projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : undefined,
@@ -136,6 +159,7 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request): 
 		summaryText = orderRes.ok
 			? `Order ${orderRes.order.id} created for $${orderRes.order.agreedPriceUSD} USD (${orderRes.order.deliveryDays}-day SLA).`
 			: orderRes.error;
+		if (orderRes.ok) hitOrderId = orderRes.order.id;
 		if (!orderRes.ok) state = 'failed';
 	} else if (action === 'status' && typeof dataPart?.orderId === 'string') {
 		const order = await getOrder(dataPart.orderId);
@@ -150,10 +174,13 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request): 
 		} else {
 			resultData = { ok: true, order: publicOrderView(order) };
 			summaryText = `Order ${order.id} is in phase ${order.currentPhase}.`;
+			hitOrderId = order.id;
 		}
 	} else {
 		const neg = await negotiateWithAgent({
+			channel: 'a2a',
 			sessionId: contextId,
+			clientAgentId,
 			message: textParts || JSON.stringify(dataPart || {}),
 			description: typeof dataPart?.description === 'string' ? dataPart.description : textParts,
 			projectTitle: typeof dataPart?.projectTitle === 'string' ? dataPart.projectTitle : undefined,
@@ -167,6 +194,8 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request): 
 		});
 		resultData = neg as unknown as Record<string, unknown>;
 		summaryText = neg.reply;
+		hitInquiryId = neg.inquiryId;
+		hitOrderId = neg.order?.id;
 		if (neg.decision === 'rejected') state = 'failed';
 		else if (!neg.dealClosed) state = 'input-required';
 	}
@@ -198,10 +227,21 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request): 
 	};
 
 	await saveA2ATask(task);
+	await recordAgentHit(req, {
+		protocol: 'a2a',
+		action: action ? `message:${action}` : 'message:negotiate',
+		agentName: clientAgentId,
+		statusCode: 200,
+		startedAtMs,
+		summary: `A2A ${action || 'negotiate'} -> ${state}`,
+		inquiryId: hitInquiryId,
+		orderId: hitOrderId,
+	});
 	return task;
 }
 
 export async function POST(req: Request) {
+	const startedAtMs = Date.now();
 	let body: A2ARpc;
 	try {
 		body = (await req.json()) as A2ARpc;
@@ -218,13 +258,20 @@ export async function POST(req: Request) {
 	switch (body.method) {
 		case 'message/send':
 		case 'tasks/send': {
-			const task = await handleA2AMessage(params, req);
+			const task = await handleA2AMessage(params, req, startedAtMs);
 			return agentJson(rpcOk(body.id, task));
 		}
 
 		case 'tasks/get': {
 			const id = typeof params.id === 'string' ? params.id : '';
 			const task = await getA2ATask(id);
+			await recordAgentHit(req, {
+				protocol: 'a2a',
+				action: 'tasks/get',
+				statusCode: 200,
+				startedAtMs,
+				summary: `A2A tasks/get ${id} (${task ? task.status.state : 'not_found'})`,
+			});
 			if (!task) return agentJson(rpcErr(body.id, -32001, `Task ${id} not found.`));
 			return agentJson(rpcOk(body.id, task));
 		}
@@ -239,10 +286,24 @@ export async function POST(req: Request) {
 				updatedAt: new Date().toISOString(),
 			};
 			await saveA2ATask(canceled);
+			await recordAgentHit(req, {
+				protocol: 'a2a',
+				action: 'tasks/cancel',
+				statusCode: 200,
+				startedAtMs,
+				summary: `A2A canceled task ${id}`,
+			});
 			return agentJson(rpcOk(body.id, canceled));
 		}
 
 		case 'agent/getAuthenticatedExtendedCard':
+			await recordAgentHit(req, {
+				protocol: 'a2a',
+				action: 'agent/getAuthenticatedExtendedCard',
+				statusCode: 200,
+				startedAtMs,
+				summary: 'Served authenticated extended A2A card',
+			});
 			return agentJson(rpcOk(body.id, buildAgentCatalog()));
 
 		default:

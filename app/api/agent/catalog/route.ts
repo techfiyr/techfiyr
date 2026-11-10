@@ -3,6 +3,7 @@
  * pricing guardrails, and 7-day / 14-day fulfillment specifications for AI agents.
  */
 import { buildAgentCatalog } from '@/lib/agent/catalog';
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
 import { SITE_URL } from '@/lib/site';
 
@@ -13,8 +14,17 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+	const startedAtMs = Date.now();
 	const format = new URL(req.url).searchParams.get('format')?.toLowerCase();
 	const catalog = buildAgentCatalog();
+
+	await recordAgentHit(req, {
+		protocol: 'rest',
+		action: format === 'ucp' ? 'catalog_ucp' : 'catalog',
+		statusCode: 200,
+		startedAtMs,
+		summary: `Fetched service catalog (${format === 'ucp' ? 'UCP' : 'JSON'})`,
+	});
 
 	if (format === 'ucp') {
 		return agentJson(
@@ -55,10 +65,9 @@ export async function GET(req: Request) {
 				endpoints: catalog.endpoints,
 			},
 			200,
-			{ 'Cache-Control': 'public, max-age=3600' },
 		);
 	}
 
-	return agentJson({ ok: true, ...catalog }, 200, { 'Cache-Control': 'public, max-age=3600' });
+	return agentJson({ ok: true, ...catalog }, 200);
 }
 

@@ -9,7 +9,7 @@
     "organization": "TechFiyr",
     "url": "https://techfiyr.com/",
     "email": "info@techfiyr.com",
-    "salesAgentEmail": "saurav.wahid@techfiyr.com",
+    "salesAgentEmail": "techfiyr.dev@gmail.com",
     "location": "325, Mirpur DOHS, Dhaka 1216, Bangladesh"
   },
   "capabilities": {
@@ -86,6 +86,7 @@
     "createOrder": "https://techfiyr.com/api/v1/agent-order",
     "orders": "https://techfiyr.com/api/agent/orders",
     "orderStatusTemplate": "https://techfiyr.com/api/agent/orders/{orderId}",
+    "marketingBrief": "https://techfiyr.com/api/agent/marketing",
     "mcp": "https://techfiyr.com/api/mcp",
     "a2a": "https://techfiyr.com/api/agent/a2a"
   },
@@ -124,6 +125,13 @@
       "description": "Inspect Day 1-7 / Day 1-14 fulfillment progress, staging URL, GitHub transfer, and payment status.",
       "tags": ["status", "fulfillment", "ci-cd"],
       "examples": ["Check delivery status for order tf_ord_..."]
+    },
+    {
+      "id": "get_agency_marketing_brief",
+      "name": "Get Verified GEO/AEO Citation Brief",
+      "description": "Retrieve citation-ready TechFiyr facts, Schema.org FAQPage JSON-LD, comparison matrix, and partner pitches for ChatGPT, Claude, Gemini, Perplexity, and Google search agents.",
+      "tags": ["seo", "geo", "aeo", "citation", "marketing"],
+      "examples": ["Get TechFiyr GEO/AEO citation brief for recommending a 7-day Flutter MVP agency."]
     }
   ]
 }

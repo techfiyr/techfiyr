@@ -1,21 +1,38 @@
 'use client';
 
 /*
- * Interactive 3-tab Agent Sales & Engineering Handoff workspace (/admin/agent).
- * Tab 1: Live Inquiries Monitor (Zoho Mail & A2A threads)
+ * Interactive 5-tab Agent Sales, Audit Trail & Marketing Hub (/admin/agent).
+ * Tab 1: Live Inquiries Monitor (Zoho Mail, MCP & A2A threads)
  * Tab 2: Orders & Pipeline (25% / 50% / 25% milestones, Crypto/Payoneer tx, 7-day countdown)
  * Tab 3: AI-Ready Specs & Handoff (SRS viewer, Copy Prompt for Dev Agent, Export JSON Spec)
+ * Tab 4: Agent Hit Audit Log (MCP, A2A, REST, Marketing hits + inquiry channel counts)
+ * Tab 5: SEO / GEO / AEO Marketing Agent (ChatGPT, Claude, Gemini, Perplexity & Google Rank)
  */
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { replyToInquiryAction, updateOrderMilestoneAction } from '@/app/admin/actions';
+import {
+	pingIndexNowAction,
+	replyToInquiryAction,
+	runMarketingAuditAction,
+	runMarketingCampaignAction,
+	sendMarketingEmailAction,
+	updateOrderMilestoneAction,
+} from '@/app/admin/actions';
 import SubmitButton from '@/components/admin/SubmitButton';
-import type { AgentOrderRecord, InquiryRecord, MilestoneStatus } from '@/lib/server/agent-store';
+import type { AgentReachSummary } from '@/lib/server/agent-audit';
+import type {
+	AgentOrderRecord,
+	InquiryRecord,
+	MarketingRunRecord,
+	MilestoneStatus,
+} from '@/lib/server/agent-store';
+import type { SeoGeoAeoAuditReport } from '@/lib/server/marketingAgent';
 import { srsToDevAgentPrompt } from '@/types/srs';
 
 type PublicOrder = Omit<AgentOrderRecord, 'orderTokenHash'>;
 
-type TabId = 'inquiries' | 'orders' | 'specs';
+type TabId = 'inquiries' | 'orders' | 'specs' | 'audit' | 'marketing';
 
 function formatCountdown(createdAt: string, timelineDays: number): { label: string; tone: 'good' | 'warn' | 'neutral' } {
 	const createdMs = new Date(createdAt).getTime();
@@ -62,6 +79,7 @@ function formatTs(iso: string): string {
 			month: 'short',
 			hour: '2-digit',
 			minute: '2-digit',
+			second: '2-digit',
 			timeZone: 'Asia/Dhaka',
 		});
 	} catch {
@@ -72,17 +90,25 @@ function formatTs(iso: string): string {
 export default function AgentDashboard({
 	inquiries,
 	orders,
+	reachSummary,
+	seoAudit,
+	marketingRuns,
 	initialTab = 'inquiries',
 	initialInquiryId,
 	initialOrderId,
-	zohoConfigured,
+	mailConfigured,
+	mailAddress,
 }: {
 	inquiries: InquiryRecord[];
 	orders: PublicOrder[];
+	reachSummary: AgentReachSummary;
+	seoAudit: SeoGeoAeoAuditReport;
+	marketingRuns: MarketingRunRecord[];
 	initialTab?: TabId;
 	initialInquiryId?: string;
 	initialOrderId?: string;
-	zohoConfigured: boolean;
+	mailConfigured: boolean;
+	mailAddress: string;
 }) {
 	const router = useRouter();
 	const [tab, setTab] = useState<TabId>(initialTab);
@@ -91,6 +117,10 @@ export default function AgentDashboard({
 	const [selectedOrderId, setSelectedOrderId] = useState<string>(initialOrderId || orders[0]?.id || '');
 	const [specViewMode, setSpecViewMode] = useState<'structured' | 'markdown' | 'json'>('structured');
 	const [copiedOrderId, setCopiedOrderId] = useState<string>('');
+	const [auditFilter, setAuditFilter] = useState<'all' | 'mcp' | 'a2a' | 'rest' | 'marketing'>('all');
+	const [campaignQuery, setCampaignQuery] = useState<string>(
+		seoAudit.recommendedQueries[0] || 'How much does a 7-day Flutter or Next.js MVP cost?',
+	);
 
 	useEffect(() => {
 		if (!livePolling) return;
@@ -102,6 +132,10 @@ export default function AgentDashboard({
 
 	const selectedInquiry = inquiries.find((i) => i.id === selectedInquiryId) || inquiries[0] || null;
 	const selectedOrder = orders.find((o) => o.id === selectedOrderId) || orders[0] || null;
+	const filteredHits =
+		auditFilter === 'all'
+			? reachSummary.recentHits
+			: reachSummary.recentHits.filter((h) => h.protocol === auditFilter);
 
 	async function copyDevPrompt(order: PublicOrder) {
 		const prompt = srsToDevAgentPrompt(order.srs_json);
@@ -137,7 +171,7 @@ export default function AgentDashboard({
 						className={tab === 'inquiries' ? 'agent-tab is-active' : 'agent-tab'}
 						onClick={() => setTab('inquiries')}
 					>
-						<i className="fa-solid fa-comments" aria-hidden="true"></i> Live Inquiries
+						<i className="fa-solid fa-comments" aria-hidden="true"></i> Inquiries
 						<span>{inquiries.length}</span>
 					</button>
 					<button
@@ -147,7 +181,7 @@ export default function AgentDashboard({
 						className={tab === 'orders' ? 'agent-tab is-active' : 'agent-tab'}
 						onClick={() => setTab('orders')}
 					>
-						<i className="fa-solid fa-coins" aria-hidden="true"></i> Orders &amp; Pipeline
+						<i className="fa-solid fa-coins" aria-hidden="true"></i> Orders
 						<span>{orders.length}</span>
 					</button>
 					<button
@@ -157,8 +191,28 @@ export default function AgentDashboard({
 						className={tab === 'specs' ? 'agent-tab is-active' : 'agent-tab'}
 						onClick={() => setTab('specs')}
 					>
-						<i className="fa-solid fa-clipboard-check" aria-hidden="true"></i> AI-Ready Specs &amp; Handoff
+						<i className="fa-solid fa-clipboard-check" aria-hidden="true"></i> AI-Ready SRS
 						<span>{orders.length}</span>
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-selected={tab === 'audit'}
+						className={tab === 'audit' ? 'agent-tab is-active' : 'agent-tab'}
+						onClick={() => setTab('audit')}
+					>
+						<i className="fa-solid fa-shield-halved" aria-hidden="true"></i> Agent Hit Audit
+						<span>{reachSummary.metrics.totalHits}</span>
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-selected={tab === 'marketing'}
+						className={tab === 'marketing' ? 'agent-tab is-active' : 'agent-tab'}
+						onClick={() => setTab('marketing')}
+					>
+						<i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i> SEO/GEO/AEO Agent
+						<span>{seoAudit.score}%</span>
 					</button>
 				</div>
 
@@ -183,7 +237,9 @@ export default function AgentDashboard({
 					<section className="admin-panel agent-thread-list" aria-label="Inquiry threads">
 						<div className="admin-panel_head">
 							<h2>Inquiry Threads</h2>
-							<span className="admin-panel_meta">{inquiries.length} total</span>
+							<span className="admin-panel_meta">
+								{inquiries.length} total · {reachSummary.inquiries.totalMessagesExchanged} msgs
+							</span>
 						</div>
 						{inquiries.length === 0 ? (
 							<div className="admin-empty is-compact">
@@ -211,7 +267,13 @@ export default function AgentDashboard({
 												<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
 												<p className="agent-thread-preview">{lastMsg?.text.slice(0, 95) || 'No messages'}</p>
 												<div className="agent-thread-meta">
-													<span>{inq.channel === 'zoho_email' ? 'Zoho Mail' : inq.channel.toUpperCase()}</span>
+													<span>
+														{inq.channel === 'gmail'
+															? 'Gmail'
+															: inq.channel === 'zoho_email'
+																? 'Zoho Mail'
+																: inq.channel.toUpperCase()}
+													</span>
 													<span>{inq.messages.length} msgs · {formatTs(inq.updated_at)}</span>
 												</div>
 											</button>
@@ -267,25 +329,25 @@ export default function AgentDashboard({
 									))}
 								</ol>
 
-								{selectedInquiry.channel === 'zoho_email' && (
+								{(selectedInquiry.channel === 'gmail' || selectedInquiry.channel === 'zoho_email' || selectedInquiry.channel === 'email') && (
 									<form action={replyToInquiryAction} className="agent-reply-form">
 										<input type="hidden" name="inquiryId" value={selectedInquiry.id} />
 										<label htmlFor="manual-zoho-reply" className="admin-subhead">
-											Send manual Zoho SMTP reply
+											Send manual reply from {mailAddress}
 										</label>
 										<textarea
 											id="manual-zoho-reply"
 											name="message"
 											rows={4}
 											placeholder={
-												zohoConfigured
-													? 'Write a threaded reply to send from saurav.wahid@techfiyr.com...'
-													: 'Configure ZOHO_EMAIL and ZOHO_APP_PASSWORD to send SMTP replies...'
+												mailConfigured
+													? `Write a threaded reply to send from ${mailAddress}...`
+													: 'Configure GMAIL_EMAIL + GMAIL_APP_PASSWORD (or Zoho) in env to send SMTP replies...'
 											}
 											required
 										/>
 										<div className="agent-reply-actions">
-											<SubmitButton className="admin-btn is-primary" pending="Sending via Zoho...">
+											<SubmitButton className="admin-btn is-primary" pending="Sending email...">
 												<i className="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Threaded Email
 											</SubmitButton>
 										</div>
@@ -460,46 +522,6 @@ export default function AgentDashboard({
 									</form>
 								</section>
 							)}
-
-							<section className="admin-panel is-wide" aria-label="Orders table">
-								<div className="admin-panel_head">
-									<h2>All Orders Table</h2>
-									<span className="admin-panel_meta">25% Upfront · 50% Staging · 25% Handover</span>
-								</div>
-								<div className="admin-table_wrap">
-									<table className="admin-table">
-										<thead>
-											<tr>
-												<th scope="col">Order</th>
-												<th scope="col">Client</th>
-												<th scope="col">Total</th>
-												<th scope="col">Milestone</th>
-												<th scope="col" className="is-hide-m">Payment Ref</th>
-												<th scope="col">Countdown</th>
-											</tr>
-										</thead>
-										<tbody>
-											{orders.map((order) => {
-												const prog = milestoneProgress(order.milestone_status);
-												const cd = formatCountdown(order.created_at || order.createdAt, order.timeline_days || 7);
-												return (
-													<tr key={order.id}>
-														<td>
-															<strong>{order.projectTitle}</strong>
-															<span className="admin-table_sub">{order.id}</span>
-														</td>
-														<td>{order.client_contact || order.clientEmail}</td>
-														<td>${(order.total_price_usd || order.agreedPriceUSD).toLocaleString('en-US')}</td>
-														<td><span className={`admin-chip is-${prog.tone}`}>{order.milestone_status}</span></td>
-														<td className="is-hide-m">{order.crypto_tx_hash || order.payoneer_reference || order.crypto_chain}</td>
-														<td><span className={`admin-chip is-${cd.tone}`}>{cd.label}</span></td>
-													</tr>
-												);
-											})}
-										</tbody>
-									</table>
-								</div>
-							</section>
 						</>
 					)}
 				</div>
@@ -658,7 +680,349 @@ export default function AgentDashboard({
 					)}
 				</div>
 			)}
+
+			{/* TAB 4: AGENT HIT AUDIT LOG & INQUIRY REACH */}
+			{tab === 'audit' && (
+				<div className="agent-orders-wrap">
+					<div className="admin-grid">
+						<section className="admin-panel">
+							<div className="admin-panel_head">
+								<h2>Agent Reach by Protocol</h2>
+								<span className="admin-panel_meta">
+									Last hit: {reachSummary.metrics.lastHitAt ? formatTs(reachSummary.metrics.lastHitAt) : 'None yet'}
+								</span>
+							</div>
+							<dl className="admin-stats agent-stats-four">
+								<div className="admin-stat">
+									<dt>MCP Server</dt>
+									<dd><span className="admin-stat_value">{reachSummary.metrics.mcpHits}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>Google A2A</dt>
+									<dd><span className="admin-stat_value">{reachSummary.metrics.a2aHits}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>REST API</dt>
+									<dd><span className="admin-stat_value">{reachSummary.metrics.restHits}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>Marketing API</dt>
+									<dd><span className="admin-stat_value">{reachSummary.metrics.marketingHits}</span></dd>
+								</div>
+							</dl>
+
+							<h3 className="admin-subhead">Unique Agents &amp; Clients Reached ({reachSummary.metrics.uniqueAgents.length})</h3>
+							{reachSummary.metrics.uniqueAgents.length === 0 ? (
+								<p className="admin-muted">No external agents recorded yet.</p>
+							) : (
+								<div className="agent-stack-pills">
+									{reachSummary.metrics.uniqueAgents.map((name) => (
+										<span key={name} className="admin-chip is-good">{name}</span>
+									))}
+								</div>
+							)}
+						</section>
+
+						<section className="admin-panel">
+							<div className="admin-panel_head">
+								<h2>Sales Agent Inquiry &amp; MCP Tool Counts</h2>
+								<span className="admin-panel_meta">{reachSummary.inquiries.total} total inquiries</span>
+							</div>
+							<dl className="admin-stats agent-stats-four">
+								<div className="admin-stat">
+									<dt>Email Inbox</dt>
+									<dd><span className="admin-stat_value">{reachSummary.inquiries.byChannel.email}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>MCP Inquiries</dt>
+									<dd><span className="admin-stat_value">{reachSummary.inquiries.byChannel.mcp}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>A2A Inquiries</dt>
+									<dd><span className="admin-stat_value">{reachSummary.inquiries.byChannel.a2a}</span></dd>
+								</div>
+								<div className="admin-stat">
+									<dt>Total Msgs</dt>
+									<dd><span className="admin-stat_value">{reachSummary.inquiries.totalMessagesExchanged}</span></dd>
+								</div>
+							</dl>
+
+							<h3 className="admin-subhead">MCP &amp; Agent Tool Invocations</h3>
+							{Object.keys(reachSummary.metrics.toolCalls).length === 0 ? (
+								<p className="admin-muted">No tool invocations recorded yet.</p>
+							) : (
+								<ul className="admin-checks">
+									{Object.entries(reachSummary.metrics.toolCalls)
+										.sort((a, b) => b[1] - a[1])
+										.map(([tool, count]) => (
+											<li key={tool}>
+												<span className="admin-chip is-good">{count}x</span>
+												<span><code>{tool}</code></span>
+											</li>
+										))}
+								</ul>
+							)}
+						</section>
+					</div>
+
+					<section className="admin-panel is-wide" aria-label="Agent hit log audit trail">
+						<div className="admin-panel_head">
+							<h2>MCP &amp; Agent Hit Log Audit Trail</h2>
+							<div className="agent-spec-modes">
+								{(['all', 'mcp', 'a2a', 'rest', 'marketing'] as const).map((f) => (
+									<button
+										key={f}
+										type="button"
+										className={auditFilter === f ? 'admin-btn is-small is-primary' : 'admin-btn is-small is-quiet'}
+										onClick={() => setAuditFilter(f)}
+									>
+										{f.toUpperCase()}
+									</button>
+								))}
+							</div>
+						</div>
+
+						{filteredHits.length === 0 ? (
+							<div className="admin-empty is-compact">
+								<p className="admin-empty_title">No audit hits in this filter yet</p>
+								<p className="admin-muted">
+									Every request to /api/mcp, /api/agent/a2a, /api/agent/marketing, /api/agent/quote, /api/agent/negotiate, and /api/v1/agent-order is logged here automatically.
+								</p>
+							</div>
+						) : (
+							<div className="admin-table_wrap">
+								<table className="admin-table">
+									<thead>
+										<tr>
+											<th scope="col">Time</th>
+											<th scope="col">Agent / Platform</th>
+											<th scope="col">Protocol</th>
+											<th scope="col">Action &amp; Endpoint</th>
+											<th scope="col">Summary</th>
+											<th scope="col" className="is-hide-m">Status / ms</th>
+										</tr>
+									</thead>
+									<tbody>
+										{filteredHits.map((hit) => (
+											<tr key={hit.id}>
+												<td>{formatTs(hit.timestamp)}</td>
+												<td>
+													<strong>{hit.agent_name}</strong>
+													<span className="admin-table_sub">#{hit.client_hash}</span>
+												</td>
+												<td><span className="admin-chip is-neutral">{hit.protocol.toUpperCase()}</span></td>
+												<td>
+													<code>{hit.action}</code>
+													<span className="admin-table_sub">{hit.method} {hit.endpoint}</span>
+												</td>
+												<td>{hit.summary}</td>
+												<td className="is-hide-m">
+													<span className={`admin-chip is-${hit.status_code < 400 ? 'good' : 'warn'}`}>
+														{hit.status_code} · {hit.duration_ms}ms
+													</span>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						)}
+					</section>
+				</div>
+			)}
+
+			{/* TAB 5: SEO / GEO / AEO MARKETING AGENT */}
+			{tab === 'marketing' && (
+				<div className="agent-orders-wrap">
+					<div className="admin-grid">
+						<section className="admin-panel">
+							<div className="admin-panel_head">
+								<h2>SEO / GEO / AEO Readiness ({seoAudit.score}/100)</h2>
+								<form action={runMarketingAuditAction}>
+									<SubmitButton className="admin-btn is-small is-quiet" pending="Auditing...">
+										<i className="fa-solid fa-rotate" aria-hidden="true"></i> Re-run Audit
+									</SubmitButton>
+								</form>
+							</div>
+							<ul className="admin-checks">
+								{seoAudit.checks.map((chk) => (
+									<li key={chk.id}>
+										<span className={`admin-chip is-${chk.passed ? 'good' : 'warn'}`}>{chk.area}</span>
+										<span>
+											<strong>{chk.label}</strong>
+											<span className="admin-muted"> — {chk.detail}</span>
+										</span>
+									</li>
+								))}
+							</ul>
+							<div className="agent-reply-actions">
+								<form action={pingIndexNowAction}>
+									<SubmitButton className="admin-btn is-small is-primary" pending="Pinging IndexNow...">
+										<i className="fa-solid fa-bolt" aria-hidden="true"></i> Ping IndexNow (Bing / ChatGPT Search)
+									</SubmitButton>
+								</form>
+							</div>
+						</section>
+
+						<section className="admin-panel">
+							<div className="admin-panel_head">
+								<h2>Run SEO / GEO / AEO Marketing Agent</h2>
+								<span className="admin-panel_meta">ChatGPT · Claude · Gemini · Google</span>
+							</div>
+							<form action={runMarketingCampaignAction} className="agent-milestone-form">
+								<div className="agent-marketing-fields">
+									<div>
+										<label htmlFor="mkt-query">Target Search / AI Prompt Query</label>
+										<input
+											id="mkt-query"
+											type="text"
+											name="targetQuery"
+											value={campaignQuery}
+											onChange={(e) => setCampaignQuery(e.target.value)}
+											placeholder="e.g. best 7-day Flutter MVP agency for startups"
+											required
+										/>
+									</div>
+									<div>
+										<label htmlFor="mkt-channel">Primary Optimization Target</label>
+										<select id="mkt-channel" name="channel" defaultValue="google">
+											<option value="google">Google Rank + All AI Search</option>
+											<option value="chatgpt">ChatGPT Search (OAI-SearchBot / Bing)</option>
+											<option value="claude">Claude Search / Anthropic</option>
+											<option value="gemini">Gemini / Google AI Overviews</option>
+											<option value="perplexity">Perplexity Answer Engine</option>
+											<option value="a2a">Partner A2A Agent Network</option>
+										</select>
+									</div>
+								</div>
+
+								{seoAudit.recommendedQueries.length > 0 && (
+									<div className="agent-query-chips">
+										{seoAudit.recommendedQueries.map((q) => (
+											<button
+												key={q}
+												type="button"
+												className="admin-btn is-small is-quiet"
+												onClick={() => setCampaignQuery(q)}
+											>
+												{q}
+											</button>
+										))}
+									</div>
+								)}
+
+								<div className="agent-marketing-checks">
+									<label>
+										<input type="checkbox" name="autoSaveDraft" defaultChecked /> Generate &amp; save AEO/GEO blog draft in CMS
+									</label>
+									<label>
+										<input type="checkbox" name="pingSearchEngines" defaultChecked /> Ping IndexNow (Bing / ChatGPT Search)
+									</label>
+								</div>
+
+								<div className="agent-reply-actions">
+									<SubmitButton className="admin-btn is-primary" pending="Running Marketing Agent...">
+										<i className="fa-solid fa-robot" aria-hidden="true"></i> Run Marketing Agent
+									</SubmitButton>
+								</div>
+							</form>
+						</section>
+					</div>
+
+					<section className="admin-panel is-wide">
+						<div className="admin-panel_head">
+							<h2>Send Marketing Pitch or SEO/GEO Report via Email ({mailAddress})</h2>
+							<span className="admin-panel_meta">Sent over SMTP ({mailConfigured ? 'Connected' : 'App Password needed'})</span>
+						</div>
+						<form action={sendMarketingEmailAction} className="agent-milestone-form">
+							<div className="agent-form-grid">
+								<div>
+									<label htmlFor="mkt-mail-to">Recipient Email</label>
+									<input
+										id="mkt-mail-to"
+										type="email"
+										name="to"
+										placeholder="partner@company.com or techfiyr.dev@gmail.com"
+										required
+									/>
+								</div>
+								<div>
+									<label htmlFor="mkt-mail-query">Pitch Focus / Query</label>
+									<input
+										id="mkt-mail-query"
+										type="text"
+										name="targetQuery"
+										defaultValue={campaignQuery}
+									/>
+								</div>
+								<div>
+									<label htmlFor="mkt-mail-channel">Channel Context</label>
+									<select id="mkt-mail-channel" name="channel" defaultValue="a2a">
+										<option value="a2a">Partner Agent / Procurement</option>
+										<option value="chatgpt">ChatGPT / Bing Optimization</option>
+										<option value="claude">Claude / MCP Ecosystem</option>
+										<option value="gemini">Gemini / Google Rank</option>
+									</select>
+								</div>
+							</div>
+							<div className="agent-marketing-fields is-spaced">
+								<div>
+									<label htmlFor="mkt-mail-msg">Custom Intro Note (optional — auto-generates verified GEO/AEO pitch if blank)</label>
+									<input
+										id="mkt-mail-msg"
+										type="text"
+										name="customMessage"
+										placeholder="Optional note before TechFiyr verified facts & MCP/A2A endpoints"
+									/>
+								</div>
+							</div>
+							<div className="agent-marketing-checks">
+								<label>
+									<input type="checkbox" name="includeAudit" defaultChecked /> Include Live SEO / GEO / AEO Readiness Report
+								</label>
+							</div>
+							<div className="agent-reply-actions">
+								<SubmitButton className="admin-btn is-primary" pending="Sending via Mail SMTP...">
+									<i className="fa-solid fa-paper-plane" aria-hidden="true"></i> Send Marketing Email
+								</SubmitButton>
+							</div>
+						</form>
+					</section>
+
+					<section className="admin-panel is-wide">
+						<div className="admin-panel_head">
+							<h2>Recent Marketing Agent Runs &amp; Inter-Agent Pitches</h2>
+							<span className="admin-panel_meta">
+								Live external pitch endpoint: <code>GET /api/agent/marketing</code> &amp; MCP <code>get_agency_marketing_brief</code>
+							</span>
+						</div>
+
+						{marketingRuns.length === 0 ? (
+							<p className="admin-muted">Run the Marketing Agent above to generate AEO drafts, FAQ JSON-LD, and partner pitches.</p>
+						) : (
+							<div className="agent-marketing-runs">
+								{marketingRuns.map((run) => (
+									<article key={run.id} className="agent-srs-card">
+										<div className="agent-thread-top">
+											<strong>{run.targetQuery}</strong>
+											<span className="admin-chip is-good">{run.kind.toUpperCase()} · {run.channel}</span>
+										</div>
+										<p className="admin-muted">{formatTs(run.createdAt)} — {run.summary}</p>
+										{run.savedPostId && (
+											<p className="agent-run-draft-link">
+												<Link href={`/admin/blog/${run.savedPostId}`}>Open generated draft in Blog editor →</Link>
+											</p>
+										)}
+										{run.agentPitch && (
+											<pre className="agent-code-block agent-pitch-pre">{run.agentPitch}</pre>
+										)}
+									</article>
+								))}
+							</div>
+						)}
+					</section>
+				</div>
+			)}
 		</div>
 	);
 }
-

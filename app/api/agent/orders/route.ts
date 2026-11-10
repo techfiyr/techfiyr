@@ -1,9 +1,10 @@
 /*
  * POST /api/agent/orders & GET /api/agent/orders:
  *   POST creates a guardrail-verified autonomous order, SOW, payment rail, and 7/14-day tracker.
- *   GET lists orders (requires operator Authorization: Bearer <AGENT_API_KEY>).
+ *   GET lists orders (requires operator Authorization: Bearer <AGENT_SALES_API_KEY>).
  */
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { createAgentOrder } from '@/lib/server/agent-orders';
 import { isOperatorAuthorized, listOrders, publicOrderView } from '@/lib/server/agent-store';
@@ -15,16 +16,26 @@ export async function OPTIONS() {
 }
 
 export async function handleCreateOrderRequest(req: Request) {
+	const startedAtMs = Date.now();
 	const parsed = await readJsonBody<Record<string, unknown>>(req);
 	if (!parsed.ok) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'create_order',
+			statusCode: 400,
+			startedAtMs,
+			summary: `Order invalid JSON: ${parsed.error}`,
+		});
 		return agentJson({ ok: false, code: 'INVALID_JSON', error: parsed.error }, 400);
 	}
 
 	const body = parsed.data;
+	const agentId =
+		(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined;
+
 	const result = await createAgentOrder({
 		quoteId: typeof body.quoteId === 'string' ? body.quoteId : undefined,
-		clientAgentId:
-			(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined,
+		clientAgentId: agentId,
 		clientDid: (typeof body.clientDid === 'string' ? body.clientDid : req.headers.get('x-agent-did')) || undefined,
 		clientEmail: typeof body.clientEmail === 'string' ? body.clientEmail : '',
 		callbackUrl: typeof body.callbackUrl === 'string' ? body.callbackUrl : undefined,
@@ -50,6 +61,14 @@ export async function handleCreateOrderRequest(req: Request) {
 	});
 
 	if (!result.ok) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'create_order',
+			agentName: agentId,
+			statusCode: result.status,
+			startedAtMs,
+			summary: `Order blocked (${result.code}): ${result.error}`,
+		});
 		return agentJson(
 			{
 				ok: false,
@@ -60,6 +79,16 @@ export async function handleCreateOrderRequest(req: Request) {
 			result.status,
 		);
 	}
+
+	await recordAgentHit(req, {
+		protocol: 'rest',
+		action: 'create_order',
+		agentName: agentId,
+		statusCode: 201,
+		startedAtMs,
+		orderId: result.order.id,
+		summary: `Order created: ${result.order.id} ($${result.order.agreedPriceUSD}, ${result.order.deliveryDays}d)`,
+	});
 
 	return agentJson(
 		{
@@ -82,7 +111,7 @@ export async function GET(req: Request) {
 			{
 				ok: false,
 				code: 'UNAUTHORIZED',
-				error: 'Listing orders requires operator Authorization: Bearer <AGENT_API_KEY>.',
+				error: 'Listing orders requires operator Authorization: Bearer <AGENT_SALES_API_KEY>.',
 			},
 			401,
 		);

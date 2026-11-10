@@ -1,10 +1,9 @@
 /*
  * Founder notification dispatcher for closed A2A / Email deals (server only).
- * No Twilio or SMS — uses Zoho SMTP email alert and/or optional HTTPS webhook.
+ * No Twilio or SMS — uses unified Mail SMTP alert (Gmail/Zoho) and/or optional HTTPS webhook.
  */
-import nodemailer from 'nodemailer';
-import { SALES_AGENT_EMAIL } from '@/lib/agent/catalog';
 import type { AgentOrderRecord } from './agent-store';
+import { sendAgentEmail } from './emailWorker';
 import { env } from './google';
 
 export type NotificationResult = {
@@ -41,32 +40,21 @@ export async function notifyFounderOrderEvent(
 	let webhookSent = false;
 	const notes: string[] = [];
 
-	// 1. Optional Zoho SMTP founder alert (when Zoho credentials + FOUNDER_ALERT_EMAIL are configured)
-	const zohoUser = env('ZOHO_EMAIL') || SALES_AGENT_EMAIL;
-	const zohoPass = env('ZOHO_APP_PASSWORD');
 	const alertRecipient = env('FOUNDER_ALERT_EMAIL');
-	if (zohoUser && zohoPass && alertRecipient) {
-		try {
-			const port = Number(env('ZOHO_SMTP_PORT') || '465');
-			const transporter = nodemailer.createTransport({
-				host: env('ZOHO_SMTP_HOST') || 'smtp.zoho.com',
-				port,
-				secure: port === 465,
-				auth: { user: zohoUser, pass: zohoPass },
-			});
-			await transporter.sendMail({
-				from: `"TechFiyr Sales Agent" <${zohoUser}>`,
-				to: alertRecipient,
-				subject: `[TechFiyr Agent] ${label}: ${order.projectTitle} ($${order.total_price_usd})`,
-				text: `${messageText}\n\n--- SRS SUMMARY ---\n${order.srs_markdown.slice(0, 3000)}`,
-			});
+	if (alertRecipient) {
+		const mailRes = await sendAgentEmail({
+			to: alertRecipient,
+			fromName: 'TechFiyr Sales Agent',
+			subject: `[TechFiyr Agent] ${label}: ${order.projectTitle} ($${order.total_price_usd})`,
+			bodyText: `${messageText}\n\n--- SRS SUMMARY ---\n${order.srs_markdown.slice(0, 3000)}`,
+		});
+		if (mailRes.ok) {
 			emailAlertSent = true;
-		} catch (err) {
-			notes.push(`zoho_alert:${err instanceof Error ? err.message.slice(0, 80) : 'err'}`);
+		} else {
+			notes.push(`mail_alert:${mailRes.error.slice(0, 80)}`);
 		}
 	}
 
-	// 2. Optional JSON webhook (Slack / Discord / n8n / CI trigger)
 	const webhookUrl = env('AGENT_ORDER_WEBHOOK_URL');
 	if (webhookUrl && /^https:\/\//i.test(webhookUrl)) {
 		try {

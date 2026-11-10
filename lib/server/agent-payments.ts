@@ -4,6 +4,7 @@
  * Implements the 25% Upfront / 50% MVP Staging / 25% Final Handover milestone schedule.
  */
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { SALES_AGENT_EMAIL } from '@/lib/agent/catalog';
 import { CONTACT } from '@/lib/site';
 import type { OrderPaymentState } from './agent-store';
 import { env } from './google';
@@ -33,6 +34,7 @@ export async function createPaymentForOrder(params: {
 	const stagingMilestoneUSD = Math.round(params.amountUSD * 0.5);
 	const finalHandoverUSD = params.amountUSD - upfrontDepositUSD - stagingMilestoneUSD;
 
+	const activeContact = env('GMAIL_EMAIL') || env('MAIL_EMAIL') || env('ZOHO_EMAIL') || SALES_AGENT_EMAIL || CONTACT.email;
 	const cfg = resolvePaymentConfig();
 	const scheduleSummary = `25% Upfront ($${upfrontDepositUSD}), 50% Staging MVP ($${stagingMilestoneUSD}), 25% Final Handover ($${finalHandoverUSD})`;
 
@@ -52,7 +54,7 @@ export async function createPaymentForOrder(params: {
 			binance_p2p_ready: true,
 			instructions: address
 				? `Send $${upfrontDepositUSD} USDC (25% deposit of $${params.amountUSD}) on Solana (SPL) to ${address} with memo ${params.orderId}. Milestones: ${scheduleSummary}.`
-				: `Solana (SPL) USDC invoice ${invoiceId} created (${scheduleSummary}). Reply with transaction confirmation or request wallet address from ${env('ZOHO_EMAIL') || CONTACT.email}.`,
+				: `Solana (SPL) USDC invoice ${invoiceId} created (${scheduleSummary}). Reply with transaction confirmation or request wallet address from ${activeContact}.`,
 			updatedAt: now,
 		};
 	}
@@ -73,7 +75,7 @@ export async function createPaymentForOrder(params: {
 			binance_p2p_ready: true,
 			instructions: address
 				? `Send $${upfrontDepositUSD} USDC (25% deposit of $${params.amountUSD}) on Base (EVM) to ${address} and reply with tx hash for ${params.orderId}. Milestones: ${scheduleSummary}.`
-				: `Base (EVM) USDC invoice ${invoiceId} created (${scheduleSummary}). Reply to ${env('ZOHO_EMAIL') || CONTACT.email} for receiving wallet confirmation.`,
+				: `Base (EVM) USDC invoice ${invoiceId} created (${scheduleSummary}). Reply to ${activeContact} for receiving wallet confirmation.`,
 			updatedAt: now,
 		};
 	}
@@ -94,7 +96,7 @@ export async function createPaymentForOrder(params: {
 			binance_p2p_ready: true,
 			instructions: address
 				? `Send $${upfrontDepositUSD} USDT (TRC20, Binance P2P offramp ready) to ${address} and share tx hash for ${params.orderId}. Milestones: ${scheduleSummary}.`
-				: `USDT (TRC20) invoice ${invoiceId} created (${scheduleSummary}). Binance P2P ready; confirm receiving address via ${env('ZOHO_EMAIL') || CONTACT.email}.`,
+				: `USDT (TRC20) invoice ${invoiceId} created (${scheduleSummary}). Binance P2P ready; confirm receiving address via ${activeContact}.`,
 			updatedAt: now,
 		};
 	}
@@ -115,7 +117,7 @@ export async function createPaymentForOrder(params: {
 			binance_p2p_ready: true,
 			instructions: address
 				? `Send $${upfrontDepositUSD} USDT (Polygon, Binance P2P ready) to ${address} and share tx hash for ${params.orderId}. Milestones: ${scheduleSummary}.`
-				: `USDT (Polygon) invoice ${invoiceId} created (${scheduleSummary}). Confirm receiving address via ${env('ZOHO_EMAIL') || CONTACT.email}.`,
+				: `USDT (Polygon) invoice ${invoiceId} created (${scheduleSummary}). Confirm receiving address via ${activeContact}.`,
 			updatedAt: now,
 		};
 	}
@@ -135,7 +137,7 @@ export async function createPaymentForOrder(params: {
 			payoneer_account: payoneer || undefined,
 			instructions: payoneer
 				? `Pay $${upfrontDepositUSD} USD (25% upfront deposit) to Payoneer Virtual Receiving Account (${payoneer}) referencing ${invoiceId}. Milestones: ${scheduleSummary}.`
-				: `Payoneer USD invoice ${invoiceId} issued (${scheduleSummary}). Payoneer virtual account payment request sent from ${env('ZOHO_EMAIL') || CONTACT.email}.`,
+				: `Payoneer USD invoice ${invoiceId} issued (${scheduleSummary}). Payoneer virtual account payment request sent from ${activeContact}.`,
 			updatedAt: now,
 		};
 	}
@@ -152,7 +154,7 @@ export async function createPaymentForOrder(params: {
 		crypto_chain: 'International Wire / Invoice',
 		instructions: cfg.bankInvoiceInfo
 			? `Remit $${upfrontDepositUSD} USD (25% deposit) per invoice ${invoiceId}: ${cfg.bankInvoiceInfo}. Milestones: ${scheduleSummary}.`
-			: `Manual Bank Transfer Invoice ${invoiceId} issued for $${params.amountUSD} USD (${scheduleSummary}). Wire/ACH coordinates provided via ${env('ZOHO_EMAIL') || CONTACT.email}.`,
+			: `Manual Bank Transfer Invoice ${invoiceId} issued for $${params.amountUSD} USD (${scheduleSummary}). Wire/ACH coordinates provided via ${activeContact}.`,
 		updatedAt: now,
 	};
 }

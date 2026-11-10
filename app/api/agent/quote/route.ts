@@ -3,6 +3,7 @@
  * deterministic pricing matrix and 7-day / 14-day scope boundary guardrails.
  */
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { createAgentQuote } from '@/lib/server/agent-orders';
 
@@ -13,14 +14,29 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
+	const startedAtMs = Date.now();
 	const parsed = await readJsonBody<Record<string, unknown>>(req);
 	if (!parsed.ok) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'request_quote',
+			statusCode: 400,
+			startedAtMs,
+			summary: `Quote invalid JSON: ${parsed.error}`,
+		});
 		return agentJson({ ok: false, code: 'INVALID_JSON', error: parsed.error }, 400);
 	}
 
 	const body = parsed.data;
 	const description = typeof body.description === 'string' ? body.description.trim() : '';
 	if (!description) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'request_quote',
+			statusCode: 400,
+			startedAtMs,
+			summary: 'Quote rejected: missing description',
+		});
 		return agentJson(
 			{
 				ok: false,
@@ -31,9 +47,11 @@ export async function POST(req: Request) {
 		);
 	}
 
+	const agentId =
+		(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined;
+
 	const { quote, persisted } = await createAgentQuote({
-		clientAgentId:
-			(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined,
+		clientAgentId: agentId,
 		clientDid: (typeof body.clientDid === 'string' ? body.clientDid : req.headers.get('x-agent-did')) || undefined,
 		clientEmail: typeof body.clientEmail === 'string' ? body.clientEmail : undefined,
 		projectTitle: typeof body.projectTitle === 'string' ? body.projectTitle : undefined,
@@ -62,6 +80,15 @@ export async function POST(req: Request) {
 
 	const statusCode =
 		quote.evaluation.decision === 'rejected' && quote.evaluation.reasonCode === 'INVALID_SPEC' ? 400 : 200;
+
+	await recordAgentHit(req, {
+		protocol: 'rest',
+		action: 'request_quote',
+		agentName: agentId,
+		statusCode,
+		startedAtMs,
+		summary: `Quote ${quote.evaluation.decision}: $${quote.evaluation.proposedPriceUSD} (${quote.evaluation.requiredDeliveryDays}d)`,
+	});
 
 	return agentJson(
 		{

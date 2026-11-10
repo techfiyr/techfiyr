@@ -1,8 +1,8 @@
 /*
- * Zoho Mail Worker (emailWorker.ts) — server only.
- * Polls unread emails from Zoho IMAP (imapflow + mailparser), threads inquiries by
- * Message-ID / In-Reply-To / References, passes conversation history into Gemini Sales Agent
- * (lib/server/salesAgent.ts), and sends threaded replies via Zoho SMTP (nodemailer).
+ * Unified Mail Worker (emailWorker.ts) for Gmail (IMAP/SMTP with App Password) & Zoho fallback.
+ * - Polls unread INBOX messages via imapflow + mailparser (skipping newsletters/no-reply/bounces).
+ * - Threads client conversations into Inquiries and invokes Gemini Sales Agent (salesAgent.ts).
+ * - Sends threaded Sales replies and Marketing Agent outreach/reports via nodemailer SMTP.
  */
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
@@ -23,7 +23,10 @@ import {
 import { env } from './google';
 import { runSalesAgent } from './salesAgent';
 
-export type ZohoConfig = {
+export type MailProvider = 'gmail' | 'zoho' | 'custom';
+
+export type MailConfig = {
+	provider: MailProvider;
 	email: string;
 	password: string;
 	imapHost: string;
@@ -32,21 +35,47 @@ export type ZohoConfig = {
 	smtpPort: number;
 };
 
-export function getZohoConfig(): ZohoConfig {
+export function getMailConfig(): MailConfig {
+	const gmailEmail = env('GMAIL_EMAIL') || env('MAIL_EMAIL');
+	const gmailPass = env('GMAIL_APP_PASSWORD') || env('MAIL_APP_PASSWORD');
+	const zohoEmail = env('ZOHO_EMAIL');
+	const zohoPass = env('ZOHO_APP_PASSWORD');
+
+	const usingGmail = Boolean(gmailEmail) || (!zohoEmail && Boolean(gmailPass));
+	const email = gmailEmail || zohoEmail || SALES_AGENT_EMAIL;
+	const isGmailAddr = /@(gmail|googlemail)\.com$/i.test(email) || usingGmail;
+
+	if (isGmailAddr) {
+		return {
+			provider: 'gmail',
+			email,
+			password: (gmailPass || zohoPass).replace(/\s+/g, ''),
+			imapHost: env('GMAIL_IMAP_HOST') || env('MAIL_IMAP_HOST') || 'imap.gmail.com',
+			imapPort: Number(env('GMAIL_IMAP_PORT') || env('MAIL_IMAP_PORT') || '993'),
+			smtpHost: env('GMAIL_SMTP_HOST') || env('MAIL_SMTP_HOST') || 'smtp.gmail.com',
+			smtpPort: Number(env('GMAIL_SMTP_PORT') || env('MAIL_SMTP_PORT') || '465'),
+		};
+	}
+
 	return {
-		email: env('ZOHO_EMAIL') || SALES_AGENT_EMAIL,
-		password: env('ZOHO_APP_PASSWORD'),
-		imapHost: env('ZOHO_IMAP_HOST') || 'imap.zoho.com',
-		imapPort: Number(env('ZOHO_IMAP_PORT') || '993'),
-		smtpHost: env('ZOHO_SMTP_HOST') || 'smtp.zoho.com',
-		smtpPort: Number(env('ZOHO_SMTP_PORT') || '465'),
+		provider: 'zoho',
+		email,
+		password: zohoPass || gmailPass,
+		imapHost: env('ZOHO_IMAP_HOST') || env('MAIL_IMAP_HOST') || 'imap.zoho.com',
+		imapPort: Number(env('ZOHO_IMAP_PORT') || env('MAIL_IMAP_PORT') || '993'),
+		smtpHost: env('ZOHO_SMTP_HOST') || env('MAIL_SMTP_HOST') || 'smtp.zoho.com',
+		smtpPort: Number(env('ZOHO_SMTP_PORT') || env('MAIL_SMTP_PORT') || '465'),
 	};
 }
 
-export function isZohoConfigured(): boolean {
-	const cfg = getZohoConfig();
+export function isMailConfigured(): boolean {
+	const cfg = getMailConfig();
 	return Boolean(cfg.email && cfg.password);
 }
+
+// Backwards-compatible aliases
+export const getZohoConfig = getMailConfig;
+export const isZohoConfigured = isMailConfigured;
 
 function stripQuotedReply(text: string): string {
 	const lines = text.replace(/\r\n/g, '\n').split('\n');
@@ -60,7 +89,7 @@ function stripQuotedReply(text: string): string {
 	return out.join('\n').trim().slice(0, 6000) || text.trim().slice(0, 6000);
 }
 
-function createSmtpTransport(cfg: ZohoConfig) {
+function createSmtpTransport(cfg: MailConfig) {
 	return nodemailer.createTransport({
 		host: cfg.smtpHost,
 		port: cfg.smtpPort,
@@ -81,7 +110,9 @@ function detectPaymentProof(text: string): { txHash?: string; payoneerRef?: stri
 	const evmMatch = text.match(/\b0x[a-fA-F0-9]{64}\b/);
 	if (evmMatch) return { txHash: evmMatch[0] };
 
-	const solOrTronMatch = text.match(/(?:tx|hash|signature|trc20|solana|base|polygon)[:#\s]+([1-9A-HJ-NP-Za-km-z]{43,88}|[a-fA-F0-9]{64})/i);
+	const solOrTronMatch = text.match(
+		/(?:tx|hash|signature|trc20|solana|base|polygon)[:#\s]+([1-9A-HJ-NP-Za-km-z]{43,88}|[a-fA-F0-9]{64})/i,
+	);
 	if (solOrTronMatch) return { txHash: solOrTronMatch[1] };
 
 	const payoneerMatch = text.match(/payoneer(?:\s+ref(?:erence)?|\s+id|\s+tx)?[:#\s]+([A-Z0-9-]{6,32})/i);
@@ -90,28 +121,37 @@ function detectPaymentProof(text: string): { txHash?: string; payoneerRef?: stri
 	return {};
 }
 
-export async function sendZohoThreadedReply(params: {
+/** Shared SMTP sender for Sales Agent threaded replies, Marketing outreach, and Founder alerts. */
+export async function sendAgentEmail(params: {
 	to: string;
 	subject: string;
 	bodyText: string;
+	fromName?: string;
 	inReplyTo?: string;
 	references?: string[];
+	replyTo?: string;
 }): Promise<{ ok: true; messageId: string } | { ok: false; error: string }> {
-	const cfg = getZohoConfig();
+	const cfg = getMailConfig();
 	if (!cfg.email || !cfg.password) {
-		return { ok: false, error: 'Zoho Mail credentials (ZOHO_EMAIL, ZOHO_APP_PASSWORD) are not configured.' };
+		const hint =
+			cfg.provider === 'gmail'
+				? 'GMAIL_EMAIL and GMAIL_APP_PASSWORD'
+				: 'ZOHO_EMAIL and ZOHO_APP_PASSWORD';
+		return { ok: false, error: `Mail credentials (${hint}) are not configured.` };
 	}
 
 	try {
 		const transporter = createSmtpTransport(cfg);
-		const refs = Array.from(new Set([...(params.references || []), ...(params.inReplyTo ? [params.inReplyTo] : [])])).filter(
-			Boolean,
-		);
+		const refs = Array.from(
+			new Set([...(params.references || []), ...(params.inReplyTo ? [params.inReplyTo] : [])]),
+		).filter(Boolean);
+		const senderLabel = params.fromName || 'TechFiyr Agent';
 		const info = await transporter.sendMail({
-			from: `"Saurav Wahid · TechFiyr" <${cfg.email}>`,
+			from: `"${senderLabel}" <${cfg.email}>`,
 			to: params.to,
-			subject: formatReplySubject(params.subject),
+			subject: params.subject,
 			text: params.bodyText,
+			...(params.replyTo ? { replyTo: params.replyTo } : {}),
 			...(params.inReplyTo ? { inReplyTo: params.inReplyTo } : {}),
 			...(refs.length ? { references: refs.join(' ') } : {}),
 		});
@@ -121,7 +161,26 @@ export async function sendZohoThreadedReply(params: {
 	}
 }
 
-export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
+export async function sendThreadedReply(params: {
+	to: string;
+	subject: string;
+	bodyText: string;
+	inReplyTo?: string;
+	references?: string[];
+}) {
+	return sendAgentEmail({
+		to: params.to,
+		subject: formatReplySubject(params.subject),
+		bodyText: params.bodyText,
+		fromName: 'Saurav Wahid · TechFiyr',
+		inReplyTo: params.inReplyTo,
+		references: params.references,
+	});
+}
+
+export const sendZohoThreadedReply = sendThreadedReply;
+
+export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 	const ranAt = new Date().toISOString();
 	const errors: string[] = [];
 	let checked = 0;
@@ -130,7 +189,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 	let closedDeals = 0;
 
 	if (!canPersistAgentStore()) {
-		const run: EmailSyncRun = {
+		return {
 			ranAt,
 			ok: false,
 			checked: 0,
@@ -139,11 +198,14 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 			closedDeals: 0,
 			errors: ['Document store is unavailable in this environment.'],
 		};
-		return run;
 	}
 
-	const cfg = getZohoConfig();
+	const cfg = getMailConfig();
 	if (!cfg.email || !cfg.password) {
+		const hint =
+			cfg.provider === 'gmail'
+				? 'Missing GMAIL_EMAIL or GMAIL_APP_PASSWORD environment variables.'
+				: 'Missing ZOHO_EMAIL or ZOHO_APP_PASSWORD environment variables.';
 		const run: EmailSyncRun = {
 			ranAt,
 			ok: false,
@@ -151,7 +213,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 			processed: 0,
 			replied: 0,
 			closedDeals: 0,
-			errors: ['Missing ZOHO_EMAIL or ZOHO_APP_PASSWORD environment variables.'],
+			errors: [hint],
 		};
 		await saveEmailSyncRun(run);
 		return run;
@@ -164,6 +226,8 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 		auth: { user: cfg.email, pass: cfg.password },
 		logger: false,
 	});
+
+	const channelName: InquiryRecord['channel'] = cfg.provider === 'gmail' ? 'gmail' : 'zoho_email';
 
 	try {
 		await client.connect();
@@ -183,7 +247,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 						const fromAddr = parsed.from?.value?.[0]?.address?.trim() || '';
 						const fromName = parsed.from?.value?.[0]?.name?.trim() || '';
 						const subject = (parsed.subject || 'Project Inquiry').trim();
-						const messageId = (parsed.messageId || `zoho_${msg.uid}_${Date.now()}`).trim();
+						const messageId = (parsed.messageId || `mail_${msg.uid}_${Date.now()}`).trim();
 						const inReplyTo = typeof parsed.inReplyTo === 'string' ? parsed.inReplyTo.trim() : '';
 						const references = Array.isArray(parsed.references)
 							? parsed.references.map((r) => String(r).trim())
@@ -191,21 +255,26 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 								? parsed.references.split(/\s+/).filter(Boolean)
 								: [];
 
-						// Skip automated bounces, daemon alerts, and self-originated mail
+						// Skip automated bounces, Google/GitHub notifications, mailing lists, and self-sent mail
 						const autoSubmitted = String(parsed.headers.get('auto-submitted') || '').toLowerCase();
 						const precedence = String(parsed.headers.get('precedence') || '').toLowerCase();
+						const isList = parsed.headers.has('list-unsubscribe') || parsed.headers.has('list-id');
 						if (
 							!fromAddr ||
 							fromAddr.toLowerCase() === cfg.email.toLowerCase() ||
-							/(mailer-daemon|postmaster|no-?reply)/i.test(fromAddr) ||
+							/(mailer-daemon|postmaster|no-?reply|donotreply|notifications@|alerts@|accounts\.google\.com)/i.test(
+								fromAddr,
+							) ||
+							isList ||
 							(autoSubmitted && autoSubmitted !== 'no') ||
-							/(bulk|junk|auto_reply)/.test(precedence)
+							/(bulk|junk|list|auto_reply)/.test(precedence)
 						) {
 							await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true });
 							continue;
 						}
 
-						const rawBody = parsed.text || (typeof parsed.html === 'string' ? parsed.html.replace(/<[^>]+>/g, ' ') : '');
+						const rawBody =
+							parsed.text || (typeof parsed.html === 'string' ? parsed.html.replace(/<[^>]+>/g, ' ') : '');
 						const cleanText = stripQuotedReply(rawBody);
 						if (!cleanText) {
 							await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true });
@@ -229,7 +298,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 								subject,
 								thread_id: references[0] || inReplyTo || messageId,
 								status: 'PENDING',
-								channel: 'zoho_email',
+								channel: channelName,
 								messages: [],
 								created_at: now,
 								updated_at: now,
@@ -246,7 +315,6 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 						if (inquiry.status === 'PENDING') inquiry.status = 'NEGOTIATING';
 						await saveInquiry(inquiry);
 
-						// If order already exists for this inquiry and client sent payment tx/Payoneer ref, update order proof
 						const proof = detectPaymentProof(cleanText);
 						if (inquiry.order_id && (proof.txHash || proof.payoneerRef)) {
 							const existingOrder = await getOrder(inquiry.order_id);
@@ -263,7 +331,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 									'Best,',
 									'Saurav Wahid · TechFiyr',
 								].join('\n');
-								const sent = await sendZohoThreadedReply({
+								const sent = await sendThreadedReply({
 									to: fromAddr,
 									subject,
 									bodyText: ackBody,
@@ -286,12 +354,11 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 							}
 						}
 
-						// Run Gemini Sales Agent over the inquiry thread
 						const agentResult = await runSalesAgent({
 							inquiryId: inquiry.id,
 							threadId: inquiry.thread_id,
 							subject,
-							channel: 'zoho_email',
+							channel: channelName,
 							clientEmail: fromAddr,
 							clientName: fromName || fromAddr,
 							clientAgentId: fromAddr,
@@ -303,7 +370,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 								.join('\n'),
 						});
 
-						const sent = await sendZohoThreadedReply({
+						const sent = await sendThreadedReply({
 							to: fromAddr,
 							subject,
 							bodyText: agentResult.reply,
@@ -311,7 +378,6 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 							references: [...references, messageId],
 						});
 
-						// Reload inquiry after runSalesAgent updated it, and attach outgoing SMTP Message-ID
 						const refreshed = await getInquiry(inquiry.id);
 						if (refreshed && sent.ok) {
 							const last = refreshed.messages[refreshed.messages.length - 1];
@@ -336,7 +402,7 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 
 		await client.logout();
 	} catch (err) {
-		errors.push(err instanceof Error ? err.message : 'Zoho IMAP connection failed');
+		errors.push(err instanceof Error ? err.message : `${cfg.provider} IMAP connection failed`);
 	}
 
 	const run: EmailSyncRun = {
@@ -352,8 +418,13 @@ export async function syncZohoInbox(maxMessages = 10): Promise<EmailSyncRun> {
 	return run;
 }
 
-/** Sends a manual admin reply on an Inquiry thread via Zoho SMTP and logs it in Firestore/.data. */
-export async function sendManualInquiryReply(inquiryId: string, text: string): Promise<{ ok: true } | { ok: false; error: string }> {
+export const syncZohoInbox = syncMailInbox;
+
+/** Sends a manual admin reply on an Inquiry thread via SMTP and logs it in Firestore/.data. */
+export async function sendManualInquiryReply(
+	inquiryId: string,
+	text: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
 	const inquiry = await getInquiry(inquiryId);
 	if (!inquiry) return { ok: false, error: 'Inquiry not found.' };
 
@@ -362,7 +433,7 @@ export async function sendManualInquiryReply(inquiryId: string, text: string): P
 
 	const msgIds = inquiry.messages.map((m) => m.messageId).filter((m): m is string => Boolean(m));
 	const lastMsgId = msgIds[msgIds.length - 1];
-	const sent = await sendZohoThreadedReply({
+	const sent = await sendThreadedReply({
 		to: inquiry.sender_email,
 		subject: inquiry.subject,
 		bodyText: body,
@@ -385,4 +456,3 @@ export async function sendManualInquiryReply(inquiryId: string, text: string): P
 	await saveInquiry(updated);
 	return { ok: true };
 }
-

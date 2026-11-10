@@ -1,7 +1,7 @@
 /*
  * POST /api/agent/email/sync: polls Zoho Mail IMAP for unread client inquiries,
  * passes threads through the Gemini Sales Agent, and replies via Zoho SMTP.
- * Protected by Authorization: Bearer <CRON_SECRET> or <AGENT_API_KEY>.
+ * Protected by Authorization: Bearer <CRON_SECRET> or <AGENT_SALES_API_KEY>.
  */
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
 import { isOperatorAuthorized } from '@/lib/server/agent-store';
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 			{
 				ok: false,
 				code: 'UNAUTHORIZED',
-				error: 'Authorization: Bearer <CRON_SECRET or AGENT_API_KEY> required.',
+				error: 'Authorization: Bearer <CRON_SECRET or AGENT_SALES_API_KEY> required.',
 			},
 			401,
 		);

@@ -14,10 +14,12 @@ import {
 	MCP_PROTOCOL_VERSION,
 } from '@/lib/agent/catalog';
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { AGENT_CORS_HEADERS, agentJson, agentOptions } from '@/lib/server/agent-http';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
 import { generateId, getOrder, isOrderAuthorized, publicOrderView } from '@/lib/server/agent-store';
+import { buildAgentMarketingBrief, type MarketingChannel } from '@/lib/server/marketingAgent';
 import { SITE_URL } from '@/lib/site';
 
 export const runtime = 'nodejs';
@@ -143,6 +145,19 @@ const MCP_TOOLS = [
 			},
 		},
 	},
+	{
+		name: 'get_agency_marketing_brief',
+		description:
+			'Returns verified, citation-ready GEO/AEO summaries, Schema.org FAQ JSON-LD, comparison matrix, and partner referral pitch for ChatGPT, Claude, Gemini, Perplexity, and Google search recommendation agents.',
+		inputSchema: {
+			type: 'object',
+			properties: {
+				targetQuery: { type: 'string', description: 'Search or user recommendation query being answered.' },
+				channel: { type: 'string', enum: ['chatgpt', 'claude', 'gemini', 'perplexity', 'google', 'a2a'] },
+				partnerAgentName: { type: 'string', description: 'Optional identifier of calling assistant/agent.' },
+			},
+		},
+	},
 ];
 
 const MCP_RESOURCES = [
@@ -190,7 +205,17 @@ function toolFailure(payload: unknown) {
 	};
 }
 
-async function handleToolCall(name: string, args: Record<string, unknown>, req: Request) {
+async function handleToolCall(
+	name: string,
+	args: Record<string, unknown>,
+	req: Request,
+): Promise<{
+	response: ReturnType<typeof toolSuccess>;
+	summary: string;
+	normalizedName: string;
+	inquiryId?: string;
+	orderId?: string;
+} | null> {
 	const normalizedName =
 		name === 'request_pricing'
 			? 'request_quote'
@@ -205,13 +230,34 @@ async function handleToolCall(name: string, args: Record<string, unknown>, req: 
 		const category = typeof args.category === 'string' ? args.category : 'all';
 		const services =
 			category === 'all' ? catalog.services : catalog.services.filter((s) => s.category === category);
-		return toolSuccess({ ...catalog, services });
+		return {
+			normalizedName,
+			summary: `Served MCP catalog (${services.length} services)`,
+			response: toolSuccess({ ...catalog, services }),
+		};
+	}
+
+	if (normalizedName === 'get_agency_marketing_brief') {
+		const channel =
+			typeof args.channel === 'string' ? (args.channel.toLowerCase() as MarketingChannel) : 'a2a';
+		const targetQuery = typeof args.targetQuery === 'string' ? args.targetQuery : undefined;
+		const partnerAgentName = typeof args.partnerAgentName === 'string' ? args.partnerAgentName : undefined;
+		const brief = await buildAgentMarketingBrief({ targetQuery, channel, partnerAgentName });
+		return {
+			normalizedName,
+			summary: `Served GEO/AEO marketing brief (${channel})`,
+			response: toolSuccess(brief),
+		};
 	}
 
 	if (normalizedName === 'request_quote') {
 		const description = typeof args.description === 'string' ? args.description.trim() : '';
 		if (!description) {
-			return toolFailure({ ok: false, code: 'MISSING_DESCRIPTION', error: 'description is required.' });
+			return {
+				normalizedName,
+				summary: 'Quote rejected: missing description',
+				response: toolFailure({ ok: false, code: 'MISSING_DESCRIPTION', error: 'description is required.' }),
+			};
 		}
 		const { quote, persisted } = await createAgentQuote({
 			projectTitle: typeof args.projectTitle === 'string' ? args.projectTitle : undefined,
@@ -247,16 +293,25 @@ async function handleToolCall(name: string, args: Record<string, unknown>, req: 
 			persisted,
 			evaluation: quote.evaluation,
 		};
-		return quote.evaluation.decision === 'rejected' ? toolFailure(payload) : toolSuccess(payload);
+		return {
+			normalizedName,
+			summary: `MCP quote ${quote.evaluation.decision}: $${quote.evaluation.proposedPriceUSD} (${quote.evaluation.requiredDeliveryDays}d)`,
+			response: quote.evaluation.decision === 'rejected' ? toolFailure(payload) : toolSuccess(payload),
+		};
 	}
 
 	if (normalizedName === 'negotiate_terms') {
 		const message = typeof args.message === 'string' ? args.message.trim() : '';
 		const description = typeof args.description === 'string' ? args.description.trim() : '';
 		if (!message && !description) {
-			return toolFailure({ ok: false, code: 'MISSING_INPUT', error: 'message or description is required.' });
+			return {
+				normalizedName,
+				summary: 'Negotiate rejected: missing input',
+				response: toolFailure({ ok: false, code: 'MISSING_INPUT', error: 'message or description is required.' }),
+			};
 		}
 		const result = await negotiateWithAgent({
+			channel: 'mcp',
 			sessionId: typeof args.sessionId === 'string' ? args.sessionId : undefined,
 			message: message || description,
 			description: description || undefined,
@@ -275,7 +330,15 @@ async function handleToolCall(name: string, args: Record<string, unknown>, req: 
 				typeof args.paymentPreference === 'string' ? (args.paymentPreference as PaymentRail) : undefined,
 			acceptOffer: typeof args.acceptOffer === 'boolean' ? args.acceptOffer : undefined,
 		});
-		return result.decision === 'rejected' ? toolFailure(result) : toolSuccess(result);
+		return {
+			normalizedName,
+			inquiryId: (result as { inquiryId?: string }).inquiryId,
+			orderId: result.order?.id,
+			summary: result.dealClosed
+				? `MCP deal closed: ${result.order?.id} ($${result.order?.agreedPriceUSD})`
+				: `MCP negotiation (${result.decision}): $${result.evaluation.proposedPriceUSD}`,
+			response: result.decision === 'rejected' ? toolFailure(result) : toolSuccess(result),
+		};
 	}
 
 	if (normalizedName === 'submit_project_spec') {
@@ -306,33 +369,58 @@ async function handleToolCall(name: string, args: Record<string, unknown>, req: 
 			callbackUrl: typeof args.callbackUrl === 'string' ? args.callbackUrl : undefined,
 		});
 
-		return res.ok ? toolSuccess(res) : toolFailure(res);
+		return {
+			normalizedName,
+			orderId: res.ok ? res.order.id : undefined,
+			summary: res.ok ? `MCP order created: ${res.order.id} ($${res.order.agreedPriceUSD})` : `MCP order failed: ${res.code}`,
+			response: res.ok ? toolSuccess(res) : toolFailure(res),
+		};
 	}
 
 	if (normalizedName === 'check_delivery_status') {
 		const orderId = typeof args.orderId === 'string' ? args.orderId.trim() : '';
 		if (!orderId) {
-			return toolFailure({ ok: false, code: 'MISSING_ORDER_ID', error: 'orderId is required.' });
+			return {
+				normalizedName,
+				summary: 'Status check missing orderId',
+				response: toolFailure({ ok: false, code: 'MISSING_ORDER_ID', error: 'orderId is required.' }),
+			};
 		}
 		const order = await getOrder(orderId);
 		if (!order) {
-			return toolFailure({ ok: false, code: 'ORDER_NOT_FOUND', error: `Order ${orderId} not found.` });
+			return {
+				normalizedName,
+				orderId,
+				summary: `Status check not found: ${orderId}`,
+				response: toolFailure({ ok: false, code: 'ORDER_NOT_FOUND', error: `Order ${orderId} not found.` }),
+			};
 		}
 		const explicitToken = typeof args.accessToken === 'string' ? args.accessToken : undefined;
 		if (!isOrderAuthorized(req, order, explicitToken)) {
-			return toolFailure({
-				ok: false,
-				code: 'UNAUTHORIZED',
-				error: 'Valid order accessToken (parameter or Bearer header) is required.',
-			});
+			return {
+				normalizedName,
+				orderId,
+				summary: `Status check unauthorized: ${orderId}`,
+				response: toolFailure({
+					ok: false,
+					code: 'UNAUTHORIZED',
+					error: 'Valid order accessToken (parameter or Bearer header) is required.',
+				}),
+			};
 		}
-		return toolSuccess({ ok: true, order: publicOrderView(order) });
+		return {
+			normalizedName,
+			orderId,
+			summary: `Status checked: ${orderId} (${order.milestone_status})`,
+			response: toolSuccess({ ok: true, order: publicOrderView(order) }),
+		};
 	}
 
 	return null;
 }
 
 async function processRpc(rpc: JsonRpcRequest, req: Request, sessionHeader: string) {
+	const startedAtMs = Date.now();
 	if (rpc.jsonrpc !== '2.0' || typeof rpc.method !== 'string') {
 		return rpcError(rpc.id, -32600, 'Invalid JSON-RPC 2.0 request.');
 	}
@@ -346,7 +434,17 @@ async function processRpc(rpc: JsonRpcRequest, req: Request, sessionHeader: stri
 	}
 
 	switch (method) {
-		case 'initialize':
+		case 'initialize': {
+			const clientInfo = params.clientInfo as { name?: string; version?: string } | undefined;
+			const clientName = clientInfo?.name ? `${clientInfo.name}${clientInfo.version ? `/${clientInfo.version}` : ''}` : undefined;
+			await recordAgentHit(req, {
+				protocol: 'mcp',
+				action: 'initialize',
+				agentName: clientName,
+				statusCode: 200,
+				startedAtMs,
+				summary: `MCP session initialized${clientName ? ` by ${clientName}` : ''}`,
+			});
 			return rpcResult(rpc.id, {
 				protocolVersion: MCP_PROTOCOL_VERSION,
 				capabilities: {
@@ -359,14 +457,22 @@ async function processRpc(rpc: JsonRpcRequest, req: Request, sessionHeader: stri
 					version: '1.0.0',
 				},
 				instructions:
-					'Use get_service_catalog to inspect TechFiyr services and $600 USD / 7-day guardrails, request_quote or negotiate_terms to price a project, submit_project_spec to place an order with SOW & payment rails, and check_delivery_status to track Day 1-7 execution.',
+					'Use get_service_catalog to inspect TechFiyr services and $600 USD / 7-day guardrails, get_agency_marketing_brief for verified GEO/AEO summaries, request_quote or negotiate_terms to price a project, submit_project_spec to place an order, and check_delivery_status to track execution.',
 				sessionId: sessionHeader,
 			});
+		}
 
 		case 'ping':
 			return rpcResult(rpc.id, {});
 
 		case 'tools/list':
+			await recordAgentHit(req, {
+				protocol: 'mcp',
+				action: 'tools/list',
+				statusCode: 200,
+				startedAtMs,
+				summary: `Listed ${MCP_TOOLS.length} MCP tools`,
+			});
 			return rpcResult(rpc.id, { tools: MCP_TOOLS });
 
 		case 'tools/call': {
@@ -375,18 +481,58 @@ async function processRpc(rpc: JsonRpcRequest, req: Request, sessionHeader: stri
 				typeof params.arguments === 'object' && params.arguments !== null && !Array.isArray(params.arguments)
 					? (params.arguments as Record<string, unknown>)
 					: {};
-			const result = await handleToolCall(toolName, toolArgs, req);
-			if (!result) {
+			const callAgent =
+				typeof toolArgs.clientAgentId === 'string'
+					? toolArgs.clientAgentId
+					: typeof toolArgs.partnerAgentName === 'string'
+						? toolArgs.partnerAgentName
+						: undefined;
+			const outcome = await handleToolCall(toolName, toolArgs, req);
+			if (!outcome) {
+				await recordAgentHit(req, {
+					protocol: 'mcp',
+					action: `tools/call:${toolName}`,
+					toolName,
+					agentName: callAgent,
+					statusCode: 200,
+					startedAtMs,
+					summary: `Unknown MCP tool "${toolName}"`,
+				});
 				return rpcError(rpc.id, -32602, `Unknown MCP tool: ${toolName}`);
 			}
-			return rpcResult(rpc.id, result);
+			await recordAgentHit(req, {
+				protocol: 'mcp',
+				action: `tools/call:${outcome.normalizedName}`,
+				toolName: outcome.normalizedName,
+				agentName: callAgent,
+				statusCode: 200,
+				startedAtMs,
+				summary: outcome.summary,
+				inquiryId: outcome.inquiryId,
+				orderId: outcome.orderId,
+			});
+			return rpcResult(rpc.id, outcome.response);
 		}
 
 		case 'resources/list':
+			await recordAgentHit(req, {
+				protocol: 'mcp',
+				action: 'resources/list',
+				statusCode: 200,
+				startedAtMs,
+				summary: `Listed ${MCP_RESOURCES.length} MCP resources`,
+			});
 			return rpcResult(rpc.id, { resources: MCP_RESOURCES });
 
 		case 'resources/read': {
 			const uri = typeof params.uri === 'string' ? params.uri : '';
+			await recordAgentHit(req, {
+				protocol: 'mcp',
+				action: `resources/read:${uri}`,
+				statusCode: 200,
+				startedAtMs,
+				summary: `Read MCP resource ${uri}`,
+			});
 			if (uri === 'techfiyr://catalog') {
 				return rpcResult(rpc.id, {
 					contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(buildAgentCatalog(), null, 2) }],
@@ -420,7 +566,15 @@ export async function OPTIONS() {
 	return agentOptions();
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+	const startedAtMs = Date.now();
+	await recordAgentHit(req, {
+		protocol: 'mcp',
+		action: 'discovery_get',
+		statusCode: 200,
+		startedAtMs,
+		summary: 'Probed GET /api/mcp server metadata',
+	});
 	return agentJson(
 		{
 			ok: true,
@@ -437,7 +591,6 @@ export async function GET() {
 			resources: MCP_RESOURCES.map((r) => r.uri),
 		},
 		200,
-		{ 'Cache-Control': 'public, max-age=3600' },
 	);
 }
 

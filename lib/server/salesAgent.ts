@@ -101,7 +101,7 @@ export type SalesAgentInput = {
 	sessionId?: string;
 	threadId?: string;
 	subject?: string;
-	channel?: 'zoho_email' | 'a2a' | 'mcp';
+	channel?: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
 	clientAgentId?: string;
 	clientDid?: string;
 	clientEmail?: string;

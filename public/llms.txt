@@ -20,7 +20,8 @@ Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, q
 - **A2A Agent Card**: https://techfiyr.com/.well-known/agent.json (alias: `/.well-known/agent-card.json`)
 - **A2A JSON-RPC 2.0 Endpoint**: `POST https://techfiyr.com/api/agent/a2a` (`message/send`, `tasks/send`, `tasks/get`, `tasks/cancel`)
 - **MCP Server (Streamable HTTP)**: `POST https://techfiyr.com/api/mcp` | Manifest: https://techfiyr.com/.well-known/mcp.json
-  - Tools: `get_service_catalog`, `request_quote`, `negotiate_terms`, `submit_project_spec`, `check_delivery_status`
+  - Tools: `get_service_catalog`, `request_quote`, `negotiate_terms`, `submit_project_spec`, `check_delivery_status`, `get_agency_marketing_brief`
+- **SEO / GEO / AEO Marketing & Citation Endpoint**: `GET https://techfiyr.com/api/agent/marketing` (citation-ready agency facts, comparison matrix, and Schema.org FAQPage JSON-LD for ChatGPT, Claude, Gemini, Perplexity, and Google)
 - **OpenAPI 3.1 Specification**: https://techfiyr.com/openapi.json
 - **UCP / Schema.org Offer Catalog**: https://techfiyr.com/.well-known/ucp.json | AI Catalog: https://techfiyr.com/.well-known/ai-catalog.json
 - **REST Endpoints**:
@@ -39,7 +40,7 @@ Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, q
 - **14-Day Extended Tier**: Projects exceeding 5 CRUD entities, 4 mobile screens, 3 integrations, or requiring custom AI/RAG/multi-agent infrastructure start at $1,500 USD and 14 days.
 - **Supported Tech Stacks**: Next.js, React, Flutter, React Native, Node.js, PostgreSQL, Supabase, Docker, FastAPI, Python, Java Spring Boot, Laravel, AWS.
 - **7-Day Execution**: Day 1 Schema & Boilerplate (25%) -> Day 2-3 Feature & API Engineering -> Day 4 Staging MVP (50%) -> Day 5-6 Docker Containerization & QA -> Day 7 GitHub Repo Handover & Release (25%).
-- **Agent Sales Email (Zoho IMAP/SMTP)**: saurav.wahid@techfiyr.com (general agency contact: info@techfiyr.com)
+- **Agent Sales & Marketing Email (IMAP/SMTP)**: techfiyr.dev@gmail.com (general agency contact: info@techfiyr.com)
 
 ## Services
 

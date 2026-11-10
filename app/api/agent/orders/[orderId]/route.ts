@@ -3,6 +3,7 @@
  *   GET checks delivery phase, milestone status, SRS, and payment state (requires order accessToken or operator key).
  *   PATCH advances fulfillment phases, milestone_status, or payment tx hashes (requires operator key).
  */
+import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { updateOrderFulfillment } from '@/lib/server/agent-orders';
 import {
@@ -21,13 +22,30 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request, context: { params: Promise<{ orderId: string }> }) {
+	const startedAtMs = Date.now();
 	const { orderId } = await context.params;
 	const order = await getOrder(orderId);
 	if (!order) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'check_delivery_status',
+			statusCode: 404,
+			startedAtMs,
+			orderId,
+			summary: `Order status not found: ${orderId}`,
+		});
 		return agentJson({ ok: false, code: 'ORDER_NOT_FOUND', error: `Order ${orderId} not found.` }, 404);
 	}
 
 	if (!isOrderAuthorized(req, order)) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'check_delivery_status',
+			statusCode: 401,
+			startedAtMs,
+			orderId,
+			summary: `Unauthorized status check on ${orderId}`,
+		});
 		return agentJson(
 			{
 				ok: false,
@@ -38,6 +56,16 @@ export async function GET(req: Request, context: { params: Promise<{ orderId: st
 		);
 	}
 
+	await recordAgentHit(req, {
+		protocol: 'rest',
+		action: 'check_delivery_status',
+		agentName: order.clientAgentId,
+		statusCode: 200,
+		startedAtMs,
+		orderId,
+		summary: `Checked order ${orderId} (${order.milestone_status})`,
+	});
+
 	return agentJson({ ok: true, order: publicOrderView(order) });
 }
 
@@ -47,7 +75,7 @@ export async function PATCH(req: Request, context: { params: Promise<{ orderId: 
 			{
 				ok: false,
 				code: 'UNAUTHORIZED',
-				error: 'Updating fulfillment phases requires operator Authorization: Bearer <AGENT_API_KEY>.',
+				error: 'Updating fulfillment phases requires operator Authorization: Bearer <AGENT_SALES_API_KEY>.',
 			},
 			401,
 		);

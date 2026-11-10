@@ -26,7 +26,7 @@ export type InquiryRecord = {
 	subject: string;
 	thread_id: string;
 	status: InquiryStatus;
-	channel: 'zoho_email' | 'a2a' | 'mcp';
+	channel: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
 	messages: InquiryMessage[];
 	order_id?: string;
 	created_at: string;
@@ -175,12 +175,62 @@ export type EmailSyncRun = {
 	errors: string[];
 };
 
+export type AgentProtocol = 'mcp' | 'a2a' | 'rest' | 'marketing';
+
+export type AgentAuditHit = {
+	id: string;
+	timestamp: string;
+	protocol: AgentProtocol;
+	method: string;
+	endpoint: string;
+	action: string;
+	agent_name: string;
+	user_agent: string;
+	client_hash: string;
+	status_code: number;
+	duration_ms: number;
+	summary: string;
+	inquiry_id?: string;
+	order_id?: string;
+};
+
+export type AgentReachMetrics = {
+	totalHits: number;
+	mcpHits: number;
+	a2aHits: number;
+	restHits: number;
+	marketingHits: number;
+	toolCalls: Record<string, number>;
+	uniqueAgents: string[];
+	lastHitAt: string;
+};
+
+export type MarketingRunRecord = {
+	id: string;
+	createdAt: string;
+	kind: 'audit' | 'campaign' | 'agent_pitch' | 'indexnow';
+	targetQuery: string;
+	channel: string;
+	score?: number;
+	savedPostId?: string;
+	savedPostSlug?: string;
+	indexNowPinged?: boolean;
+	summary: string;
+	seoTitle?: string;
+	seoDescription?: string;
+	llmsSnippet?: string;
+	faqJsonLd?: Record<string, unknown>;
+	agentPitch?: string;
+};
+
 const COLLECTIONS = {
 	inquiries: 'agent_inquiries',
 	quotes: 'agent_quotes',
 	orders: 'agent_orders',
 	sessions: 'agent_sessions',
 	tasks: 'agent_tasks',
+	audit: 'agent_audit_logs',
+	marketing: 'agent_marketing_runs',
 	meta: 'meta',
 } as const;
 
@@ -215,7 +265,7 @@ export function extractBearer(req: Request): string {
 }
 
 export function isOperatorAuthorized(req: Request): boolean {
-	const operatorKey = env('AGENT_API_KEY') || env('CRON_SECRET');
+	const operatorKey = env('AGENT_SALES_API_KEY') || env('CRON_SECRET');
 	if (!operatorKey || operatorKey.length < 16) return false;
 	const token = extractBearer(req);
 	return Boolean(token && safeEqual(token, operatorKey));
@@ -332,6 +382,68 @@ export async function lastEmailSyncRun(): Promise<EmailSyncRun | null> {
 	if (!canPersistAgentStore()) return null;
 	const doc = await store.get(COLLECTIONS.meta, 'email-sync');
 	return doc ? (doc as unknown as EmailSyncRun) : null;
+}
+
+// ---------- Agent Hit Audit Trail & Reach Metrics ----------
+export async function saveAuditHit(hit: AgentAuditHit): Promise<void> {
+	if (!canPersistAgentStore()) return;
+	await store.put(COLLECTIONS.audit, hit.id, cleanDoc(hit));
+}
+
+export async function listAuditHits(limit = 100): Promise<AgentAuditHit[]> {
+	if (!canPersistAgentStore()) return [];
+	const docs = await store.list(COLLECTIONS.audit);
+	return docs
+		.map((d) => d as unknown as AgentAuditHit)
+		.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+		.slice(0, limit);
+}
+
+export async function getAgentMetrics(): Promise<AgentReachMetrics> {
+	const empty: AgentReachMetrics = {
+		totalHits: 0,
+		mcpHits: 0,
+		a2aHits: 0,
+		restHits: 0,
+		marketingHits: 0,
+		toolCalls: {},
+		uniqueAgents: [],
+		lastHitAt: '',
+	};
+	if (!canPersistAgentStore()) return empty;
+	const doc = await store.get(COLLECTIONS.meta, 'agent-metrics');
+	if (!doc) return empty;
+	const raw = doc as Partial<AgentReachMetrics>;
+	return {
+		totalHits: Number(raw.totalHits || 0),
+		mcpHits: Number(raw.mcpHits || 0),
+		a2aHits: Number(raw.a2aHits || 0),
+		restHits: Number(raw.restHits || 0),
+		marketingHits: Number(raw.marketingHits || 0),
+		toolCalls: typeof raw.toolCalls === 'object' && raw.toolCalls !== null ? (raw.toolCalls as Record<string, number>) : {},
+		uniqueAgents: Array.isArray(raw.uniqueAgents) ? raw.uniqueAgents.filter((x): x is string => typeof x === 'string') : [],
+		lastHitAt: typeof raw.lastHitAt === 'string' ? raw.lastHitAt : '',
+	};
+}
+
+export async function saveAgentMetrics(metrics: AgentReachMetrics): Promise<void> {
+	if (!canPersistAgentStore()) return;
+	await store.put(COLLECTIONS.meta, 'agent-metrics', cleanDoc(metrics));
+}
+
+// ---------- SEO / GEO / AEO Marketing Runs ----------
+export async function saveMarketingRun(run: MarketingRunRecord): Promise<void> {
+	if (!canPersistAgentStore()) return;
+	await store.put(COLLECTIONS.marketing, run.id, cleanDoc(run));
+}
+
+export async function listMarketingRuns(limit = 30): Promise<MarketingRunRecord[]> {
+	if (!canPersistAgentStore()) return [];
+	const docs = await store.list(COLLECTIONS.marketing);
+	return docs
+		.map((d) => d as unknown as MarketingRunRecord)
+		.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+		.slice(0, limit);
 }
 
 /** Strips sensitive internal hashes before returning order state to an authorized caller. */

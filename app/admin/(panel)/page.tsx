@@ -311,9 +311,14 @@ function SetupPanel() {
 		{ ok: Boolean(indexNowKey()), label: 'IndexNow', detail: indexNowKey() ? 'Key published at /indexnow-key.txt' : 'Set INDEXNOW_KEY' },
 		{ ok: true, label: 'AI Blog & Cover Generator', detail: hasGeminiKey() ? 'Connected (Gemini multi-model cascade + Free AI fallback with automatic cover photo)' : 'Connected (Free AI generator + Pollinations cover photo ready)' },
 		{
-			ok: Boolean(env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD')),
-			label: 'Zoho Mail Sales Agent',
-			detail: env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD') ? `Connected (${env('ZOHO_EMAIL')})` : 'Set ZOHO_EMAIL & ZOHO_APP_PASSWORD for autonomous inbox replies',
+			ok: Boolean((env('GMAIL_EMAIL') && env('GMAIL_APP_PASSWORD')) || (env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD'))),
+			label: 'Sales & Marketing Mail Agent',
+			detail:
+				env('GMAIL_EMAIL') && env('GMAIL_APP_PASSWORD')
+					? `Connected via Gmail (${env('GMAIL_EMAIL')})`
+					: env('ZOHO_EMAIL') && env('ZOHO_APP_PASSWORD')
+						? `Connected via Zoho (${env('ZOHO_EMAIL')})`
+						: 'Set GMAIL_EMAIL & GMAIL_APP_PASSWORD (or Zoho) for inbox & outreach',
 		},
 		{
 			ok: Boolean(env('CRYPTO_USDC_SOLANA_ADDRESS') || env('CRYPTO_USDC_BASE_ADDRESS') || env('PAYONEER_RECEIVING_ACCOUNT')),
