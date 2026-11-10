@@ -1,13 +1,22 @@
 # robots.txt for https://techfiyr.com
-# Everything public is open to search engines and AI search / answer engines.
-# Pages that must stay out of results (coming soon, offline, 404) use <meta name="robots" content="noindex">
-# instead of Disallow, so crawlers can read that instruction. The private admin panel and the API are
-# disallowed for every crawler (they also send noindex).
+# Public pages and agent discovery/commerce endpoints are open to search engines and AI agents.
+# Pages that must stay out of search results (coming soon, offline, 404) use <meta name="robots" content="noindex">
+# instead of Disallow, so crawlers can read that instruction. The private admin panel and internal site
+# utility APIs are disallowed for crawlers.
 
 User-agent: *
 Allow: /
+Allow: /.well-known/
+Allow: /openapi.json
+Allow: /ai-catalog.json
+Allow: /llms.txt
+Allow: /api/mcp
+Allow: /api/agent/
+Allow: /api/v1/
 Disallow: /admin
-Disallow: /api/
+Disallow: /api/chat
+Disallow: /api/news/
+Disallow: /api/visits
 
 # Search engines
 User-agent: Googlebot
@@ -17,7 +26,7 @@ User-agent: Applebot
 User-agent: YandexBot
 Allow: /
 
-# AI search, answer engines and assistants
+# AI search, answer engines, assistants, and A2A buyer agents
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
 User-agent: GPTBot
@@ -34,5 +43,10 @@ User-agent: meta-externalagent
 User-agent: MistralAI-User
 User-agent: CCBot
 Allow: /
+Allow: /.well-known/
+Allow: /openapi.json
+Allow: /api/mcp
+Allow: /api/agent/
+Allow: /api/v1/
 
 Sitemap: https://techfiyr.com/sitemap.xml

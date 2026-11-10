@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "TechFiyr Autonomous Engineering & A2A Agency Agent",
+  "description": "Agent-to-Agent (A2A) autonomous sales, scoping, and 7-day rapid delivery software agency by TechFiyr (Mirpur DOHS, Dhaka, serving US, Europe & Asia; 5.0 Fiverr/Upwork rating; 8 senior engineers). Quotes, negotiates under programmatic guardrails ($600 USD floor, 7-day MVP / 14-day complex SLA), issues machine-readable SOWs & payment rails, and tracks Day 1-7 execution.",
+  "url": "https://techfiyr.com/api/agent/a2a",
+  "documentationUrl": "https://techfiyr.com/llms.txt",
+  "version": "1.0.0",
+  "provider": {
+    "organization": "TechFiyr",
+    "url": "https://techfiyr.com/",
+    "email": "info@techfiyr.com",
+    "telephone": "+8801540659530",
+    "location": "325, Mirpur DOHS, Dhaka 1216, Bangladesh"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": true,
+    "stateTransitionHistory": true,
+    "mcp": true,
+    "ucp": true,
+    "openapi": true
+  },
+  "authentication": {
+    "schemes": ["bearer", "none"],
+    "credentials": "Public discovery, quotes, negotiation, and order creation require no pre-shared key. Reading order delivery status requires the per-order accessToken returned on creation (Authorization: Bearer <accessToken>)."
+  },
+  "defaultInputModes": ["application/json", "text/plain"],
+  "defaultOutputModes": ["application/json", "text/markdown"],
+  "protocols": {
+    "a2a": {
+      "protocol": "json-rpc-2.0",
+      "endpoint": "https://techfiyr.com/api/agent/a2a",
+      "agentCard": "https://techfiyr.com/.well-known/agent.json"
+    },
+    "mcp": {
+      "protocol": "2025-03-26",
+      "transport": "streamable-http",
+      "endpoint": "https://techfiyr.com/api/mcp",
+      "manifest": "https://techfiyr.com/.well-known/mcp.json"
+    },
+    "openapi": {
+      "version": "3.1.0",
+      "specUrl": "https://techfiyr.com/openapi.json"
+    },
+    "ucp": {
+      "version": "1.0",
+      "manifestUrl": "https://techfiyr.com/.well-known/ucp.json"
+    }
+  },
+  "guardrails": {
+    "currency": "USD",
+    "minFloorPriceUSD": 600,
+    "extendedMinPriceUSD": 1500,
+    "standardTurnaroundDays": 7,
+    "extendedTurnaroundDays": 14,
+    "maxCrudEntities7Day": 5,
+    "maxMobileScreens7Day": 4,
+    "maxThirdPartyIntegrations7Day": 3,
+    "supportedStacks": [
+      "Next.js",
+      "React",
+      "Node.js",
+      "FastAPI",
+      "Python",
+      "Flutter",
+      "React Native",
+      "Java Spring Boot",
+      "Angular",
+      "Laravel",
+      "PostgreSQL",
+      "MongoDB",
+      "Firebase",
+      "Docker",
+      "AWS",
+      "Codemagic CI/CD"
+    ]
+  },
+  "endpoints": {
+    "catalog": "https://techfiyr.com/api/agent/catalog",
+    "quote": "https://techfiyr.com/api/agent/quote",
+    "negotiate": "https://techfiyr.com/api/agent/negotiate",
+    "createOrder": "https://techfiyr.com/api/v1/agent-order",
+    "orders": "https://techfiyr.com/api/agent/orders",
+    "orderStatusTemplate": "https://techfiyr.com/api/agent/orders/{orderId}",
+    "mcp": "https://techfiyr.com/api/mcp",
+    "a2a": "https://techfiyr.com/api/agent/a2a"
+  },
+  "skills": [
+    {
+      "id": "get_service_catalog",
+      "name": "Get Service Catalog & Guardrails",
+      "description": "Retrieve TechFiyr engineering offerings, supported stacks, floor pricing, and 7-day / 14-day SLA rules.",
+      "tags": ["catalog", "pricing", "sla", "software-engineering"],
+      "examples": ["Get TechFiyr service catalog and 7-day MVP scope boundaries."]
+    },
+    {
+      "id": "request_quote",
+      "name": "Request Deterministic Scope Quote",
+      "description": "Evaluate functional spec, CRUD count, screens, integrations, and budget against programmatic pricing and SLA guardrails.",
+      "tags": ["quote", "estimation", "scoping"],
+      "examples": ["Quote a Next.js + PostgreSQL dashboard with 4 CRUD entities and Stripe auth in 7 days for $1,200."]
+    },
+    {
+      "id": "negotiate_terms",
+      "name": "Negotiate Deal Terms",
+      "description": "Multi-turn Gemini-powered Lead Architect negotiation bound by strict programmatic floor prices and timelines.",
+      "tags": ["negotiation", "a2a-commerce", "sales-agent"],
+      "examples": ["Negotiate a Flutter MVP with 4 screens and Firebase auth within a $950 budget."]
+    },
+    {
+      "id": "submit_project_spec",
+      "name": "Submit Spec & Create Order",
+      "description": "Lock in a guardrail-verified order, generate SOW & Stripe/escrow payment rail, and start the 7-day delivery engine.",
+      "tags": ["order", "sow", "payment", "escrow"],
+      "examples": ["Create an order for Real Estate Mobile App MVP at $1,500 USD via Stripe."]
+    },
+    {
+      "id": "check_delivery_status",
+      "name": "Check Delivery Status",
+      "description": "Inspect Day 1-7 / Day 1-14 fulfillment progress, staging URL, GitHub transfer, and payment status.",
+      "tags": ["status", "fulfillment", "ci-cd"],
+      "examples": ["Check delivery status for order tf_ord_..."]
+    }
+  ]
+}
+

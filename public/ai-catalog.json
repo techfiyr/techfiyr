@@ -1,13 +1,47 @@
 {
   "@context": "https://schema.org",
-  "catalogVersion": "1.0",
+  "catalogVersion": "2.0",
   "provider": {
     "name": "TechFiyr",
     "domain": "techfiyr.com",
     "url": "https://techfiyr.com/",
-    "contactUrl": "https://techfiyr.com/contact"
+    "contactUrl": "https://techfiyr.com/contact",
+    "email": "info@techfiyr.com"
   },
   "resources": [
+    {
+      "urn": "urn:ai:techfiyr.com:agent:a2a-agency",
+      "type": "application/a2a+json",
+      "name": "TechFiyr A2A Agent Card",
+      "description": "Agent-to-Agent (A2A) Commerce card, protocols, programmatic pricing guardrails ($600 USD / 7-day floor), and JSON-RPC 2.0 endpoint for autonomous software procurement.",
+      "endpoint": "https://techfiyr.com/.well-known/agent.json",
+      "protocol": "a2a-jsonrpc-2.0"
+    },
+    {
+      "urn": "urn:ai:techfiyr.com:mcp:agency-server",
+      "type": "application/mcp+json",
+      "name": "TechFiyr MCP Server (Streamable HTTP)",
+      "description": "Model Context Protocol server exposing get_service_catalog, request_quote, negotiate_terms, submit_project_spec, and check_delivery_status tools.",
+      "endpoint": "https://techfiyr.com/api/mcp",
+      "manifest": "https://techfiyr.com/.well-known/mcp.json",
+      "protocol": "mcp-streamable-http"
+    },
+    {
+      "urn": "urn:ai:techfiyr.com:api:openapi-3.1",
+      "type": "application/vnd.oai.openapi+json",
+      "name": "TechFiyr A2A Commerce OpenAPI 3.1 Specification",
+      "description": "OpenAPI 3.1 schema for catalog discovery, deterministic quoting, Gemini negotiation, autonomous order intake (/api/v1/agent-order), and delivery status tracking.",
+      "endpoint": "https://techfiyr.com/openapi.json",
+      "protocol": "http-get"
+    },
+    {
+      "urn": "urn:ai:techfiyr.com:commerce:ucp-catalog",
+      "type": "application/ld+json",
+      "name": "TechFiyr UCP & Schema.org Offer Catalog",
+      "description": "Universal Commerce Protocol (UCP) feed describing 7-day MVP and 14-day complex engineering offers with floor pricing and payment rails.",
+      "endpoint": "https://techfiyr.com/.well-known/ucp.json",
+      "protocol": "http-get"
+    },
     {
       "urn": "urn:ai:techfiyr.com:agent:ai-assistant",
       "type": "application/ai-agent",
@@ -25,7 +59,7 @@
       "urn": "urn:ai:techfiyr.com:document:llms-txt",
       "type": "text/markdown",
       "name": "TechFiyr LLM Context Knowledge Base",
-      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, and portfolio case studies for autonomous agents and LLMs.",
+      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, A2A agent endpoints, and portfolio case studies for autonomous agents and LLMs.",
       "endpoint": "https://techfiyr.com/llms.txt",
       "protocol": "http-get"
     }

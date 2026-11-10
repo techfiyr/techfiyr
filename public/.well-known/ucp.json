@@ -1,0 +1,134 @@
+{
+  "@context": [
+    "https://schema.org",
+    {
+      "ucp": "https://ucp.dev/ns/1.0#"
+    }
+  ],
+  "@type": "OfferCatalog",
+  "ucp:protocolVersion": "1.0",
+  "name": "TechFiyr Agentic Software Engineering Commerce Catalog",
+  "description": "Machine-readable UCP service feed for autonomous procurement agents. Supports 7-day rapid MVP builds ($600+ USD) and 14-day complex AI/multi-platform builds ($1,500+ USD).",
+  "provider": {
+    "@type": "ProfessionalService",
+    "@id": "https://techfiyr.com/#organization",
+    "name": "TechFiyr",
+    "url": "https://techfiyr.com/",
+    "email": "info@techfiyr.com",
+    "telephone": "+8801540659530",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "325, Mirpur DOHS",
+      "addressLocality": "Dhaka",
+      "postalCode": "1216",
+      "addressCountry": "BD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": "20",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  },
+  "ucp:capabilities": {
+    "negotiationEndpoint": "https://techfiyr.com/api/agent/negotiate",
+    "quoteEndpoint": "https://techfiyr.com/api/agent/quote",
+    "orderEndpoint": "https://techfiyr.com/api/v1/agent-order",
+    "statusEndpointTemplate": "https://techfiyr.com/api/agent/orders/{orderId}",
+    "mcpEndpoint": "https://techfiyr.com/api/mcp",
+    "a2aEndpoint": "https://techfiyr.com/api/agent/a2a",
+    "openApiSpec": "https://techfiyr.com/openapi.json"
+  },
+  "ucp:paymentMethods": [
+    "stripe_checkout",
+    "usdc_escrow_base",
+    "usdc_escrow_solana",
+    "machine_sow_invoice"
+  ],
+  "itemListElement": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "SoftwareApplication",
+        "name": "7-Day Rapid MVP Engine (Web & API)",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web, Cloud, Docker",
+        "description": "Full-stack Next.js, React, Node.js, FastAPI & PostgreSQL MVP with up to 5 CRUD entities, auth, Docker containerization, and up to 3 integrations."
+      },
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 600,
+        "priceCurrency": "USD"
+      },
+      "deliveryLeadTime": {
+        "@type": "QuantitativeValue",
+        "value": 7,
+        "unitCode": "DAY"
+      },
+      "url": "https://techfiyr.com/api/v1/agent-order"
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "SoftwareApplication",
+        "name": "Cross-Platform Mobile App Engineering (Flutter & React Native)",
+        "applicationCategory": "MobileApplication",
+        "operatingSystem": "iOS, Android",
+        "description": "Cross-platform Flutter or React Native mobile app with up to 4 core screens, Firebase/REST backend, and Codemagic CI/CD."
+      },
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 900,
+        "priceCurrency": "USD"
+      },
+      "deliveryLeadTime": {
+        "@type": "QuantitativeValue",
+        "value": 7,
+        "unitCode": "DAY"
+      },
+      "url": "https://techfiyr.com/api/v1/agent-order"
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Cloud, SaaS & Microservices Backend",
+        "serviceType": "SoftwareDevelopment",
+        "description": "Scalable REST/GraphQL backends and dashboards built on Next.js, Node.js, Java Spring Boot, FastAPI, Laravel, PostgreSQL, and AWS."
+      },
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 750,
+        "priceCurrency": "USD"
+      },
+      "deliveryLeadTime": {
+        "@type": "QuantitativeValue",
+        "value": 7,
+        "unitCode": "DAY"
+      },
+      "url": "https://techfiyr.com/api/v1/agent-order"
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Production AI, RAG & A2A Agent Systems (14-Day Tier)",
+        "serviceType": "ArtificialIntelligenceDevelopment",
+        "description": "Custom RAG pipelines, vector databases, Gemini/LLM orchestration, multi-integration systems (>3 integrations or >5 entities)."
+      },
+      "priceSpecification": {
+        "@type": "PriceSpecification",
+        "minPrice": 1500,
+        "priceCurrency": "USD"
+      },
+      "deliveryLeadTime": {
+        "@type": "QuantitativeValue",
+        "value": 14,
+        "unitCode": "DAY"
+      },
+      "url": "https://techfiyr.com/api/v1/agent-order"
+    }
+  ]
+}
+

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "techfiyr-a2a-mcp",
+  "displayName": "TechFiyr A2A Software Engineering Agency MCP",
+  "description": "Model Context Protocol (MCP) server for autonomous client agents to browse TechFiyr's service catalog, request guardrail-checked quotes, negotiate software development terms, submit specs/orders with SOW & payment rails, and track 7-day / 14-day fulfillment.",
+  "vendor": {
+    "name": "TechFiyr",
+    "url": "https://techfiyr.com/",
+    "email": "info@techfiyr.com"
+  },
+  "protocolVersion": "2025-03-26",
+  "transport": {
+    "type": "streamable-http",
+    "url": "https://techfiyr.com/api/mcp",
+    "method": "POST",
+    "contentType": "application/json"
+  },
+  "tools": [
+    {
+      "name": "get_service_catalog",
+      "description": "Returns TechFiyr services, supported tech stacks, $600 USD / 7-day floor guardrails, and 7-day delivery engine phases."
+    },
+    {
+      "name": "request_quote",
+      "description": "Evaluates a project spec against programmatic guardrails and pricing matrix (aliases: request_pricing)."
+    },
+    {
+      "name": "negotiate_terms",
+      "description": "Autonomous Gemini Lead Architect sales negotiation within strict programmatic floor pricing and SLA boundaries."
+    },
+    {
+      "name": "submit_project_spec",
+      "description": "Creates a binding software order, formal SOW, payment link/escrow instruction, and 7/14-day tracker (aliases: create_order, upload_spec)."
+    },
+    {
+      "name": "check_delivery_status",
+      "description": "Checks Day 1-7 execution progress, staging URL, repo handover, and payment state using orderId + accessToken (alias: get_status)."
+    }
+  ],
+  "resources": [
+    "techfiyr://catalog",
+    "techfiyr://guardrails",
+    "techfiyr://delivery-engine"
+  ],
+  "clientConfigExample": {
+    "mcpServers": {
+      "techfiyr": {
+        "type": "http",
+        "url": "https://techfiyr.com/api/mcp"
+      }
+    }
+  }
+}
+

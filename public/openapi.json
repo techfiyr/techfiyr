@@ -1,0 +1,290 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TechFiyr Agent-to-Agent (A2A) Commerce & MCP API",
+    "version": "1.0.0",
+    "description": "Machine-readable API specification for autonomous client agents discovering, quoting, negotiating, ordering, and tracking 7-day and 14-day software engineering builds from TechFiyr.",
+    "contact": {
+      "name": "TechFiyr Engineering",
+      "url": "https://techfiyr.com/",
+      "email": "info@techfiyr.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://techfiyr.com",
+      "description": "Production A2A Gateway"
+    }
+  ],
+  "paths": {
+    "/api/agent/catalog": {
+      "get": {
+        "operationId": "getServiceCatalog",
+        "summary": "Get TechFiyr service catalog, tech stacks, pricing guardrails, and 7-day fulfillment phases",
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "enum": ["json", "ucp"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service catalog returned",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/api/agent/quote": {
+      "post": {
+        "operationId": "requestQuote",
+        "summary": "Evaluate project specification against programmatic floor pricing ($600 / $1,500) and SLA limits",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/QuoteRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quote decision (approved, counter_offer, or rejected)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/QuoteResponse" } } }
+          },
+          "400": { "description": "Invalid spec or JSON" }
+        }
+      }
+    },
+    "/api/agent/negotiate": {
+      "post": {
+        "operationId": "negotiateTerms",
+        "summary": "Multi-turn Gemini sales agent negotiation bound by deterministic guardrails",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NegotiateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Negotiation turn response and optional closed order",
+            "content": { "application/json": { "schema": { "type": "object" } } }
+          }
+        }
+      }
+    },
+    "/api/v1/agent-order": {
+      "post": {
+        "operationId": "createAgentOrderV1",
+        "summary": "Submit finalized project spec or accepted quoteId to create an order, SOW, and payment rail",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created with SOW, payment link/escrow, and accessToken for status tracking",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderCreatedResponse" } } }
+          },
+          "400": { "description": "Missing email or invalid spec" },
+          "422": { "description": "Blocked by programmatic floor price or SLA boundary guardrail" }
+        }
+      }
+    },
+    "/api/agent/orders": {
+      "post": {
+        "operationId": "createAgentOrder",
+        "summary": "Alias of POST /api/v1/agent-order",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OrderRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OrderCreatedResponse" } } }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listAgentOrders",
+        "summary": "List orders (operator Bearer AGENT_API_KEY required)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Orders list" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/api/agent/orders/{orderId}": {
+      "get": {
+        "operationId": "checkDeliveryStatus",
+        "summary": "Retrieve order fulfillment phase (Day 1-7/14), staging URL, repo handover, and payment state",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Order status" },
+          "401": { "description": "Missing or invalid order accessToken" },
+          "404": { "description": "Order not found" }
+        }
+      }
+    },
+    "/api/mcp": {
+      "post": {
+        "operationId": "mcpJsonRpc",
+        "summary": "Model Context Protocol (MCP) Streamable HTTP JSON-RPC 2.0 endpoint",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JsonRpcRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "JSON-RPC 2.0 response" }
+        }
+      }
+    },
+    "/api/agent/a2a": {
+      "post": {
+        "operationId": "a2aJsonRpc",
+        "summary": "Google A2A JSON-RPC 2.0 endpoint (message/send, tasks/send, tasks/get, tasks/cancel)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/JsonRpcRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "A2A JSON-RPC 2.0 task response" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "PaymentRail": {
+        "type": "string",
+        "enum": ["stripe", "crypto_escrow_base", "crypto_escrow_solana", "invoice"]
+      },
+      "QuoteRequest": {
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+          "projectTitle": { "type": "string" },
+          "description": { "type": "string", "minLength": 12 },
+          "platform": { "type": "string", "enum": ["web", "mobile", "fullstack", "ai", "design"] },
+          "techStack": { "type": "array", "items": { "type": "string" } },
+          "crudEntities": { "type": "integer", "minimum": 1 },
+          "mobileScreens": { "type": "integer", "minimum": 0 },
+          "integrationsCount": { "type": "integer", "minimum": 0 },
+          "requiresCustomAiTraining": { "type": "boolean" },
+          "budgetUSD": { "type": "number" },
+          "requestedDays": { "type": "integer" },
+          "paymentPreference": { "$ref": "#/components/schemas/PaymentRail" },
+          "clientAgentId": { "type": "string" },
+          "clientEmail": { "type": "string", "format": "email" }
+        }
+      },
+      "QuoteResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "quoteId": { "type": "string" },
+          "expiresAt": { "type": "string", "format": "date-time" },
+          "status": { "type": "string" },
+          "evaluation": { "type": "object" }
+        }
+      },
+      "NegotiateRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": { "type": "string" },
+          "message": { "type": "string" },
+          "description": { "type": "string" },
+          "projectTitle": { "type": "string" },
+          "techStack": { "type": "array", "items": { "type": "string" } },
+          "crudEntities": { "type": "integer" },
+          "mobileScreens": { "type": "integer" },
+          "integrationsCount": { "type": "integer" },
+          "budgetUSD": { "type": "number" },
+          "requestedDays": { "type": "integer" },
+          "clientEmail": { "type": "string", "format": "email" },
+          "clientAgentId": { "type": "string" },
+          "paymentPreference": { "$ref": "#/components/schemas/PaymentRail" },
+          "acceptOffer": { "type": "boolean" }
+        }
+      },
+      "OrderRequest": {
+        "type": "object",
+        "required": ["clientEmail", "projectTitle", "scopeSummary"],
+        "properties": {
+          "quoteId": { "type": "string" },
+          "clientEmail": { "type": "string", "format": "email" },
+          "clientAgentId": { "type": "string" },
+          "clientDid": { "type": "string" },
+          "projectTitle": { "type": "string" },
+          "scopeSummary": { "type": "string" },
+          "techStack": { "type": "array", "items": { "type": "string" } },
+          "agreedPriceUSD": { "type": "number", "minimum": 600 },
+          "deliveryDays": { "type": "integer", "minimum": 7 },
+          "crudEntities": { "type": "integer" },
+          "mobileScreens": { "type": "integer" },
+          "integrationsCount": { "type": "integer" },
+          "requiresCustomAiTraining": { "type": "boolean" },
+          "paymentPreference": { "$ref": "#/components/schemas/PaymentRail" },
+          "callbackUrl": { "type": "string", "format": "uri" }
+        }
+      },
+      "OrderCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "type": "boolean" },
+          "order": { "type": "object" },
+          "accessToken": { "type": "string" },
+          "statusUrl": { "type": "string", "format": "uri" }
+        }
+      },
+      "JsonRpcRequest": {
+        "type": "object",
+        "required": ["jsonrpc", "method"],
+        "properties": {
+          "jsonrpc": { "type": "string", "const": "2.0" },
+          "id": { "type": ["string", "number", "null"] },
+          "method": { "type": "string" },
+          "params": { "type": "object" }
+        }
+      }
+    }
+  }
+}
+

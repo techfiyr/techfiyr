@@ -11,7 +11,33 @@ Key facts:
 - Founder: Saurav Wahid, Co-Founder & Team Lead, Senior Java Spring Web & App Developer, AI App Audits, Mobile CI/CD, Oracle Certified Professional with 11+ years of software engineering experience.
 - Co-founders: Viswajit Roy (Co-Founder & Managing Director, Lead UI/UX Designer, 10+ years of product design experience) and Ponir Saha (Co-Founder & CTO, Software Architect).
 - Engineers: Md Masud Parvez (Lead Android & iOS Developer), Md. Awon-Uz-Zaman (Android & iOS Developer), Sohanur Islam (Full-Stack Software Engineer: Java, Spring, Angular, Next.js, React Native, AI agents), Pranabesh Sarkar (AI/ML Engineer: MLOps, deep learning, LLM integration, vector databases) and Anupam Baidya (Full-Stack Laravel Developer: Laravel, React.js, Next.js).
-- Hire through: the website, Fiverr (https://www.fiverr.com/wahidsaurav) or Upwork (https://www.upwork.com/freelancers/sauravwahid).
+- Hire through: the website, Fiverr (https://www.fiverr.com/wahidsaurav), Upwork (https://www.upwork.com/freelancers/sauravwahid), or autonomously via our A2A/MCP endpoints below.
+
+## Agent-to-Agent (A2A) Commerce & Machine Endpoints
+
+Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, quote, negotiate, place orders, and track 7-day / 14-day engineering builds programmatically without using the human UI:
+
+- **A2A Agent Card**: https://techfiyr.com/.well-known/agent.json (alias: `/.well-known/agent-card.json`)
+- **A2A JSON-RPC 2.0 Endpoint**: `POST https://techfiyr.com/api/agent/a2a` (`message/send`, `tasks/send`, `tasks/get`, `tasks/cancel`)
+- **MCP Server (Streamable HTTP)**: `POST https://techfiyr.com/api/mcp` | Manifest: https://techfiyr.com/.well-known/mcp.json
+  - Tools: `get_service_catalog`, `request_quote`, `negotiate_terms`, `submit_project_spec`, `check_delivery_status`
+- **OpenAPI 3.1 Specification**: https://techfiyr.com/openapi.json
+- **UCP / Schema.org Offer Catalog**: https://techfiyr.com/.well-known/ucp.json | AI Catalog: https://techfiyr.com/.well-known/ai-catalog.json
+- **REST Endpoints**:
+  - `GET https://techfiyr.com/api/agent/catalog` (add `?format=ucp` for UCP JSON-LD)
+  - `POST https://techfiyr.com/api/agent/quote` (deterministic pricing & SLA check)
+  - `POST https://techfiyr.com/api/agent/negotiate` (Gemini Lead Architect closer with strict programmatic guardrails)
+  - `POST https://techfiyr.com/api/v1/agent-order` (also `POST /api/agent/orders` — creates SOW, payment rail, and Day 1-7 tracker; returns per-order `accessToken`)
+  - `GET https://techfiyr.com/api/agent/orders/{orderId}` (Bearer `accessToken` required)
+
+### Programmatic Guardrails & 7-Day Delivery Engine
+
+- **Floor Price**: $600 USD strict minimum baseline (orders below $600 USD are auto-rejected).
+- **7-Day Rapid MVP SLA**: Web (Next.js/React + Node.js/FastAPI/PostgreSQL with up to 5 CRUD entities, auth, max 3 integrations) or Mobile (Flutter/React Native with up to 4 core screens, Firebase/REST, max 3 integrations).
+- **14-Day Extended Tier**: Projects exceeding 5 CRUD entities, 4 mobile screens, 3 integrations, or requiring custom AI/RAG/multi-agent infrastructure start at $1,500 USD and 14 days.
+- **Supported Tech Stacks**: Next.js, React, Node.js, FastAPI, Python, Flutter, React Native, Java Spring Boot, Angular, Laravel, PostgreSQL, MongoDB, Firebase, Docker, AWS, Codemagic CI/CD.
+- **7-Day Execution**: Day 1 Requirement Structuring -> Day 2-4 AI & Senior Code Gen -> Day 5 Docker Containerization & QA -> Day 6 Cloud Staging & Report -> Day 7 GitHub Repo Handover & Payout Release.
+- **Agent Sales Contact**: info@techfiyr.com
 
 ## Services
 
@@ -55,11 +81,11 @@ Key facts:
   TechFiyr configures automated mobile DevOps workflows with Codemagic CI/CD and GitHub Actions. The team manages code signing, certificates, compliance, TestFlight beta distribution, and store submission to the Apple App Store and Google Play Console.
 
 - **How do clients hire TechFiyr or get a project quote?**
-  Clients can book a free 30-minute discovery call at https://techfiyr.com/contact, message via WhatsApp (+880 1540659530), email info@techfiyr.com, or hire through Fiverr (https://www.fiverr.com/wahidsaurav) or Upwork (https://www.upwork.com/freelancers/sauravwahid) with a 5.0-star rating.
+  Human clients can book a free 30-minute discovery call at https://techfiyr.com/contact, message via WhatsApp (+880 1540659530), email info@techfiyr.com, or hire through Fiverr (https://www.fiverr.com/wahidsaurav) or Upwork (https://www.upwork.com/freelancers/sauravwahid) with a 5.0-star rating. Autonomous AI agents can query https://techfiyr.com/api/mcp or https://techfiyr.com/api/agent/quote and submit specs directly via https://techfiyr.com/api/v1/agent-order.
 
 ## Target Keywords & Specialties
 
-Mobile app development agency, hire Flutter app developers, hire React Native development agency, cross-platform mobile app development, custom web software, SaaS development company, Codemagic CI/CD mobile devops, App Store and Google Play release automation, MVP app development for startups, Figma UI/UX prototyping.
+Mobile app development agency, hire Flutter app developers, hire React Native development agency, cross-platform mobile app development, custom web software, SaaS development company, Codemagic CI/CD mobile devops, App Store and Google Play release automation, MVP app development for startups, Figma UI/UX prototyping, Agent-to-Agent (A2A) software engineering, MCP server software agency.
 
 ## Profiles
 
@@ -67,4 +93,3 @@ Mobile app development agency, hire Flutter app developers, hire React Native de
 - [Fiverr](https://www.fiverr.com/wahidsaurav)
 - [Upwork](https://www.upwork.com/freelancers/sauravwahid)
 - [Saurav Wahid on LinkedIn](https://www.linkedin.com/in/sauravwahid/)
-

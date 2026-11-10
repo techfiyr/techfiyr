@@ -310,6 +310,11 @@
   to = "/ai-catalog.json"
   status = 200
 
+[[redirects]]
+  from = "/.well-known/agent-card.json"
+  to = "/.well-known/agent.json"
+  status = 200
+
 # ---------------------------------------------------------------------------
 # Response headers
 # ---------------------------------------------------------------------------
@@ -368,6 +373,53 @@
     Content-Type = "application/json; charset=utf-8"
     Cache-Control = "public, max-age=3600"
     Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/ai-catalog.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/agent.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/agent-card.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/mcp.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/ucp.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/openapi.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Link = '<https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"'
 
 [[headers]]
   for = "/sitemap.xml"

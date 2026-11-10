@@ -22,6 +22,38 @@ const nextConfig: NextConfig = {
 			{ source: '/llm.txt', destination: '/llms.txt' },
 			{ source: '/llms', destination: '/llms.txt' },
 			{ source: '/llms-full.txt', destination: '/llms.txt' },
+			{ source: '/.well-known/ai-catalog.json', destination: '/ai-catalog.json' },
+			{ source: '/.well-known/agent-card.json', destination: '/.well-known/agent.json' },
+		];
+	},
+	async headers() {
+		return [
+			{
+				source: '/',
+				headers: [
+					{
+						key: 'Link',
+						value:
+							'<https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"',
+					},
+				],
+			},
+			{
+				source: '/.well-known/:path*.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
+			{
+				source: '/openapi.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
 		];
 	},
 };
