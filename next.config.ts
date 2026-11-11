@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
 			{ source: '/llms-full.txt', destination: '/llms.txt' },
 			{ source: '/.well-known/ai-catalog.json', destination: '/ai-catalog.json' },
 			{ source: '/.well-known/agent-card.json', destination: '/.well-known/agent.json' },
+			{ source: '/.well-known/mcp-registry-auth', destination: '/api/well-known-mcp-auth' },
 		];
 	},
 	async headers() {
@@ -42,6 +43,30 @@ const nextConfig: NextConfig = {
 				source: '/.well-known/:path*.json',
 				headers: [
 					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
+			{
+				source: '/server.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
+			{
+				source: '/mcp.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
+			{
+				source: '/llms-install.md',
+				headers: [
+					{ key: 'Content-Type', value: 'text/markdown; charset=utf-8' },
 					{ key: 'Access-Control-Allow-Origin', value: '*' },
 					{ key: 'Cache-Control', value: 'public, max-age=3600' },
 				],

@@ -7,9 +7,10 @@
  */
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
-import { isOperatorAuthorized } from '@/lib/server/agent-store';
+import { isMarketingAuthorized } from '@/lib/server/agent-store';
 import {
 	auditSeoGeoAeo,
+	broadcastToAgentNetworks,
 	buildAgentMarketingBrief,
 	runMarketingCampaign,
 	sendMarketingOutreachEmail,
@@ -88,8 +89,8 @@ export async function POST(req: Request) {
 		return agentJson(brief);
 	}
 
-	// Operator-only SEO/GEO/AEO actions (audit, draft campaign, indexnow)
-	if (!isOperatorAuthorized(req)) {
+	// Operator-only Marketing Agent actions (uses AGENT_MARKETING_API_KEY, separate from AGENT_SALES_API_KEY)
+	if (!isMarketingAuthorized(req)) {
 		await recordAgentHit(req, {
 			protocol: 'marketing',
 			action: `unauthorized:${action}`,
@@ -102,10 +103,23 @@ export async function POST(req: Request) {
 			{
 				ok: false,
 				code: 'UNAUTHORIZED',
-				error: 'Operator actions (audit, generate_campaign, ping_indexnow) require Authorization: Bearer <AGENT_SALES_API_KEY>.',
+				error: 'Marketing agent operator actions (audit, generate_campaign, ping_indexnow, send_outreach_email, broadcast_registries) require Authorization: Bearer <AGENT_MARKETING_API_KEY>.',
 			},
 			401,
 		);
+	}
+
+	if (action === 'broadcast_registries') {
+		const broadcast = await broadcastToAgentNetworks(true);
+		await recordAgentHit(req, {
+			protocol: 'marketing',
+			action: 'broadcast_registries',
+			agentName: partnerAgentName || 'techfiyr-marketing-agent',
+			statusCode: 200,
+			startedAtMs,
+			summary: `Broadcast MCP/A2A manifests across agent networks & IndexNow (${broadcast.indexNow.urls.length} URLs).`,
+		});
+		return agentJson({ ok: broadcast.ok, broadcast });
 	}
 
 	if (action === 'audit') {

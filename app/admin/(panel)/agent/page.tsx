@@ -35,6 +35,7 @@ export default async function AdminAgentPage({
 		updated?: string;
 		audited?: string;
 		pinged?: string;
+		broadcasted?: string;
 		campaign?: string;
 		draftPost?: string;
 		mktSent?: string;
@@ -116,6 +117,11 @@ export default async function AdminAgentPage({
 			{params.pinged !== undefined && (
 				<p className="admin-alert is-good" role="status">
 					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> IndexNow sweep executed across {params.pinged} public URLs.
+				</p>
+			)}
+			{params.broadcasted !== undefined && (
+				<p className="admin-alert is-good" role="status">
+					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> Agent network broadcast completed ({params.broadcasted} live discovery endpoints reachable).
 				</p>
 			)}
 			{params.campaign && (

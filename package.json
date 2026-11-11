@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
+    "submit-mcp": "node --no-warnings scripts/submitMcpRegistries.ts",
     "server:start": "bash scripts/server.sh start",
     "server:stop": "bash scripts/server.sh stop",
     "server:status": "bash scripts/server.sh status"

@@ -208,7 +208,7 @@ export type AgentReachMetrics = {
 export type MarketingRunRecord = {
 	id: string;
 	createdAt: string;
-	kind: 'audit' | 'campaign' | 'agent_pitch' | 'indexnow';
+	kind: 'audit' | 'campaign' | 'agent_pitch' | 'indexnow' | 'registry_broadcast';
 	targetQuery: string;
 	channel: string;
 	score?: number;
@@ -261,7 +261,12 @@ export function safeEqual(a: string, b: string): boolean {
 export function extractBearer(req: Request): string {
 	const auth = req.headers.get('authorization') || '';
 	if (/^Bearer\s+/i.test(auth)) return auth.replace(/^Bearer\s+/i, '').trim();
-	return (req.headers.get('x-order-token') || req.headers.get('x-agent-key') || '').trim();
+	return (
+		req.headers.get('x-order-token') ||
+		req.headers.get('x-agent-key') ||
+		req.headers.get('x-marketing-key') ||
+		''
+	).trim();
 }
 
 export function isOperatorAuthorized(req: Request): boolean {
@@ -269,6 +274,13 @@ export function isOperatorAuthorized(req: Request): boolean {
 	if (!operatorKey || operatorKey.length < 16) return false;
 	const token = extractBearer(req);
 	return Boolean(token && safeEqual(token, operatorKey));
+}
+
+export function isMarketingAuthorized(req: Request): boolean {
+	const marketingKey = env('AGENT_MARKETING_API_KEY') || env('CRON_SECRET');
+	if (!marketingKey || marketingKey.length < 16) return false;
+	const token = extractBearer(req);
+	return Boolean(token && safeEqual(token, marketingKey));
 }
 
 export function isOrderAuthorized(req: Request, order: AgentOrderRecord, explicitToken?: string): boolean {

@@ -417,6 +417,34 @@
     Access-Control-Allow-Origin = "*"
 
 [[headers]]
+  for = "/server.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/mcp.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/llms-install.md"
+  [headers.values]
+    Content-Type = "text/markdown; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/mcp-registry-auth"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=300"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
   for = "/"
   [headers.values]
     Link = '<https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"'

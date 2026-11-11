@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
+	broadcastRegistriesAction,
 	pingIndexNowAction,
 	replyToInquiryAction,
 	runMarketingAuditAction,
@@ -859,6 +860,11 @@ export default function AgentDashboard({
 								<form action={pingIndexNowAction}>
 									<SubmitButton className="admin-btn is-small is-primary" pending="Pinging IndexNow...">
 										<i className="fa-solid fa-bolt" aria-hidden="true"></i> Ping IndexNow (Bing / ChatGPT Search)
+									</SubmitButton>
+								</form>
+								<form action={broadcastRegistriesAction}>
+									<SubmitButton className="admin-btn is-small is-quiet" pending="Broadcasting...">
+										<i className="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Broadcast Agent Networks
 									</SubmitButton>
 								</form>
 							</div>

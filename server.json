@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.techfiyr/ai-native-software-agency",
+  "title": "TechFiyr AI-Native Software Agency",
+  "description": "AI-native software agency delivering custom web, mobile, and SaaS engineering within a 7-day turnaround.",
+  "version": "1.0.0",
+  "websiteUrl": "https://techfiyr.com",
+  "repository": {
+    "url": "https://github.com/techfiyr/techfiyr",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://techfiyr.com/api/mcp"
+    }
+  ]
+}
+

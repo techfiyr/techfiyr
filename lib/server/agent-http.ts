@@ -6,7 +6,8 @@ import { NextResponse } from 'next/server';
 export const AGENT_CORS_HEADERS: Record<string, string> = {
 	'Access-Control-Allow-Origin': '*',
 	'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
-	'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Order-Token, X-Agent-Key, X-Agent-Id, X-Agent-DID, Mcp-Session-Id',
+	'Access-Control-Allow-Headers':
+		'Content-Type, Authorization, X-Order-Token, X-Agent-Key, X-Marketing-Key, X-Agent-Id, X-Agent-DID, Mcp-Session-Id',
 	'X-Robots-Tag': 'noindex',
 };
 

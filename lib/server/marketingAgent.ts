@@ -230,6 +230,9 @@ export async function auditSeoGeoAeo(persistRun = true): Promise<SeoGeoAeoAuditR
 	const mcpJson = readPublicText('.well-known/mcp.json');
 	const ucpJson = readPublicText('.well-known/ucp.json');
 	const openApi = readPublicText('openapi.json');
+	const rootMcpJson = existsSync(join(process.cwd(), 'mcp.json'));
+	const rootServerJson = existsSync(join(process.cwd(), 'server.json')) && Boolean(readPublicText('server.json'));
+	const llmsInstall = Boolean(readPublicText('llms-install.md'));
 	const [posts, products] = await Promise.all([getPublishedPosts(), getPublishedProducts()]);
 
 	const aiBots = ['GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'PerplexityBot', 'Google-Extended'];
@@ -265,12 +268,12 @@ export async function auditSeoGeoAeo(persistRun = true): Promise<SeoGeoAeoAuditR
 		{
 			id: 'a2a_mcp_ucp_manifests',
 			area: 'AEO',
-			label: 'Machine-readable A2A, MCP, UCP & OpenAPI 3.1 manifests live',
-			passed: Boolean(agentJson && mcpJson && ucpJson && openApi),
+			label: 'Machine-readable A2A, MCP, UCP, server.json & OpenAPI 3.1 manifests live',
+			passed: Boolean(agentJson && mcpJson && ucpJson && openApi && rootMcpJson && rootServerJson && llmsInstall),
 			detail:
-				agentJson && mcpJson && ucpJson && openApi
-					? '/.well-known/agent.json, mcp.json, ucp.json, and /openapi.json verified.'
-					: 'One or more discovery manifests missing in public/.',
+				agentJson && mcpJson && ucpJson && openApi && rootMcpJson && rootServerJson && llmsInstall
+					? '/.well-known/agent.json, mcp.json, ucp.json, /server.json, /mcp.json, /llms-install.md, and /openapi.json verified.'
+					: 'One or more discovery manifests missing in repository root or public/.',
 		},
 		{
 			id: 'indexnow_bing_chatgpt',
@@ -464,6 +467,16 @@ export async function triggerIndexNowSweep(recordRun = true): Promise<{
 		...posts.map(postPath),
 		'/news',
 		'/contact',
+		'/llms.txt',
+		'/llms-install.md',
+		'/server.json',
+		'/mcp.json',
+		'/.well-known/mcp.json',
+		'/.well-known/agent.json',
+		'/.well-known/agent-card.json',
+		'/.well-known/ucp.json',
+		'/openapi.json',
+		'/ai-catalog.json',
 	];
 	const keyConfigured = Boolean(indexNowKey());
 	const productionDispatch = keyConfigured && process.env.NODE_ENV === 'production' && process.env.CONTEXT !== 'deploy-preview';
@@ -561,4 +574,108 @@ export async function sendMarketingOutreachEmail(params: {
 
 	return sent;
 }
+
+export type RegistryProbeResult = {
+	target: string;
+	url: string;
+	ok: boolean;
+	status: number;
+	detail: string;
+};
+
+/**
+ * Broadcasts and verifies TechFiyr's live MCP/A2A discovery footprint across open agent networks:
+ * checks public discovery endpoints, queries the Official MCP Registry & Glama directory indexes,
+ * and dispatches an IndexNow sweep including /server.json, /mcp.json, /llms-install.md, and /.well-known/agent-card.json.
+ */
+export async function broadcastToAgentNetworks(recordRun = true): Promise<{
+	ok: boolean;
+	ranAt: string;
+	endpointProbes: RegistryProbeResult[];
+	registryLookups: RegistryProbeResult[];
+	indexNow: Awaited<ReturnType<typeof triggerIndexNowSweep>>;
+}> {
+	const ranAt = new Date().toISOString();
+
+	const publicUrls: { target: string; url: string }[] = [
+		{ target: 'MCP Streamable HTTP', url: `${SITE_URL}/api/mcp` },
+		{ target: 'MCP Well-Known Manifest', url: `${SITE_URL}/.well-known/mcp.json` },
+		{ target: 'MCP Registry Server Schema', url: `${SITE_URL}/server.json` },
+		{ target: 'Root MCP Descriptor', url: `${SITE_URL}/mcp.json` },
+		{ target: 'Agent Install Guide', url: `${SITE_URL}/llms-install.md` },
+		{ target: 'A2A v1.0 Agent Card', url: `${SITE_URL}/.well-known/agent-card.json` },
+		{ target: 'OpenAPI 3.1 Spec', url: `${SITE_URL}/openapi.json` },
+		{ target: 'Marketing Citation Brief', url: `${SITE_URL}/api/agent/marketing` },
+	];
+
+	const probeUrl = async (target: string, url: string): Promise<RegistryProbeResult> => {
+		try {
+			const res = await fetch(url, {
+				headers: { 'User-Agent': 'TechFiyrMarketingAgent/1.0 (+https://techfiyr.com/api/agent/marketing)' },
+				cache: 'no-store',
+				signal: AbortSignal.timeout(7000),
+			});
+			return { target, url, ok: res.ok, status: res.status, detail: res.ok ? `HTTP ${res.status} reachable` : `HTTP ${res.status}` };
+		} catch (err) {
+			return { target, url, ok: false, status: 0, detail: err instanceof Error ? err.message : 'Network error' };
+		}
+	};
+
+	const [endpointProbes, registryLookups, indexNow] = await Promise.all([
+		Promise.all(publicUrls.map((p) => probeUrl(p.target, p.url))),
+		Promise.all([
+			(async (): Promise<RegistryProbeResult> => {
+				const url = 'https://registry.modelcontextprotocol.io/v0.1/servers?search=techfiyr';
+				try {
+					const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(7000) });
+					const data = (await res.json().catch(() => null)) as { servers?: unknown[] } | null;
+					const count = Array.isArray(data?.servers) ? data.servers.length : 0;
+					return {
+						target: 'Official MCP Registry',
+						url,
+						ok: res.ok && count > 0,
+						status: res.status,
+						detail: count > 0 ? `Indexed (${count} match${count === 1 ? '' : 'es'})` : 'Not indexed yet — run scripts/submitMcpRegistries.ts --publish',
+					};
+				} catch (err) {
+					return { target: 'Official MCP Registry', url, ok: false, status: 0, detail: err instanceof Error ? err.message : 'Lookup failed' };
+				}
+			})(),
+			(async (): Promise<RegistryProbeResult> => {
+				const url = 'https://glama.ai/api/mcp/v1/servers?query=techfiyr';
+				try {
+					const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(7000) });
+					return {
+						target: 'Glama MCP Directory',
+						url: 'https://glama.ai/mcp/servers',
+						ok: res.ok,
+						status: res.status,
+						detail: res.ok ? `Directory API responded (${res.status})` : `Directory check returned ${res.status} — claim via github.com/techfiyr/techfiyr`,
+					};
+				} catch (err) {
+					return { target: 'Glama MCP Directory', url: 'https://glama.ai/mcp/servers', ok: false, status: 0, detail: err instanceof Error ? err.message : 'Lookup failed' };
+				}
+			})(),
+		]),
+		triggerIndexNowSweep(false),
+	]);
+
+	const liveReachable = endpointProbes.filter((p) => p.ok).length;
+	const ok = liveReachable >= 2 || indexNow.keyConfigured;
+
+	if (recordRun) {
+		await saveMarketingRun({
+			id: generateId('mkt'),
+			createdAt: ranAt,
+			kind: 'registry_broadcast',
+			targetQuery: 'MCP & Open Agent Network Broadcast',
+			channel: 'a2a',
+			indexNowPinged: indexNow.productionDispatch,
+			summary: `Verified ${liveReachable}/${endpointProbes.length} live discovery endpoints & swept IndexNow (${indexNow.urls.length} URLs). Official MCP Registry: ${registryLookups[0]?.detail || 'checked'}.`,
+		});
+	}
+
+	return { ok, ranAt, endpointProbes, registryLookups, indexNow };
+}
+
 

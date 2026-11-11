@@ -22,6 +22,7 @@ import type { MilestoneStatus } from '@/lib/server/agent-store';
 import { sendManualInquiryReply, syncMailInbox } from '@/lib/server/emailWorker';
 import {
 	auditSeoGeoAeo,
+	broadcastToAgentNetworks,
 	runMarketingCampaign,
 	sendMarketingOutreachEmail,
 	triggerIndexNowSweep,
@@ -413,6 +414,16 @@ export async function pingIndexNowAction() {
 		revalidatePath('/admin/agent');
 	} catch {}
 	redirect(`/admin/agent?tab=marketing&pinged=${sweep.urls.length}`);
+}
+
+export async function broadcastRegistriesAction() {
+	await requireAdmin();
+	const res = await broadcastToAgentNetworks(true);
+	const reachable = res.endpointProbes.filter((p) => p.ok).length;
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=marketing&broadcasted=${reachable}`);
 }
 
 export async function runMarketingCampaignAction(fd: FormData) {
