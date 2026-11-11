@@ -11,12 +11,15 @@
  *   - Uses GITHUB_TOKEN (if set) for drafting/opening a Pull Request on awesome-mcp-servers.
  */
 import { execSync } from 'node:child_process';
+import { createPrivateKey, sign } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 type CliOptions = {
 	baseUrl: string;
 	dryRun: boolean;
+	onlyRegistry: boolean;
 	repoUrl: string;
 };
 
@@ -82,14 +85,16 @@ function parseArgs(argv: string[]): CliOptions {
 	let baseUrl = DEFAULT_BASE_URL;
 	let repoUrl = DEFAULT_REPO_URL;
 	let dryRun = false;
+	let onlyRegistry = false;
 
 	for (const arg of argv) {
 		if (arg === '--dry-run') dryRun = true;
+		else if (arg === '--only-registry') onlyRegistry = true;
 		else if (arg.startsWith('--base-url=')) baseUrl = arg.slice('--base-url='.length).replace(/\/+$/, '');
 		else if (arg.startsWith('--repo=')) repoUrl = arg.slice('--repo='.length).replace(/\/+$/, '');
 	}
 
-	return { baseUrl, dryRun, repoUrl };
+	return { baseUrl, dryRun, onlyRegistry, repoUrl };
 }
 
 function resolveGitHubRepoUrl(cwd: string, fallback: string): string {
@@ -372,8 +377,201 @@ export async function verifyAndBroadcastMarketingAgent(baseUrl: string, dryRun: 
 	}
 }
 
+function loadEd25519PrivateKey(): ReturnType<typeof createPrivateKey> | null {
+	const rawEnv = (process.env.MCP_REGISTRY_PRIVATE_KEY || '').trim();
+	if (rawEnv) {
+		if (rawEnv.includes('BEGIN PRIVATE KEY')) {
+			return createPrivateKey(rawEnv);
+		}
+		const hex = rawEnv.replace(/[^0-9a-f]/gi, '');
+		if (hex.length === 64) {
+			const pkcs8 = Buffer.concat([Buffer.from('302e020100300506032b657004220420', 'hex'), Buffer.from(hex, 'hex')]);
+			return createPrivateKey({ key: pkcs8, format: 'der', type: 'pkcs8' });
+		}
+	}
+
+	const keyFile = (process.env.MCP_REGISTRY_KEY_FILE || '').trim() || join(homedir(), 'mcp-key.pem');
+	if (existsSync(keyFile)) {
+		return createPrivateKey(readFileSync(keyFile, 'utf8'));
+	}
+
+	return null;
+}
+
+/** Publishes server.json to https://registry.modelcontextprotocol.io via HTTP domain signature or GitHub token exchange. */
+export async function publishOfficialMcpRegistry(cwd: string, dryRun: boolean): Promise<DirectoryResult> {
+	const registryBase = 'https://registry.modelcontextprotocol.io';
+	const serverPath = join(cwd, 'server.json');
+	if (!existsSync(serverPath)) {
+		return {
+			directory: 'Official MCP Registry',
+			target: `${registryBase}/v0.1/publish`,
+			method: 'POST',
+			status: 0,
+			outcome: 'error',
+			detail: 'server.json missing in workspace root',
+		};
+	}
+
+	let serverJson: Record<string, unknown>;
+	try {
+		serverJson = JSON.parse(readFileSync(serverPath, 'utf8')) as Record<string, unknown>;
+	} catch {
+		return {
+			directory: 'Official MCP Registry',
+			target: `${registryBase}/v0.1/publish`,
+			method: 'POST',
+			status: 0,
+			outcome: 'error',
+			detail: 'Malformed server.json',
+		};
+	}
+
+	const serverName = String(serverJson.name || '');
+	const serverVersion = String(serverJson.version || '');
+
+	// 1. Check existing index state using the canonical server/version lookup endpoint
+	const regUrl = `${registryBase}/v0.1/servers/${encodeURIComponent(serverName)}/versions/${encodeURIComponent(serverVersion || 'latest')}`;
+	try {
+		const reg = await fetchJsonOrText(regUrl, { method: 'GET' });
+		const regServer = (reg.json?.server as { name?: string; version?: string } | undefined);
+		if (reg.status === 200 && regServer?.name === serverName) {
+			return {
+				directory: 'Official MCP Registry',
+				target: regUrl,
+				method: 'GET',
+				status: reg.status,
+				outcome: 'indexed',
+				detail: `Already published: ${serverName} v${regServer.version || serverVersion}`,
+			};
+		}
+	} catch (err) {
+		return {
+			directory: 'Official MCP Registry',
+			target: regUrl,
+			method: 'GET',
+			status: 0,
+			outcome: 'error',
+			detail: err instanceof Error ? err.message : 'Registry lookup failed',
+		};
+	}
+
+	// 2. Validate against Official Registry API before publishing
+	const validateRes = await fetchJsonOrText(`${registryBase}/v0.1/validate`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(serverJson),
+	});
+	const isValid = validateRes.ok && validateRes.json?.valid === true;
+	if (!isValid) {
+		return {
+			directory: 'Official MCP Registry',
+			target: `${registryBase}/v0.1/validate`,
+			method: 'POST',
+			status: validateRes.status,
+			outcome: 'error',
+			detail: `Validation failed (HTTP ${validateRes.status}): ${JSON.stringify(validateRes.json?.errors || validateRes.json || validateRes.text.slice(0, 140))}`,
+		};
+	}
+
+	if (dryRun) {
+		return {
+			directory: 'Official MCP Registry',
+			target: `${registryBase}/v0.1/publish`,
+			method: 'POST',
+			status: validateRes.status,
+			outcome: 'dry-run',
+			detail: `server.json validated (200 OK); ready to publish ${serverName} v${serverVersion}`,
+		};
+	}
+
+	// 3. Exchange auth token (HTTP Ed25519 signature for domain namespaces; GitHub PAT for io.github.*)
+	let registryToken = '';
+	if (serverName.startsWith('io.github.')) {
+		const ghToken = (process.env.GITHUB_TOKEN || '').trim();
+		if (!ghToken) {
+			return {
+				directory: 'Official MCP Registry',
+				target: `${registryBase}/v0.1/auth/github-at`,
+				method: 'POST',
+				status: 0,
+				outcome: 'manual-fallback',
+				detail: 'GITHUB_TOKEN required for io.github.* publishing, or run: mcp-publisher login github',
+			};
+		}
+		const authRes = await fetchJsonOrText(`${registryBase}/v0.1/auth/github-at`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ github_token: ghToken }),
+		});
+		registryToken = String(authRes.json?.registry_token || '');
+		if (!authRes.ok || !registryToken) {
+			return {
+				directory: 'Official MCP Registry',
+				target: `${registryBase}/v0.1/auth/github-at`,
+				method: 'POST',
+				status: authRes.status,
+				outcome: 'error',
+				detail: `GitHub token exchange failed (${authRes.status}): ${authRes.text.slice(0, 140)}`,
+			};
+		}
+	} else {
+		const domain = 'techfiyr.com';
+		const privKey = loadEd25519PrivateKey();
+		if (!privKey) {
+			return {
+				directory: 'Official MCP Registry',
+				target: `${registryBase}/v0.1/auth/http`,
+				method: 'POST',
+				status: 0,
+				outcome: 'manual-fallback',
+				detail: 'Ed25519 key not found (MCP_REGISTRY_PRIVATE_KEY or ~/mcp-key.pem) — pass private key or switch name to io.github.techfiyr/*',
+			};
+		}
+		const timestamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+		const signedHex = sign(null, Buffer.from(timestamp, 'utf8'), privKey).toString('hex');
+		const authRes = await fetchJsonOrText(`${registryBase}/v0.1/auth/http`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ domain, timestamp, signed_timestamp: signedHex }),
+		});
+		registryToken = String(authRes.json?.registry_token || '');
+		if (!authRes.ok || !registryToken) {
+			return {
+				directory: 'Official MCP Registry',
+				target: `${registryBase}/v0.1/auth/http`,
+				method: 'POST',
+				status: authRes.status,
+				outcome: 'error',
+				detail: `HTTP domain auth failed (${authRes.status}): ${authRes.text.slice(0, 140)}`,
+			};
+		}
+	}
+
+	// 4. Publish server.json cleanly
+	const pubRes = await fetchJsonOrText(`${registryBase}/v0.1/publish`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${registryToken}`,
+		},
+		body: JSON.stringify(serverJson),
+	});
+
+	return {
+		directory: 'Official MCP Registry',
+		target: `${registryBase}/v0.1/publish`,
+		method: 'POST',
+		status: pubRes.status,
+		outcome: pubRes.ok ? 'submitted' : 'error',
+		detail: pubRes.ok
+			? `Published ${serverName} v${serverVersion} (HTTP ${pubRes.status})`
+			: `Publish failed (HTTP ${pubRes.status}): ${JSON.stringify(pubRes.json || pubRes.text.slice(0, 160))}`,
+	};
+}
+
 /** 2 & 3. Submits metadata payload to open MCP directories and triggers Smithery index webhook. */
-export async function submitToDirectoriesAndSmithery(repoUrl: string, dryRun: boolean): Promise<DirectoryResult[]> {
+export async function submitToDirectoriesAndSmithery(cwd: string, repoUrl: string, dryRun: boolean): Promise<DirectoryResult[]> {
 	const submissionPayload = {
 		name: 'techfiyr-ai-native-software-agency',
 		serverName: 'com.techfiyr/ai-native-software-agency',
@@ -384,8 +582,7 @@ export async function submitToDirectoriesAndSmithery(repoUrl: string, dryRun: bo
 		repository: repoUrl,
 		manifestUrl: 'https://techfiyr.com/.well-known/mcp.json',
 		serverJsonUrl: 'https://techfiyr.com/server.json',
-		description:
-			'AI-native software agency delivering custom web, mobile, and SaaS engineering within a 7-day turnaround.',
+		description: 'AI-native software agency building custom web, mobile & SaaS systems in a 7-day turnaround.',
 		category: 'developer-tools',
 		tags: ['developer-tools', 'agency', 'mvp', 'flutter', 'nextjs', 'a2a', 'mcp'],
 		transport: 'streamable-http',
@@ -394,33 +591,7 @@ export async function submitToDirectoriesAndSmithery(repoUrl: string, dryRun: bo
 
 	const results: DirectoryResult[] = [];
 
-	// Check Official MCP Registry index (GET search)
-	try {
-		const regUrl = 'https://registry.modelcontextprotocol.io/v0.1/servers?search=techfiyr';
-		const reg = await fetchJsonOrText(regUrl, { method: 'GET' });
-		const rawServers = Array.isArray(reg.json?.servers) ? reg.json.servers : [];
-		const matched = rawServers.filter((entry) => JSON.stringify(entry).toLowerCase().includes('techfiyr')).length;
-		results.push({
-			directory: 'Official MCP Registry',
-			target: regUrl,
-			method: 'GET',
-			status: reg.status,
-			outcome: reg.ok && matched > 0 ? 'indexed' : 'manual-fallback',
-			detail:
-				matched > 0
-					? `Found ${matched} matching listing(s)`
-					: 'Not indexed yet — run: npx @modelcontextprotocol/publisher publish',
-		});
-	} catch (err) {
-		results.push({
-			directory: 'Official MCP Registry',
-			target: 'https://registry.modelcontextprotocol.io/v0.1/servers',
-			method: 'GET',
-			status: 0,
-			outcome: 'error',
-			detail: err instanceof Error ? err.message : 'Registry query failed',
-		});
-	}
+	results.push(await publishOfficialMcpRegistry(cwd, dryRun));
 
 	// Open directory HTTP submission targets
 	const directoryPosts: { directory: string; url: string; fallbackPortal: string }[] = [
@@ -622,16 +793,22 @@ export async function createAwesomeMcpPullRequest(
 			};
 		}
 
-		// Read upstream README.md + main commit SHA
-		const [readmeRes, refRes] = await Promise.all([
+		// Read upstream README.md SHA, blob content (>1 MB files omit inline content in /contents), and main commit SHA
+		const [readmeRes, rawRes, refRes] = await Promise.all([
 			fetchJsonOrText('https://api.github.com/repos/punkpeye/awesome-mcp-servers/contents/README.md', { headers: ghHeaders }),
+			fetchJsonOrText('https://raw.githubusercontent.com/punkpeye/awesome-mcp-servers/main/README.md'),
 			fetchJsonOrText('https://api.github.com/repos/punkpeye/awesome-mcp-servers/git/ref/heads/main', { headers: ghHeaders }),
 		]);
 
 		const readmeB64 = String(readmeRes.json?.content || '');
 		const readmeSha = String(readmeRes.json?.sha || '');
 		const headSha = String((refRes.json?.object as { sha?: string } | undefined)?.sha || '');
-		if (!readmeB64 || !readmeSha || !headSha) {
+		const currentReadme = readmeB64
+			? Buffer.from(readmeB64, 'base64').toString('utf8')
+			: rawRes.ok
+				? rawRes.text
+				: '';
+		if (!currentReadme || !readmeSha || !headSha) {
 			return {
 				status: 'Unable to read upstream README.md/SHA — saved local PR draft',
 				prUrl: `https://github.com/${login}/awesome-mcp-servers`,
@@ -639,8 +816,6 @@ export async function createAwesomeMcpPullRequest(
 				entryLine,
 			};
 		}
-
-		const currentReadme = Buffer.from(readmeB64, 'base64').toString('utf8');
 		if (currentReadme.includes(repoUrl)) {
 			return {
 				status: 'Already listed in punkpeye/awesome-mcp-servers',
@@ -747,9 +922,27 @@ async function main(): Promise<void> {
 	const [health, manifests, marketingRes, dirResults, awesomePr] = await Promise.all([
 		verifyLiveEndpointHealth(opts.baseUrl),
 		verifyManifests(cwd, opts.baseUrl),
-		verifyAndBroadcastMarketingAgent(opts.baseUrl, opts.dryRun),
-		submitToDirectoriesAndSmithery(repoUrl, opts.dryRun),
-		createAwesomeMcpPullRequest(cwd, repoUrl, opts.dryRun),
+		opts.onlyRegistry
+			? Promise.resolve({
+					directory: 'TechFiyr Marketing Agent',
+					target: `${opts.baseUrl}/api/agent/marketing`,
+					method: 'SKIP',
+					status: 0,
+					outcome: 'dry-run' as const,
+					detail: 'Skipped under --only-registry',
+				})
+			: verifyAndBroadcastMarketingAgent(opts.baseUrl, opts.dryRun),
+		opts.onlyRegistry
+			? Promise.all([publishOfficialMcpRegistry(cwd, opts.dryRun)])
+			: submitToDirectoriesAndSmithery(cwd, repoUrl, opts.dryRun),
+		opts.onlyRegistry
+			? Promise.resolve({
+					status: 'Skipped under --only-registry',
+					prUrl: 'https://github.com/punkpeye/awesome-mcp-servers/compare',
+					draftPath: join(cwd, '.server', 'awesome-mcp-pr-draft.md'),
+					entryLine: '',
+				})
+			: createAwesomeMcpPullRequest(cwd, repoUrl, opts.dryRun),
 	]);
 
 	console.log('1. ENDPOINT HEALTH CHECK');

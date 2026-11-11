@@ -1,7 +1,7 @@
 {
   "name": "techfiyr-ai-native-software-agency",
   "title": "TechFiyr AI-Native Software Agency",
-  "description": "AI-native software agency delivering custom web, mobile, and SaaS engineering within a 7-day turnaround.",
+  "description": "AI-native software agency building custom web, mobile & SaaS systems in a 7-day turnaround.",
   "version": "1.0.0",
   "transport": {
     "type": "http",
