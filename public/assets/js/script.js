@@ -29,14 +29,24 @@
 	}
 
 
-	//Update Header Style and Scroll to Top
+	//Update Header Style and Scroll to Top (cached height to avoid forced reflow)
+	var cachedHeaderHeight = 0;
+	function getHeaderHeight() {
+		if (!cachedHeaderHeight) {
+			var $h = $('.main-header');
+			if ($h.length) cachedHeaderHeight = $h.outerHeight() || 100;
+		}
+		return cachedHeaderHeight;
+	}
+	$(window).on('resize', function () { cachedHeaderHeight = 0; });
+
 	function headerStyle() {
 		if ($('.main-header').length) {
 			var windowpos = $(window).scrollTop();
 			var siteHeader = $('.main-header');
 			var scrollLink = $('.scroll-to-top');
 
-			var HeaderHight = $('.main-header').height();
+			var HeaderHight = getHeaderHeight();
 			if (windowpos >= HeaderHight) {
 				siteHeader.addClass('fixed-header');
 				scrollLink.fadeIn(300);

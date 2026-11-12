@@ -81,11 +81,11 @@ export const NAV = [
  */
 export const ASSET_VERSION = {
 	bootstrap: '20261003',
-	style: '20261111',
+	style: '20261112',
 	meanmenu: '20261003',
 	responsive: '20261003',
 	vendor: '20261003',
-	script: '20261107',
+	script: '20261112',
 	consent: '20261018',
 	analytics: '20261103',
 	visitors: '20261018',

@@ -28,6 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		// changes page, so a new page starts at the top straight away
 		<html lang="en" data-scroll-behavior="smooth">
 			<head>
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 				<link rel="ard" href="/.well-known/ard.json" type="application/json" />
 				<link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/json" />
 			</head>

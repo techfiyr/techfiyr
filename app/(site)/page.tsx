@@ -13,14 +13,14 @@ import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = {
 	...pageMetadata({
-		title: 'Mobile App Development Agency | Flutter & React | TechFiyr',
-		description: 'TechFiyr is a Dhaka-based mobile app and SaaS development agency. We build Flutter, React Native, iOS & Android apps and cloud platforms. 5.0 rated on Fiverr.',
+		title: 'AI Native Full-stack Mobile App & Web Software Development Agency | Java, Sring, android, ios, Flutter, React, Node | TechFiyr',
+		description: 'TechFiyr is a Dhaka-based AI-native app and SaaS software development agency. We build Flutter, React Native, iOS & Android apps and cloud platforms. 5.0 rated on Fiverr.',
 		path: '/',
-		ogDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr by clients across the US, Europe and Asia.',
-		twitterDescription: 'Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr.',
+		ogDescription: 'AI-Native Full-stack Mobile App & Web Software Development Agency. We build Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr by clients across the US, Europe and Asia.',
+		twitterDescription: 'AI-Native Full-stack Mobile App & Web Software Development Agency. We build Flutter, React Native, iOS and Android apps, custom web software, SaaS, UI/UX and CI/CD automation. Rated 5.0 on Fiverr by clients across the US, Europe and Asia.',
 		keywords: [
 			'TechFiyr',
-			'mobile app development agency',
+			'AI Native Software Development Agency (Web, Backend, Mobile)',
 			'hire flutter app developers',
 			'react native development agency',
 			'cross platform mobile app development',
@@ -331,7 +331,7 @@ export default function HomePage() {
 				<div className="main-slider swiper-container">
 					<div className="swiper-wrapper">
 						{/* Slide 1 */}
-						<div className="swiper-slide">
+						<div className="swiper-slide swiper-slide-active">
 							<div className="slider-one_image-layer" style={{ backgroundImage: 'url(/assets/images/hero/hero-mobile-apps.webp)' }}></div>
 							{' '}
 							<div className="slider-one_pattern" style={{ backgroundImage: 'url(/assets/images/hero/hero-pattern.png)' }}></div>
@@ -737,9 +737,9 @@ export default function HomePage() {
 			{/* About Section */}
 			{' '}
 			<section className="about-one" id="about">
-				<div className="about-one_pattern-layer" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-1.png)' }}></div>
+				<div className="about-one_pattern-layer d-none d-lg-block" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-1.png)' }}></div>
 				{' '}
-				<div className="about-one_pattern-two" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-2.png)' }}></div>
+				<div className="about-one_pattern-two d-none d-lg-block" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-2.png)' }}></div>
 				{' '}
 				<div className="auto-container">
 					<div className="inner-container">
@@ -1416,7 +1416,7 @@ export default function HomePage() {
 			{/* Team Section */}
 			{' '}
 			<section className="team-one" id="team">
-				<div className="team-one_layer" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-8.png)' }}></div>
+				<div className="team-one_layer d-none d-lg-block" style={{ backgroundImage: 'url(/assets/images/backgrounds/pattern-8.png)' }}></div>
 				{' '}
 				<div className="auto-container">
 					{/* Sec Title */}
