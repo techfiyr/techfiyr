@@ -112,31 +112,42 @@ export default function AgentDashboard({
 	mailAddress: string;
 }) {
 	const router = useRouter();
+	const safeInquiries = Array.isArray(inquiries) ? inquiries : [];
+	const safeOrders = Array.isArray(orders) ? orders : [];
+	const safeReachSummary = reachSummary || {
+		metrics: { totalHits: 0, mcpHits: 0, a2aHits: 0, restHits: 0, marketingHits: 0, toolCalls: {}, uniqueAgents: [], lastHitAt: '' },
+		recentHits: [],
+		inquiries: { total: 0, openOrNegotiating: 0, closedDeals: 0, rejected: 0, byChannel: { email: 0, mcp: 0, a2a: 0 }, totalMessagesExchanged: 0 },
+	};
+	const safeSeoAudit = seoAudit || { score: 100, checks: [], recommendedQueries: [] };
+
 	const [tab, setTab] = useState<TabId>(initialTab);
 	const [livePolling, setLivePolling] = useState(true);
-	const [selectedInquiryId, setSelectedInquiryId] = useState<string>(initialInquiryId || inquiries[0]?.id || '');
-	const [selectedOrderId, setSelectedOrderId] = useState<string>(initialOrderId || orders[0]?.id || '');
+	const [selectedInquiryId, setSelectedInquiryId] = useState<string>(initialInquiryId || safeInquiries[0]?.id || '');
+	const [selectedOrderId, setSelectedOrderId] = useState<string>(initialOrderId || safeOrders[0]?.id || '');
 	const [specViewMode, setSpecViewMode] = useState<'structured' | 'markdown' | 'json'>('structured');
 	const [copiedOrderId, setCopiedOrderId] = useState<string>('');
 	const [auditFilter, setAuditFilter] = useState<'all' | 'mcp' | 'a2a' | 'rest' | 'marketing'>('all');
 	const [campaignQuery, setCampaignQuery] = useState<string>(
-		seoAudit.recommendedQueries[0] || 'How much does a 7-day Flutter or Next.js MVP cost?',
+		safeSeoAudit.recommendedQueries?.[0] || 'How much does a 7-day Flutter or Next.js MVP cost?',
 	);
 
 	useEffect(() => {
 		if (!livePolling) return;
 		const timer = setInterval(() => {
+			if (typeof document !== 'undefined' && document.hidden) return;
 			router.refresh();
-		}, 15000);
+		}, 30000);
 		return () => clearInterval(timer);
 	}, [livePolling, router]);
 
-	const selectedInquiry = inquiries.find((i) => i.id === selectedInquiryId) || inquiries[0] || null;
-	const selectedOrder = orders.find((o) => o.id === selectedOrderId) || orders[0] || null;
+	const selectedInquiry = safeInquiries.find((i) => i.id === selectedInquiryId) || safeInquiries[0] || null;
+	const selectedOrder = safeOrders.find((o) => o.id === selectedOrderId) || safeOrders[0] || null;
+	const recentHits = safeReachSummary.recentHits || [];
 	const filteredHits =
 		auditFilter === 'all'
-			? reachSummary.recentHits
-			: reachSummary.recentHits.filter((h) => h.protocol === auditFilter);
+			? recentHits
+			: recentHits.filter((h) => h.protocol === auditFilter);
 
 	async function copyDevPrompt(order: PublicOrder) {
 		const prompt = srsToDevAgentPrompt(order.srs_json);
@@ -251,9 +262,10 @@ export default function AgentDashboard({
 							</div>
 						) : (
 							<ul className="agent-threads">
-								{inquiries.map((inq) => {
+								{safeInquiries.map((inq) => {
 									const active = selectedInquiry?.id === inq.id;
-									const lastMsg = inq.messages[inq.messages.length - 1];
+									const msgs = Array.isArray(inq.messages) ? inq.messages : [];
+									const lastMsg = msgs[msgs.length - 1];
 									return (
 										<li key={inq.id}>
 											<button
@@ -266,7 +278,7 @@ export default function AgentDashboard({
 													<span className={`admin-chip is-${inquiryTone(inq.status)}`}>{inq.status}</span>
 												</div>
 												<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
-												<p className="agent-thread-preview">{lastMsg?.text.slice(0, 95) || 'No messages'}</p>
+												<p className="agent-thread-preview">{lastMsg?.text?.slice(0, 95) || 'No messages'}</p>
 												<div className="agent-thread-meta">
 													<span>
 														{inq.channel === 'gmail'
@@ -275,7 +287,7 @@ export default function AgentDashboard({
 																? 'Zoho Mail'
 																: inq.channel.toUpperCase()}
 													</span>
-													<span>{inq.messages.length} msgs · {formatTs(inq.updated_at)}</span>
+													<span>{msgs.length} msgs · {formatTs(inq.updated_at)}</span>
 												</div>
 											</button>
 										</li>
@@ -318,7 +330,7 @@ export default function AgentDashboard({
 								</div>
 
 								<ol className="agent-chat-log">
-									{selectedInquiry.messages.map((m, idx) => (
+									{(Array.isArray(selectedInquiry.messages) ? selectedInquiry.messages : []).map((m, idx) => (
 										<li key={`${idx}-${m.timestamp}`} className={m.role === 'client' ? 'agent-msg is-client' : 'agent-msg is-agent'}>
 											<div className="agent-msg-head">
 												<strong>{m.role === 'client' ? selectedInquiry.sender_email : 'TechFiyr Sales Agent'}</strong>

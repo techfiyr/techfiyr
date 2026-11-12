@@ -49,17 +49,25 @@ function Skeleton({ title, wide }: { title: string; wide?: boolean }) {
 
 // ---------- Content at a glance ----------
 async function ContentPanel() {
-	const [posts, products, news, run] = await Promise.all([listPosts(), listProducts(), listNews(), lastNewsRun()]);
+	const [posts, products, news, run] = await Promise.all([
+		listPosts().catch(() => []),
+		listProducts().catch(() => []),
+		listNews().catch(() => []),
+		lastNewsRun().catch(() => null),
+	]);
 	const today = editionDay();
-	const published = posts.filter((p) => p.status === 'published').length;
-	const liveProducts = products.filter((p) => p.status === 'published').length;
-	const todayNews = news.filter((n) => n.day === today && !n.hidden).length;
+	const safePosts = Array.isArray(posts) ? posts : [];
+	const safeProducts = Array.isArray(products) ? products : [];
+	const safeNews = Array.isArray(news) ? news : [];
+	const published = safePosts.filter((p) => p.status === 'published').length;
+	const liveProducts = safeProducts.filter((p) => p.status === 'published').length;
+	const todayNews = safeNews.filter((n) => n.day === today && !n.hidden).length;
 
 	return (
 		<Panel title="Content" meta={<Link href="/admin/blog/new">New post</Link>}>
 			<dl className="admin-stats is-three">
-				<Stat label="Blog posts" value={fmt(published)} note={`${posts.length - published} draft${posts.length - published === 1 ? '' : 's'}`} />
-				<Stat label="Products" value={fmt(liveProducts)} note={`${products.length - liveProducts} draft${products.length - liveProducts === 1 ? '' : 's'}`} />
+				<Stat label="Blog posts" value={fmt(published)} note={`${safePosts.length - published} draft${safePosts.length - published === 1 ? '' : 's'}`} />
+				<Stat label="Products" value={fmt(liveProducts)} note={`${safeProducts.length - liveProducts} draft${safeProducts.length - liveProducts === 1 ? '' : 's'}`} />
 				<Stat label="AI news today" value={`${todayNews}/10`} note={run ? `fetched ${timeAgo(run.ranAt)}` : 'not fetched yet'} />
 			</dl>
 			{run && !run.ok && (

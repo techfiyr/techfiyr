@@ -17,7 +17,7 @@ const FILTERS = [
 
 export default async function AdminBlogPage({ searchParams }: { searchParams: Promise<{ status?: string; deleted?: string }> }) {
 	const { status = 'all', deleted } = await searchParams;
-	const posts = await listPosts();
+	const posts = (await listPosts().catch(() => [])) || [];
 	const shown = posts.filter((p) => status === 'all' || p.status === status);
 
 	return (

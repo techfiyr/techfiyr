@@ -95,35 +95,49 @@ export const SCOPES = {
 };
 
 const tokens = new Map<string, { token: string; until: number }>();
+const inFlight = new Map<string, Promise<string>>();
 
 /** OAuth access token for one scope, cached until a couple of minutes before it expires. */
 export async function accessToken(scope: string): Promise<string> {
 	const hit = tokens.get(scope);
 	if (hit && Date.now() < hit.until) return hit.token;
 
-	const now = Math.floor(Date.now() / 1000);
-	const unsigned = `${b64url({ alg: 'RS256', typ: 'JWT' })}.${b64url({
-		iss: credentials().clientEmail,
-		scope,
-		aud: 'https://oauth2.googleapis.com/token',
-		iat: now,
-		exp: now + 3600,
-	})}`;
-	let signature: string;
-	try {
-		signature = createSign('RSA-SHA256').update(unsigned).sign(credentials().privateKey, 'base64url');
-	} catch {
-		throw new GoogleError('sign', 0, 'FIREBASE_PRIVATE_KEY is not a valid private key');
-	}
+	const pending = inFlight.get(scope);
+	if (pending) return pending;
 
-	const res = await fetch('https://oauth2.googleapis.com/token', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-		body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${unsigned}.${signature}` }),
-		cache: 'no-store',
-	});
-	if (!res.ok) throw new GoogleError('token', res.status, await googleError(res));
-	const data = (await res.json()) as { access_token: string; expires_in: number };
-	tokens.set(scope, { token: data.access_token, until: Date.now() + (data.expires_in - 120) * 1000 });
-	return data.access_token;
+	const fetchPromise = (async () => {
+		try {
+			const now = Math.floor(Date.now() / 1000);
+			const unsigned = `${b64url({ alg: 'RS256', typ: 'JWT' })}.${b64url({
+				iss: credentials().clientEmail,
+				scope,
+				aud: 'https://oauth2.googleapis.com/token',
+				iat: now,
+				exp: now + 3600,
+			})}`;
+			let signature: string;
+			try {
+				signature = createSign('RSA-SHA256').update(unsigned).sign(credentials().privateKey, 'base64url');
+			} catch {
+				throw new GoogleError('sign', 0, 'FIREBASE_PRIVATE_KEY is not a valid private key');
+			}
+
+			const res = await fetch('https://oauth2.googleapis.com/token', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${unsigned}.${signature}` }),
+				cache: 'no-store',
+				signal: AbortSignal.timeout(10000),
+			});
+			if (!res.ok) throw new GoogleError('token', res.status, await googleError(res));
+			const data = (await res.json()) as { access_token: string; expires_in: number };
+			tokens.set(scope, { token: data.access_token, until: Date.now() + (data.expires_in - 120) * 1000 });
+			return data.access_token;
+		} finally {
+			inFlight.delete(scope);
+		}
+	})();
+
+	inFlight.set(scope, fetchPromise);
+	return fetchPromise;
 }

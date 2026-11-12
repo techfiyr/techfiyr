@@ -72,11 +72,30 @@ const docId = (name: string) => name.slice(name.lastIndexOf('/') + 1);
 
 async function fsFetch(url: string, init: RequestInit = {}) {
 	const token = await accessToken(SCOPES.datastore);
-	return fetch(url, {
-		...init,
-		cache: 'no-store',
-		headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...(init.headers || {}) },
-	});
+	const doFetch = () =>
+		fetch(url, {
+			...init,
+			cache: 'no-store',
+			signal: init.signal || AbortSignal.timeout(8000),
+			headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...(init.headers || {}) },
+		});
+
+	try {
+		const res = await doFetch();
+		if ((res.status === 429 || res.status >= 500) && (!init.method || init.method === 'GET')) {
+			await new Promise((r) => setTimeout(r, 200));
+			return await doFetch();
+		}
+		return res;
+	} catch (err) {
+		if (!init.method || init.method === 'GET') {
+			try {
+				await new Promise((r) => setTimeout(r, 200));
+				return await doFetch();
+			} catch {}
+		}
+		throw err;
+	}
 }
 
 const firestore = {
@@ -86,6 +105,7 @@ const firestore = {
 		do {
 			const url = `${API}${root()}/${collection}?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
 			const res = await fsFetch(url);
+			if (res.status === 404) return [];
 			if (!res.ok) throw new GoogleError('list', res.status, await googleError(res));
 			const body = (await res.json()) as { documents?: { name: string; fields?: Record<string, FsValue> }[]; nextPageToken?: string };
 			for (const d of body.documents || []) docs.push({ ...decodeFields(d.fields || {}), id: docId(d.name) });
@@ -163,8 +183,22 @@ function backend() {
 }
 
 export const store = {
-	list: (collection: string) => backend().list(collection),
-	get: (collection: string, id: string) => backend().get(collection, id),
+	list: async (collection: string): Promise<Doc[]> => {
+		try {
+			return await backend().list(collection);
+		} catch (err) {
+			if (err instanceof StoreUnavailable) return [];
+			throw err;
+		}
+	},
+	get: async (collection: string, id: string): Promise<Doc | null> => {
+		try {
+			return await backend().get(collection, id);
+		} catch (err) {
+			if (err instanceof StoreUnavailable) return null;
+			throw err;
+		}
+	},
 	put: (collection: string, id: string, data: Data) => backend().put(collection, id, data),
 	remove: (collection: string, id: string) => backend().remove(collection, id),
 };

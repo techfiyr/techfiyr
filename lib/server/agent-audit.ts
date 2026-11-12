@@ -127,28 +127,72 @@ export type AgentReachSummary = {
 	};
 };
 
-export async function getAgentReachSummary(hitLimit = 100): Promise<AgentReachSummary> {
-	const [metrics, recentHits, inquiries] = await Promise.all([
-		getAgentMetrics(),
-		listAuditHits(hitLimit),
-		listInquiries(),
-	]);
-
+export function defaultAgentReachSummary(): AgentReachSummary {
 	return {
-		metrics,
-		recentHits,
+		metrics: {
+			totalHits: 0,
+			mcpHits: 0,
+			a2aHits: 0,
+			restHits: 0,
+			marketingHits: 0,
+			toolCalls: {},
+			uniqueAgents: [],
+			lastHitAt: '',
+		},
+		recentHits: [],
 		inquiries: {
-			total: inquiries.length,
-			openOrNegotiating: inquiries.filter((i) => i.status === 'PENDING' || i.status === 'NEGOTIATING').length,
-			closedDeals: inquiries.filter((i) => i.status === 'CLOSED').length,
-			rejected: inquiries.filter((i) => i.status === 'REJECTED').length,
+			total: 0,
+			openOrNegotiating: 0,
+			closedDeals: 0,
+			rejected: 0,
 			byChannel: {
-				email: inquiries.filter((i) => i.channel === 'gmail' || i.channel === 'zoho_email' || i.channel === 'email').length,
-				mcp: inquiries.filter((i) => i.channel === 'mcp').length,
-				a2a: inquiries.filter((i) => i.channel === 'a2a').length,
+				email: 0,
+				mcp: 0,
+				a2a: 0,
 			},
-			totalMessagesExchanged: inquiries.reduce((sum, i) => sum + i.messages.length, 0),
+			totalMessagesExchanged: 0,
 		},
 	};
+}
+
+export async function getAgentReachSummary(hitLimit = 100): Promise<AgentReachSummary> {
+	try {
+		const [metrics, recentHits, inquiries] = await Promise.all([
+			getAgentMetrics().catch(() => ({
+				totalHits: 0,
+				mcpHits: 0,
+				a2aHits: 0,
+				restHits: 0,
+				marketingHits: 0,
+				toolCalls: {},
+				uniqueAgents: [],
+				lastHitAt: '',
+			})),
+			listAuditHits(hitLimit).catch(() => []),
+			listInquiries().catch(() => []),
+		]);
+
+		const safeInquiries = Array.isArray(inquiries) ? inquiries : [];
+
+		return {
+			metrics: metrics || defaultAgentReachSummary().metrics,
+			recentHits: Array.isArray(recentHits) ? recentHits : [],
+			inquiries: {
+				total: safeInquiries.length,
+				openOrNegotiating: safeInquiries.filter((i) => i.status === 'PENDING' || i.status === 'NEGOTIATING').length,
+				closedDeals: safeInquiries.filter((i) => i.status === 'CLOSED').length,
+				rejected: safeInquiries.filter((i) => i.status === 'REJECTED').length,
+				byChannel: {
+					email: safeInquiries.filter((i) => i.channel === 'gmail' || i.channel === 'zoho_email' || i.channel === 'email').length,
+					mcp: safeInquiries.filter((i) => i.channel === 'mcp').length,
+					a2a: safeInquiries.filter((i) => i.channel === 'a2a').length,
+				},
+				totalMessagesExchanged: safeInquiries.reduce((sum, i) => sum + (Array.isArray(i.messages) ? i.messages.length : 0), 0),
+			},
+		};
+	} catch (err) {
+		console.warn('[agent-audit] getAgentReachSummary fallback:', err instanceof Error ? err.message : err);
+		return defaultAgentReachSummary();
+	}
 }
 

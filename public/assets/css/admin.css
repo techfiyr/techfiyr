@@ -2424,3 +2424,46 @@ body:has(.admin-root) {
   }
 }
 
+/* ==========================================================================
+   Admin Error Boundary UI
+   ========================================================================== */
+.admin-error-card {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+  margin: 32px auto;
+  padding: 36px 40px;
+  border-radius: 24px;
+  background-color: var(--white-color);
+  border: 1px solid var(--admin-line);
+  box-shadow: 0 18px 50px rgba(var(--black-color-rgb), 0.05);
+}
+
+.admin-error-card .admin-empty_title {
+  margin: 0;
+  font-size: 24px;
+  color: var(--black-color);
+}
+
+.admin-error-digest {
+  display: block;
+  font-size: 13px;
+  color: var(--admin-muted);
+}
+
+.admin-error-digest code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-line);
+  font-size: 12px;
+}
+
+.admin-error-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 8px;
+}
+

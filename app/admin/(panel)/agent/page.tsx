@@ -8,7 +8,7 @@ import AgentDashboard from '@/components/admin/AgentDashboard';
 import SubmitButton from '@/components/admin/SubmitButton';
 import { Chip, PageHead, Stat, timeAgo } from '@/components/admin/ui';
 import { SALES_AGENT_EMAIL } from '@/lib/agent/catalog';
-import { getAgentReachSummary } from '@/lib/server/agent-audit';
+import { defaultAgentReachSummary, getAgentReachSummary } from '@/lib/server/agent-audit';
 import {
 	lastEmailSyncRun,
 	listInquiries,
@@ -17,7 +17,7 @@ import {
 	publicOrderView,
 } from '@/lib/server/agent-store';
 import { getMailConfig, isMailConfigured } from '@/lib/server/emailWorker';
-import { auditSeoGeoAeo } from '@/lib/server/marketingAgent';
+import { auditSeoGeoAeo, defaultSeoAuditReport } from '@/lib/server/marketingAgent';
 
 export const metadata: Metadata = { title: 'Agent Sales' };
 
@@ -44,14 +44,19 @@ export default async function AdminAgentPage({
 }) {
 	const params = await searchParams;
 	const [inquiries, rawOrders, syncRun, reachSummary, seoAudit, marketingRuns] = await Promise.all([
-		listInquiries(),
-		listOrders(),
-		lastEmailSyncRun(),
-		getAgentReachSummary(120),
-		auditSeoGeoAeo(false),
-		listMarketingRuns(20),
+		listInquiries().catch(() => []),
+		listOrders().catch(() => []),
+		lastEmailSyncRun().catch(() => null),
+		getAgentReachSummary(120).catch(() => defaultAgentReachSummary()),
+		auditSeoGeoAeo(false).catch(() => defaultSeoAuditReport()),
+		listMarketingRuns(20).catch(() => []),
 	]);
-	const orders = rawOrders.map(publicOrderView);
+	const safeRawOrders = Array.isArray(rawOrders) ? rawOrders : [];
+	const orders = safeRawOrders.map(publicOrderView);
+	const safeReachSummary = reachSummary || defaultAgentReachSummary();
+	const safeSeoAudit = seoAudit || defaultSeoAuditReport();
+	const safeInquiries = Array.isArray(inquiries) ? inquiries : [];
+	const safeMarketingRuns = Array.isArray(marketingRuns) ? marketingRuns : [];
 	const mailReady = isMailConfigured();
 	const mailCfg = getMailConfig();
 
@@ -66,7 +71,7 @@ export default async function AdminAgentPage({
 						? 'marketing'
 						: 'inquiries';
 
-	const totalRevenue = orders.reduce((sum, o) => sum + (o.total_price_usd || o.agreedPriceUSD), 0);
+	const totalRevenue = orders.reduce((sum, o) => sum + (Number(o?.total_price_usd || o?.agreedPriceUSD) || 0), 0);
 
 	return (
 		<>
@@ -146,13 +151,13 @@ export default async function AdminAgentPage({
 				<dl className="admin-stats agent-stats-four">
 					<Stat
 						label="Agents Reached (Audit)"
-						value={reachSummary.metrics.totalHits}
-						note={`${reachSummary.metrics.uniqueAgents.length} unique agents · MCP ${reachSummary.metrics.mcpHits} · A2A ${reachSummary.metrics.a2aHits}`}
+						value={safeReachSummary.metrics.totalHits}
+						note={`${safeReachSummary.metrics.uniqueAgents.length} unique agents · MCP ${safeReachSummary.metrics.mcpHits} · A2A ${safeReachSummary.metrics.a2aHits}`}
 					/>
 					<Stat
 						label="Sales Agent Inquiries"
-						value={reachSummary.inquiries.total}
-						note={`Email ${reachSummary.inquiries.byChannel.email} · MCP ${reachSummary.inquiries.byChannel.mcp} · A2A ${reachSummary.inquiries.byChannel.a2a}`}
+						value={safeReachSummary.inquiries.total}
+						note={`Email ${safeReachSummary.inquiries.byChannel.email} · MCP ${safeReachSummary.inquiries.byChannel.mcp} · A2A ${safeReachSummary.inquiries.byChannel.a2a}`}
 					/>
 					<Stat
 						label="Closed Orders"
@@ -161,7 +166,7 @@ export default async function AdminAgentPage({
 					/>
 					<Stat
 						label="SEO / GEO / AEO"
-						value={<Chip tone={seoAudit.score >= 80 ? 'good' : 'warn'}>{seoAudit.score}/100</Chip>}
+						value={<Chip tone={safeSeoAudit.score >= 80 ? 'good' : 'warn'}>{safeSeoAudit.score}/100</Chip>}
 						note={
 							mailReady
 								? syncRun
@@ -174,11 +179,11 @@ export default async function AdminAgentPage({
 			</div>
 
 			<AgentDashboard
-				inquiries={inquiries}
+				inquiries={safeInquiries}
 				orders={orders}
-				reachSummary={reachSummary}
-				seoAudit={seoAudit}
-				marketingRuns={marketingRuns}
+				reachSummary={safeReachSummary}
+				seoAudit={safeSeoAudit}
+				marketingRuns={safeMarketingRuns}
 				initialTab={initialTab}
 				initialInquiryId={params.inquiry}
 				initialOrderId={params.order}

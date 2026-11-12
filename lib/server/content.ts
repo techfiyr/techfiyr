@@ -88,29 +88,49 @@ const newestFirst = (a: string, b: string) => (a < b ? 1 : a > b ? -1 : 0);
 
 // ---------- Admin (uncached) ----------
 export async function listPosts(): Promise<Post[]> {
-	return (await store.list('posts')).map(toPost).sort((a, b) => newestFirst(a.publishedAt || a.updatedAt, b.publishedAt || b.updatedAt));
+	try {
+		return (await store.list('posts')).map(toPost).sort((a, b) => newestFirst(a.publishedAt || a.updatedAt, b.publishedAt || b.updatedAt));
+	} catch (err) {
+		console.warn('[content] listPosts fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 export async function listProducts(): Promise<Product[]> {
-	return (await store.list('products')).map(toProduct).sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+	try {
+		return (await store.list('products')).map(toProduct).sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+	} catch (err) {
+		console.warn('[content] listProducts fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 export async function listNews(): Promise<NewsItem[]> {
-	return (await store.list('news')).map(toNews).sort((a, b) => newestFirst(a.day, b.day) || Number(b.pinned) - Number(a.pinned) || a.rank - b.rank);
+	try {
+		return (await store.list('news')).map(toNews).sort((a, b) => newestFirst(a.day, b.day) || Number(b.pinned) - Number(a.pinned) || a.rank - b.rank);
+	} catch (err) {
+		console.warn('[content] listNews fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 export async function lastNewsRun(): Promise<NewsRun | null> {
-	const d = await store.get('meta', 'news-run');
-	if (!d) return null;
-	return {
-		ranAt: str(d.ranAt),
-		ok: d.ok === true,
-		stored: num(d.stored),
-		feeds: (Array.isArray(d.feeds) ? d.feeds : []).map((f) => {
-			const r = f as Record<string, unknown>;
-			return { source: str(r.source), items: num(r.items), error: str(r.error) || undefined };
-		}),
-	};
+	try {
+		const d = await store.get('meta', 'news-run');
+		if (!d) return null;
+		return {
+			ranAt: str(d.ranAt),
+			ok: d.ok === true,
+			stored: num(d.stored),
+			feeds: (Array.isArray(d.feeds) ? d.feeds : []).map((f) => {
+				const r = f as Record<string, unknown>;
+				return { source: str(r.source), items: num(r.items), error: str(r.error) || undefined };
+			}),
+		};
+	} catch (err) {
+		console.warn('[content] lastNewsRun fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 // ---------- Public (cached) ----------

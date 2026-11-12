@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Products' };
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ deleted?: string }> }) {
 	const { deleted } = await searchParams;
-	const products = await listProducts();
+	const products = (await listProducts().catch(() => [])) || [];
 
 	return (
 		<>

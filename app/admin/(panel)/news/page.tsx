@@ -55,10 +55,14 @@ function Story({ n }: { n: NewsItem }) {
 
 export default async function AdminNewsPage({ searchParams }: { searchParams: Promise<{ fetched?: string }> }) {
 	const { fetched } = await searchParams;
-	const [news, run] = await Promise.all([listNews(), lastNewsRun()]);
+	const [news, run] = await Promise.all([
+		listNews().catch(() => []),
+		lastNewsRun().catch(() => null),
+	]);
+	const safeNews = Array.isArray(news) ? news : [];
 	const today = editionDay();
-	const pinned = news.filter((n) => n.pinned);
-	const days = [...new Set(news.filter((n) => !n.pinned).map((n) => n.day))].slice(0, 7);
+	const pinned = safeNews.filter((n) => n.pinned);
+	const days = [...new Set(safeNews.filter((n) => !n.pinned).map((n) => n.day))].slice(0, 7);
 
 	return (
 		<>

@@ -304,6 +304,96 @@ function cleanDoc<T>(data: T): Record<string, unknown> {
 	return JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
 }
 
+export function sanitizeInquiry(raw: unknown): InquiryRecord {
+	const d = (raw && typeof raw === 'object' ? raw : {}) as Partial<InquiryRecord>;
+	const msgs = Array.isArray(d.messages)
+		? d.messages.map((m) => ({
+				timestamp: String(m?.timestamp || new Date().toISOString()),
+				role: m?.role === 'client' ? ('client' as const) : ('sales_agent' as const),
+				text: String(m?.text || ''),
+				messageId: m?.messageId ? String(m.messageId) : undefined,
+			}))
+		: [];
+
+	return {
+		id: String(d.id || ''),
+		sender_email: String(d.sender_email || ''),
+		sender_name: d.sender_name ? String(d.sender_name) : undefined,
+		subject: String(d.subject || 'Project Inquiry'),
+		thread_id: String(d.thread_id || d.id || ''),
+		status: (d.status === 'NEGOTIATING' || d.status === 'CLOSED' || d.status === 'REJECTED' ? d.status : 'PENDING'),
+		channel: (d.channel === 'gmail' || d.channel === 'zoho_email' || d.channel === 'a2a' || d.channel === 'mcp' ? d.channel : 'email'),
+		messages: msgs,
+		order_id: d.order_id ? String(d.order_id) : undefined,
+		workflowStage: d.workflowStage,
+		purposeConfirmed: Boolean(d.purposeConfirmed),
+		securityFlag: d.securityFlag ? String(d.securityFlag) : undefined,
+		offTopicTurns: typeof d.offTopicTurns === 'number' ? d.offTopicTurns : 0,
+		created_at: String(d.created_at || new Date().toISOString()),
+		updated_at: String(d.updated_at || d.created_at || new Date().toISOString()),
+	};
+}
+
+export function sanitizeOrder(raw: unknown): AgentOrderRecord {
+	const d = (raw && typeof raw === 'object' ? raw : {}) as Partial<AgentOrderRecord>;
+	return {
+		id: String(d.id || ''),
+		orderTokenHash: String(d.orderTokenHash || ''),
+		inquiry_id: d.inquiry_id ? String(d.inquiry_id) : undefined,
+		quoteId: d.quoteId ? String(d.quoteId) : undefined,
+		clientAgentId: String(d.clientAgentId || 'anonymous-agent'),
+		clientDid: d.clientDid ? String(d.clientDid) : undefined,
+		client_contact: String(d.client_contact || d.clientEmail || ''),
+		clientEmail: String(d.clientEmail || ''),
+		callbackUrl: d.callbackUrl ? String(d.callbackUrl) : undefined,
+		projectTitle: String(d.projectTitle || 'Software Project MVP'),
+		executive_overview: String(d.executive_overview || ''),
+		scopeSummary: String(d.scopeSummary || ''),
+		techStack: Array.isArray(d.techStack) ? d.techStack.filter((x): x is string => typeof x === 'string') : [],
+		total_price_usd: Number(d.total_price_usd || d.agreedPriceUSD || 0),
+		agreedPriceUSD: Number(d.agreedPriceUSD || d.total_price_usd || 0),
+		timeline_days: Number(d.timeline_days || d.deliveryDays || 7),
+		deliveryDays: Number(d.deliveryDays || d.timeline_days || 7),
+		tier: d.tier === 'extended_14day' ? 'extended_14day' : 'rapid_7day',
+		milestone_status: (d.milestone_status || 'AWAITING_DEPOSIT') as MilestoneStatus,
+		milestones: Array.isArray(d.milestones) ? d.milestones : [],
+		crypto_chain: String(d.crypto_chain || ''),
+		crypto_tx_hash: String(d.crypto_tx_hash || ''),
+		payoneer_reference: String(d.payoneer_reference || ''),
+		srs_markdown: String(d.srs_markdown || ''),
+		srs_json: (d.srs_json && typeof d.srs_json === 'object' ? d.srs_json : {}) as AiDeveloperSrs,
+		sow: (d.sow && typeof d.sow === 'object' ? d.sow : {
+			sowId: '',
+			issuedAt: new Date().toISOString(),
+			provider: 'TechFiyr',
+			clientEmail: '',
+			clientAgentId: '',
+			deliverables: [],
+			acceptanceCriteria: [],
+			guardrailsVerified: true,
+		}) as AgentOrderRecord['sow'],
+		currentPhase: String(d.currentPhase || ''),
+		phases: Array.isArray(d.phases) ? d.phases : [],
+		payment: (d.payment && typeof d.payment === 'object' ? d.payment : {
+			rail: 'crypto',
+			status: 'awaiting_upfront_25',
+			amountUSD: 0,
+			upfrontDepositUSD: 0,
+			stagingMilestoneUSD: 0,
+			finalHandoverUSD: 0,
+			currency: 'USDT',
+			invoiceId: '',
+			instructions: '',
+			updatedAt: new Date().toISOString(),
+		}) as AgentOrderRecord['payment'],
+		deliverables: (d.deliverables && typeof d.deliverables === 'object' ? d.deliverables : {}) as AgentOrderRecord['deliverables'],
+		notifications: (d.notifications && typeof d.notifications === 'object' ? d.notifications : { emailAlertSent: false, webhookSent: false }) as AgentOrderRecord['notifications'],
+		created_at: String(d.created_at || d.createdAt || new Date().toISOString()),
+		createdAt: String(d.createdAt || d.created_at || new Date().toISOString()),
+		updatedAt: String(d.updatedAt || d.created_at || new Date().toISOString()),
+	};
+}
+
 // ---------- Inquiries ----------
 export async function saveInquiry(inquiry: InquiryRecord): Promise<boolean> {
 	if (!canPersistAgentStore()) return false;
@@ -313,16 +403,26 @@ export async function saveInquiry(inquiry: InquiryRecord): Promise<boolean> {
 
 export async function getInquiry(id: string): Promise<InquiryRecord | null> {
 	if (!canPersistAgentStore() || !id) return null;
-	const doc = await store.get(COLLECTIONS.inquiries, id);
-	return doc ? (doc as unknown as InquiryRecord) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.inquiries, id);
+		return doc ? sanitizeInquiry(doc) : null;
+	} catch (err) {
+		console.warn('[agent-store] getInquiry fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 export async function listInquiries(): Promise<InquiryRecord[]> {
 	if (!canPersistAgentStore()) return [];
-	const docs = await store.list(COLLECTIONS.inquiries);
-	return docs
-		.map((d) => d as unknown as InquiryRecord)
-		.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+	try {
+		const docs = await store.list(COLLECTIONS.inquiries);
+		return docs
+			.map((d) => sanitizeInquiry(d))
+			.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+	} catch (err) {
+		console.warn('[agent-store] listInquiries fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 export async function findInquiryByThread(threadIds: string[], senderEmail: string): Promise<InquiryRecord | null> {
@@ -346,8 +446,13 @@ export async function saveQuote(quote: AgentQuoteRecord): Promise<boolean> {
 
 export async function getQuote(id: string): Promise<AgentQuoteRecord | null> {
 	if (!canPersistAgentStore() || !id) return null;
-	const doc = await store.get(COLLECTIONS.quotes, id);
-	return doc ? (doc as unknown as AgentQuoteRecord) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.quotes, id);
+		return doc ? (doc as unknown as AgentQuoteRecord) : null;
+	} catch (err) {
+		console.warn('[agent-store] getQuote fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 // ---------- Orders ----------
@@ -357,16 +462,26 @@ export async function saveOrder(order: AgentOrderRecord): Promise<void> {
 
 export async function getOrder(id: string): Promise<AgentOrderRecord | null> {
 	if (!canPersistAgentStore() || !id) return null;
-	const doc = await store.get(COLLECTIONS.orders, id);
-	return doc ? (doc as unknown as AgentOrderRecord) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.orders, id);
+		return doc ? sanitizeOrder(doc) : null;
+	} catch (err) {
+		console.warn('[agent-store] getOrder fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 export async function listOrders(): Promise<AgentOrderRecord[]> {
 	if (!canPersistAgentStore()) return [];
-	const docs = await store.list(COLLECTIONS.orders);
-	return docs
-		.map((d) => d as unknown as AgentOrderRecord)
-		.sort((a, b) => ((a.created_at || a.createdAt) < (b.created_at || b.createdAt) ? 1 : -1));
+	try {
+		const docs = await store.list(COLLECTIONS.orders);
+		return docs
+			.map((d) => sanitizeOrder(d))
+			.sort((a, b) => ((a.created_at || a.createdAt) < (b.created_at || b.createdAt) ? 1 : -1));
+	} catch (err) {
+		console.warn('[agent-store] listOrders fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 // ---------- Sessions & Tasks ----------
@@ -378,8 +493,13 @@ export async function saveSession(session: NegotiationSessionRecord): Promise<bo
 
 export async function getSession(id: string): Promise<NegotiationSessionRecord | null> {
 	if (!canPersistAgentStore() || !id) return null;
-	const doc = await store.get(COLLECTIONS.sessions, id);
-	return doc ? (doc as unknown as NegotiationSessionRecord) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.sessions, id);
+		return doc ? (doc as unknown as NegotiationSessionRecord) : null;
+	} catch (err) {
+		console.warn('[agent-store] getSession fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 export async function saveA2ATask(task: A2ATaskRecord): Promise<boolean> {
@@ -390,8 +510,13 @@ export async function saveA2ATask(task: A2ATaskRecord): Promise<boolean> {
 
 export async function getA2ATask(id: string): Promise<A2ATaskRecord | null> {
 	if (!canPersistAgentStore() || !id) return null;
-	const doc = await store.get(COLLECTIONS.tasks, id);
-	return doc ? (doc as unknown as A2ATaskRecord) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.tasks, id);
+		return doc ? (doc as unknown as A2ATaskRecord) : null;
+	} catch (err) {
+		console.warn('[agent-store] getA2ATask fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 export async function saveEmailSyncRun(run: EmailSyncRun): Promise<void> {
@@ -401,8 +526,13 @@ export async function saveEmailSyncRun(run: EmailSyncRun): Promise<void> {
 
 export async function lastEmailSyncRun(): Promise<EmailSyncRun | null> {
 	if (!canPersistAgentStore()) return null;
-	const doc = await store.get(COLLECTIONS.meta, 'email-sync');
-	return doc ? (doc as unknown as EmailSyncRun) : null;
+	try {
+		const doc = await store.get(COLLECTIONS.meta, 'email-sync');
+		return doc ? (doc as unknown as EmailSyncRun) : null;
+	} catch (err) {
+		console.warn('[agent-store] lastEmailSyncRun fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 // ---------- Agent Hit Audit Trail & Reach Metrics ----------
@@ -413,11 +543,16 @@ export async function saveAuditHit(hit: AgentAuditHit): Promise<void> {
 
 export async function listAuditHits(limit = 100): Promise<AgentAuditHit[]> {
 	if (!canPersistAgentStore()) return [];
-	const docs = await store.list(COLLECTIONS.audit);
-	return docs
-		.map((d) => d as unknown as AgentAuditHit)
-		.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
-		.slice(0, limit);
+	try {
+		const docs = await store.list(COLLECTIONS.audit);
+		return docs
+			.map((d) => d as unknown as AgentAuditHit)
+			.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+			.slice(0, limit);
+	} catch (err) {
+		console.warn('[agent-store] listAuditHits fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 export async function getAgentMetrics(): Promise<AgentReachMetrics> {
@@ -432,19 +567,24 @@ export async function getAgentMetrics(): Promise<AgentReachMetrics> {
 		lastHitAt: '',
 	};
 	if (!canPersistAgentStore()) return empty;
-	const doc = await store.get(COLLECTIONS.meta, 'agent-metrics');
-	if (!doc) return empty;
-	const raw = doc as Partial<AgentReachMetrics>;
-	return {
-		totalHits: Number(raw.totalHits || 0),
-		mcpHits: Number(raw.mcpHits || 0),
-		a2aHits: Number(raw.a2aHits || 0),
-		restHits: Number(raw.restHits || 0),
-		marketingHits: Number(raw.marketingHits || 0),
-		toolCalls: typeof raw.toolCalls === 'object' && raw.toolCalls !== null ? (raw.toolCalls as Record<string, number>) : {},
-		uniqueAgents: Array.isArray(raw.uniqueAgents) ? raw.uniqueAgents.filter((x): x is string => typeof x === 'string') : [],
-		lastHitAt: typeof raw.lastHitAt === 'string' ? raw.lastHitAt : '',
-	};
+	try {
+		const doc = await store.get(COLLECTIONS.meta, 'agent-metrics');
+		if (!doc) return empty;
+		const raw = doc as Partial<AgentReachMetrics>;
+		return {
+			totalHits: Number(raw.totalHits || 0),
+			mcpHits: Number(raw.mcpHits || 0),
+			a2aHits: Number(raw.a2aHits || 0),
+			restHits: Number(raw.restHits || 0),
+			marketingHits: Number(raw.marketingHits || 0),
+			toolCalls: typeof raw.toolCalls === 'object' && raw.toolCalls !== null ? (raw.toolCalls as Record<string, number>) : {},
+			uniqueAgents: Array.isArray(raw.uniqueAgents) ? raw.uniqueAgents.filter((x): x is string => typeof x === 'string') : [],
+			lastHitAt: typeof raw.lastHitAt === 'string' ? raw.lastHitAt : '',
+		};
+	} catch (err) {
+		console.warn('[agent-store] getAgentMetrics fallback:', err instanceof Error ? err.message : err);
+		return empty;
+	}
 }
 
 export async function saveAgentMetrics(metrics: AgentReachMetrics): Promise<void> {
@@ -460,11 +600,16 @@ export async function saveMarketingRun(run: MarketingRunRecord): Promise<void> {
 
 export async function listMarketingRuns(limit = 30): Promise<MarketingRunRecord[]> {
 	if (!canPersistAgentStore()) return [];
-	const docs = await store.list(COLLECTIONS.marketing);
-	return docs
-		.map((d) => d as unknown as MarketingRunRecord)
-		.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-		.slice(0, limit);
+	try {
+		const docs = await store.list(COLLECTIONS.marketing);
+		return docs
+			.map((d) => d as unknown as MarketingRunRecord)
+			.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+			.slice(0, limit);
+	} catch (err) {
+		console.warn('[agent-store] listMarketingRuns fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
 }
 
 /** Strips sensitive internal hashes before returning order state to an authorized caller. */
