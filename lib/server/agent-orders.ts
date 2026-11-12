@@ -12,6 +12,7 @@ import {
 	type QuoteEvaluation,
 	type QuoteInput,
 } from '@/lib/agent/pricing';
+import { inspectAgentInteraction, validateSafeCallbackUrl } from '@/lib/agent/security';
 import { SITE_URL } from '@/lib/site';
 import { normalizeSrs, srsToMarkdown, type AiDeveloperSrs } from '@/types/srs';
 import { notifyFounderOrderEvent } from './agent-notify';
@@ -120,15 +121,6 @@ export type CreateOrderResult =
 	  };
 
 export async function createAgentOrder(params: CreateOrderParams): Promise<CreateOrderResult> {
-	if (!canPersistAgentStore()) {
-		return {
-			ok: false,
-			status: 503,
-			code: 'STORE_UNAVAILABLE',
-			error: 'Order store is not configured on this deployment.',
-		};
-	}
-
 	const clientEmail = (params.clientEmail || '').trim();
 	if (!EMAIL_RE.test(clientEmail)) {
 		return {
@@ -136,6 +128,37 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			status: 400,
 			code: 'INVALID_CLIENT_EMAIL',
 			error: 'A valid clientEmail address is required for SOW issuance, payment coordinates, and repository transfer.',
+		};
+	}
+
+	const callbackCheck = validateSafeCallbackUrl(params.callbackUrl);
+	if (!callbackCheck.ok) {
+		return {
+			ok: false,
+			status: 400,
+			code: 'INVALID_CALLBACK_URL',
+			error: callbackCheck.reason,
+		};
+	}
+
+	const earlySecurity = inspectAgentInteraction(
+		`${params.projectTitle || ''}\n${params.scopeSummary || ''}\n${params.executiveOverview || ''}`,
+	);
+	if (!earlySecurity.safe) {
+		return {
+			ok: false,
+			status: 400,
+			code: 'SECURITY_BLOCKED',
+			error: earlySecurity.refusalMessage || 'Order blocked by TechFiyr security guardrails.',
+		};
+	}
+
+	if (!canPersistAgentStore()) {
+		return {
+			ok: false,
+			status: 503,
+			code: 'STORE_UNAVAILABLE',
+			error: 'Order store is not configured on this deployment.',
 		};
 	}
 
@@ -169,6 +192,16 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 			status: 400,
 			code: 'INVALID_SPEC',
 			error: 'Both projectTitle and a concrete scopeSummary (min 12 chars) are required.',
+		};
+	}
+
+	const security = inspectAgentInteraction(`${projectTitle}\n${scopeSummary}\n${params.executiveOverview || ''}`);
+	if (!security.safe) {
+		return {
+			ok: false,
+			status: 400,
+			code: 'SECURITY_BLOCKED',
+			error: security.refusalMessage || 'Order blocked by TechFiyr security guardrails.',
 		};
 	}
 
@@ -258,10 +291,7 @@ export async function createAgentOrder(params: CreateOrderParams): Promise<Creat
 		updatedAt: idx === 0 ? now : undefined,
 	}));
 
-	const callbackUrl =
-		params.callbackUrl && /^https:\/\//i.test(params.callbackUrl.trim())
-			? params.callbackUrl.trim().slice(0, 500)
-			: undefined;
+	const callbackUrl = callbackCheck.url;
 
 	const initialMilestoneStatus: MilestoneStatus =
 		params.cryptoTxHash || params.payoneerReference ? 'UPFRONT_PAID' : 'AWAITING_DEPOSIT';

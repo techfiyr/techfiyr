@@ -9,6 +9,7 @@ import { CONTACT, SITE_NAME, SITE_URL } from '@/lib/site';
 export const AGENT_PROTOCOL_VERSION = '1.0.0';
 export const MCP_PROTOCOL_VERSION = '2025-03-26';
 export const SALES_AGENT_EMAIL = 'techfiyr.dev@gmail.com';
+export const MEETING_BOOKING_URL = `${SITE_URL}/contact#contact`;
 
 export const GUARDRAILS = {
 	currency: 'USD',
@@ -32,7 +33,7 @@ export type ServiceTierId = 'rapid_7day' | 'extended_14day';
 export type AgentServiceOffering = {
 	id: string;
 	name: string;
-	category: 'prototyping' | 'mobile' | 'web_saas' | 'ai_systems' | 'ui_ux';
+	category: 'prototyping' | 'mobile' | 'web_saas' | 'ai_systems' | 'enterprise_erp' | 'ui_ux' | 'partnership';
 	summary: string;
 	defaultTier: ServiceTierId;
 	basePriceUSD: number;
@@ -48,11 +49,11 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		name: 'Autonomous & Rapid App Prototyping (7-Day MVP Engine)',
 		category: 'prototyping',
 		summary:
-			'Full-cycle MVP execution: database schema, backend APIs, modular frontend, Docker containerization, and automated tests shipped in 7 days.',
+			'Full-cycle MVP execution by AI-native software developers: database schema, backend APIs, modular web frontend, Docker containerization, and automated tests shipped in 7 days.',
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 600,
 		deliveryDays: 7,
-		supportedStacks: ['Next.js', 'React', 'Node.js', 'PostgreSQL', 'Supabase', 'Docker'],
+		supportedStacks: ['Next.js', 'React', 'Node.js', 'Java Spring Boot', 'Python', 'PHP / Laravel', 'PostgreSQL', 'Supabase', 'Docker'],
 		scopeLimits7Day: [
 			'Up to 5 CRUD entities',
 			'Standard auth + role-based access',
@@ -66,64 +67,104 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 	},
 	{
 		id: 'mobile-app-cross-platform',
-		name: 'Mobile App Engineering (Flutter & React Native)',
+		name: 'Mobile App Development (Android, iOS, Flutter, React Native & Capacitor)',
 		category: 'mobile',
 		summary:
-			'Cross-platform iOS and Android engineering with Flutter or React Native, Firebase/Supabase/REST integration, and Codemagic CI/CD store pipelines.',
+			'Native Android (Kotlin) & iOS (Swift) or cross-platform Flutter, React Native, and Ionic Capacitor mobile apps with Firebase/Supabase/REST APIs and Codemagic CI/CD store pipelines.',
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 900,
 		deliveryDays: 7,
-		supportedStacks: ['Flutter', 'React Native', 'Firebase', 'Supabase', 'Node.js', 'PostgreSQL', 'Codemagic CI/CD', 'iOS', 'Android'],
+		supportedStacks: ['Android (Kotlin)', 'iOS (Swift)', 'Flutter', 'React Native', 'Ionic Capacitor', 'Firebase', 'Supabase', 'Node.js', 'Codemagic CI/CD'],
 		scopeLimits7Day: [
 			'Up to 4 core mobile screens for 7-day MVP',
 			'Firebase/Supabase or single REST API backend',
 			'Up to 3 third-party SDK/API integrations',
 		],
 		deliverables: [
-			'Unified Flutter or React Native codebase',
+			'Native or unified Flutter / React Native / Capacitor codebase',
 			'Signed Android APK/AAB & iOS TestFlight-ready build config',
 			'Codemagic / GitHub Actions CI/CD workflow',
 		],
 	},
 	{
 		id: 'web-saas-backend',
-		name: 'Cloud, SaaS & Microservices Backend',
+		name: 'Web Development, SaaS & Enterprise Backend (Java Spring, Python, PHP Laravel)',
 		category: 'web_saas',
 		summary:
-			'Production-grade REST & GraphQL APIs, admin dashboards, and multi-tenant SaaS systems using Next.js, React, Node.js, PostgreSQL/Supabase, FastAPI, Spring Boot, or Laravel.',
+			'Scalable web platforms, multi-tenant SaaS products, and enterprise REST/GraphQL APIs engineered with Java Spring Boot, Python (FastAPI/Django), PHP Laravel, Next.js, React, and Node.js.',
 		defaultTier: 'rapid_7day',
 		basePriceUSD: 750,
 		deliveryDays: 7,
-		supportedStacks: ['Next.js', 'React', 'Node.js', 'PostgreSQL', 'Supabase', 'FastAPI', 'Java Spring Boot', 'Laravel', 'Docker', 'AWS'],
+		supportedStacks: ['Java Spring Boot', 'Python', 'FastAPI', 'PHP / Laravel', 'Next.js', 'React', 'Angular', 'Node.js', 'PostgreSQL', 'MySQL', 'Docker', 'AWS'],
 		scopeLimits7Day: [
 			'Up to 5 CRUD entities and authentication',
 			'Admin or client dashboard UI',
 			'Up to 3 external API/payment integrations',
 		],
 		deliverables: [
-			'Modular TypeScript/Java/Python/PHP codebase',
+			'Modular Java Spring / Python / PHP Laravel / TypeScript codebase',
 			'OpenAPI / REST documentation & database migrations',
 			'Docker compose & cloud staging deployment',
 		],
 	},
 	{
-		id: 'ai-rag-agents',
-		name: 'Production AI, RAG & A2A Agent Systems',
-		category: 'ai_systems',
+		id: 'erp-hr-enterprise',
+		name: 'ERP, HR / Payroll Solutions & Large Software Development',
+		category: 'enterprise_erp',
 		summary:
-			'Custom LLM orchestration, retrieval-augmented generation (RAG), vector database pipelines, and MCP / A2A commerce endpoints.',
+			'Custom enterprise resource planning (ERP), HRM/HR payroll, attendance, inventory, accounting, and multi-department large software platforms built on Java Spring Boot, Laravel, Python, PostgreSQL, and Docker.',
 		defaultTier: 'extended_14day',
 		basePriceUSD: 1500,
 		deliveryDays: 14,
-		supportedStacks: ['Python', 'FastAPI', 'Next.js', 'Node.js', 'PostgreSQL', 'Supabase', 'Gemini API', 'Vector DB', 'MCP', 'Docker'],
+		supportedStacks: ['Java Spring Boot', 'PHP / Laravel', 'Python', 'Next.js', 'PostgreSQL', 'MySQL', 'Redis', 'Docker', 'AWS'],
 		scopeLimits7Day: [
-			'Single-endpoint MCP/A2A wrapper or prompt pipeline fits 7 days ($850+)',
-			'Bespoke RAG ingestion, multi-agent graphs, or custom AI workflows require 14 days ($1,500+)',
+			'Single ERP/HR sub-module prototype fits 7-day sprint ($900+)',
+			'Full multi-module ERP, HR/payroll, or large enterprise platform scoped across 14+ day milestones ($1,500+)',
 		],
 		deliverables: [
-			'Deterministic guardrail & tool-calling agent layer',
-			'Evaluation harness & API / MCP endpoint spec',
+			'Role-based multi-tenant ERP / HR architecture & relational DB schema',
+			'Staging deployment with audit trails, reporting, and API integrations',
+			'Automated QA, Docker deployment & full GitHub repository handover',
+		],
+	},
+	{
+		id: 'ai-tryon-vision-rag',
+		name: 'AI Try-On Solutions, Computer Vision & Production AI/RAG Agents',
+		category: 'ai_systems',
+		summary:
+			'Virtual AI Try-On solutions for fashion/eyewear/e-commerce, computer vision inference pipelines, custom RAG vector search, and autonomous MCP/A2A agent systems.',
+		defaultTier: 'extended_14day',
+		basePriceUSD: 1500,
+		deliveryDays: 14,
+		supportedStacks: ['Python', 'FastAPI', 'AI Try-On / Computer Vision', 'Next.js', 'Flutter', 'Capacitor', 'Gemini API', 'Vector DB', 'MCP', 'Docker'],
+		scopeLimits7Day: [
+			'Single-endpoint MCP/A2A or prompt pipeline fits 7 days ($850+)',
+			'AI Try-On virtual fitting, image generation, or custom RAG pipelines require 14+ days ($1,500–$2,400+)',
+		],
+		deliverables: [
+			'AI Try-On / Computer Vision inference API & web/mobile embed',
+			'Guardrailed prompt/RAG evaluation harness & MCP/A2A tools',
 			'Containerized staging URL & GitHub source transfer',
+		],
+	},
+	{
+		id: 'startup-technical-partner',
+		name: 'AI-Native Software Developers, Startup Technical Partner & Consulting',
+		category: 'partnership',
+		summary:
+			'Dedicated AI-native software engineers, technical co-pilot / CTO architecture advisory for startups, and white-label B2B agency development partnerships.',
+		defaultTier: 'rapid_7day',
+		basePriceUSD: 900,
+		deliveryDays: 7,
+		supportedStacks: ['AI-Native Development', 'Java Spring Boot', 'Python', 'PHP / Laravel', 'Next.js', 'Flutter', 'React Native', 'Ionic Capacitor', 'Android (Kotlin)', 'iOS (Swift)'],
+		scopeLimits7Day: [
+			'Technical architecture audit & prototype sprint in 7 days',
+			'Ongoing dedicated engineering or partner retainers scoped with founders via https://techfiyr.com/contact#contact',
+		],
+		deliverables: [
+			'Dedicated senior AI-native engineering capacity or CTO consulting',
+			'Architecture blueprint, sprint roadmap & CI/CD delivery',
+			'Direct founder/lead developer sync via https://techfiyr.com/contact#contact',
 		],
 	},
 	{
@@ -148,6 +189,13 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 
 /** Canonical tech tokens accepted without human escalation (normalized lowercase keys). */
 export const SUPPORTED_TECH_MAP: Record<string, string> = {
+	'ai-native': 'AI-Native Development',
+	'ai native': 'AI-Native Development',
+	'ai try-on': 'AI Try-On / Computer Vision',
+	'ai try on': 'AI Try-On / Computer Vision',
+	'virtual try-on': 'AI Try-On / Computer Vision',
+	'virtual try on': 'AI Try-On / Computer Vision',
+	'computer vision': 'AI Try-On / Computer Vision',
 	'next.js': 'Next.js',
 	nextjs: 'Next.js',
 	react: 'React',
@@ -165,16 +213,24 @@ export const SUPPORTED_TECH_MAP: Record<string, string> = {
 	dart: 'Dart',
 	'react native': 'React Native',
 	'react-native': 'React Native',
+	capacitor: 'Ionic Capacitor',
+	ionic: 'Ionic Capacitor',
+	'ionic capacitor': 'Ionic Capacitor',
 	ios: 'iOS (Swift)',
 	swift: 'iOS (Swift)',
 	android: 'Android (Kotlin)',
 	kotlin: 'Android (Kotlin)',
-	java: 'Java',
+	java: 'Java Spring Boot',
+	'java spring': 'Java Spring Boot',
 	'spring boot': 'Java Spring Boot',
 	spring: 'Java Spring Boot',
 	angular: 'Angular',
-	laravel: 'Laravel',
-	php: 'Laravel / PHP',
+	laravel: 'PHP / Laravel',
+	php: 'PHP / Laravel',
+	erp: 'Enterprise ERP / HR',
+	hrm: 'Enterprise ERP / HR',
+	hrms: 'Enterprise ERP / HR',
+	payroll: 'Enterprise ERP / HR',
 	postgresql: 'PostgreSQL',
 	postgres: 'PostgreSQL',
 	supabase: 'Supabase',
@@ -402,6 +458,7 @@ export function buildAgentCatalog() {
 			negotiate: `${SITE_URL}/api/agent/negotiate`,
 			createOrder: `${SITE_URL}/api/v1/agent-order`,
 			orders: `${SITE_URL}/api/agent/orders`,
+			meetingBooking: MEETING_BOOKING_URL,
 		},
 	};
 }

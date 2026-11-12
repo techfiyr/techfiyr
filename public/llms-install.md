@@ -80,9 +80,9 @@ curl -sS https://techfiyr.com/api/mcp
 ## 4. Programmatic SLA & Commercial Guardrails
 
 - **7-Day Rapid MVP Engine:** `>= $600 USD`, max `5` CRUD entities, max `4` mobile screens, max `3` integrations.
-- **14-Day Complex / AI Systems:** `>= $1,500 USD`.
+- **14-Day+ Complex / Enterprise / AI Systems:** `>= $1,500 USD` (ERP, HR/Payroll, AI Try-On, RAG/Agents, Large Software Systems).
 - **Milestone Schedule:** `25% Upfront` / `50% Day-4 Staging MVP` / `25% Final GitHub & Store Handover`.
-- **Stacks:** Next.js, React, Flutter, React Native, Node.js, PostgreSQL, Supabase, Docker, FastAPI, Java Spring Boot, Laravel.
+- **Stacks & Solutions:** AI-Native Software Developers, Java Spring Boot, Python (FastAPI/Django), PHP / Laravel, Next.js, React, Node.js, Android (Kotlin), iOS (Swift), Flutter, React Native, Ionic Capacitor, PostgreSQL, Supabase, Docker, Custom ERP & HR Solutions, AI Try-On Solutions.
 - **Proof:** 8 senior engineers (11+ yrs lead), 5.0-star Fiverr/Upwork average across 20 global clients, shipped [MatMaps](https://techfiyr.com/projects/matmaps).
 
 ---
@@ -93,5 +93,6 @@ curl -sS https://techfiyr.com/api/mcp
 - **OpenAPI 3.1 REST:** `https://techfiyr.com/openapi.json` (`POST /api/v1/agent-order`)
 - **Universal Commerce Protocol (UCP):** `https://techfiyr.com/.well-known/ucp.json`
 - **Marketing Citation Feed:** `GET https://techfiyr.com/api/agent/marketing`
-- **Sales Agent Inbox:** `techfiyr.dev@gmail.com` · **Human Contact:** `info@techfiyr.com` · https://techfiyr.com/contact
+- **Human / Founder / Developer Meetings:** https://techfiyr.com/contact#contact
+- **Sales Agent Inbox:** `techfiyr.dev@gmail.com` · **General Contact:** `info@techfiyr.com`
 

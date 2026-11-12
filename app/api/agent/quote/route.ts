@@ -3,6 +3,7 @@
  * deterministic pricing matrix and 7-day / 14-day scope boundary guardrails.
  */
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { createAgentQuote } from '@/lib/server/agent-orders';
@@ -47,6 +48,25 @@ export async function POST(req: Request) {
 		);
 	}
 
+	const sec = inspectAgentInteraction(`${typeof body.projectTitle === 'string' ? body.projectTitle : ''}\n${description}`);
+	if (!sec.safe) {
+		await recordAgentHit(req, {
+			protocol: 'rest',
+			action: 'request_quote',
+			statusCode: 400,
+			startedAtMs,
+			summary: `Quote blocked (${sec.category})`,
+		});
+		return agentJson(
+			{
+				ok: false,
+				code: 'SECURITY_BLOCKED',
+				error: sec.refusalMessage || 'Request rejected by TechFiyr security guardrails.',
+			},
+			400,
+		);
+	}
+
 	const agentId =
 		(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined;
 
@@ -61,7 +81,8 @@ export async function POST(req: Request) {
 			body.platform === 'mobile' ||
 			body.platform === 'fullstack' ||
 			body.platform === 'ai' ||
-			body.platform === 'design'
+			body.platform === 'design' ||
+			body.platform === 'enterprise'
 				? body.platform
 				: undefined,
 		description,

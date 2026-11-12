@@ -354,6 +354,7 @@ export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 							}
 						}
 
+						const wasRejectedBefore = inquiry.status === 'REJECTED';
 						const agentResult = await runSalesAgent({
 							inquiryId: inquiry.id,
 							threadId: inquiry.thread_id,
@@ -369,6 +370,22 @@ export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 								.map((m) => m.text)
 								.join('\n'),
 						});
+
+						// Never send SMTP auto-replies to security-blocked (spam/fraud/injection) senders or repeat off-topic threads.
+						const skipSmtpReply =
+							agentResult.workflow.stage === 'security_blocked' ||
+							(wasRejectedBefore && agentResult.workflow.stage === 'closed_off_topic');
+
+						if (skipSmtpReply) {
+							const refreshedBlocked = await getInquiry(inquiry.id);
+							if (refreshedBlocked && refreshedBlocked.status !== 'REJECTED') {
+								refreshedBlocked.status = 'REJECTED';
+								await saveInquiry(refreshedBlocked);
+							}
+							processed++;
+							await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true });
+							continue;
+						}
 
 						const sent = await sendThreadedReply({
 							to: fromAddr,

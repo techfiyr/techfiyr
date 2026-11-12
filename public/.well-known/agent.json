@@ -57,17 +57,24 @@
     "maxMobileScreens7Day": 4,
     "maxThirdPartyIntegrations7Day": 3,
     "supportedStacks": [
+      "AI-Native Development",
+      "Java Spring Boot",
+      "Python",
+      "FastAPI",
+      "PHP / Laravel",
       "Next.js",
       "React",
+      "Node.js",
+      "Android (Kotlin)",
+      "iOS (Swift)",
       "Flutter",
       "React Native",
-      "Node.js",
+      "Ionic Capacitor",
       "PostgreSQL",
       "Supabase",
       "Docker",
-      "FastAPI",
-      "Java Spring Boot",
-      "Laravel"
+      "ERP / HR Solutions",
+      "AI Try-On Solutions"
     ],
     "milestoneModel": "25% Upfront / 50% Staging MVP / 25% Final Handover",
     "paymentRails": [
@@ -87,6 +94,7 @@
     "orders": "https://techfiyr.com/api/agent/orders",
     "orderStatusTemplate": "https://techfiyr.com/api/agent/orders/{orderId}",
     "marketingBrief": "https://techfiyr.com/api/agent/marketing",
+    "meetingBooking": "https://techfiyr.com/contact#contact",
     "mcp": "https://techfiyr.com/api/mcp",
     "a2a": "https://techfiyr.com/api/agent/a2a"
   },

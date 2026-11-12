@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 	});
 
 	return agentJson({
-		ok: result.decision !== 'rejected',
+		ok: result.status !== 'rejected',
 		...result,
 	});
 }

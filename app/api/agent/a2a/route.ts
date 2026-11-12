@@ -5,6 +5,7 @@
  */
 import { buildAgentCatalog } from '@/lib/agent/catalog';
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
@@ -117,24 +118,41 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 		resultData = brief;
 		summaryText = brief.canonicalPitch;
 	} else if (action === 'quote' && dataPart) {
-		const { quote, persisted } = await createAgentQuote({
-			projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : undefined,
-			description: typeof dataPart.description === 'string' ? dataPart.description : textParts,
-			techStack: Array.isArray(dataPart.techStack)
-				? dataPart.techStack.filter((x): x is string => typeof x === 'string')
-				: undefined,
-			crudEntities: typeof dataPart.crudEntities === 'number' ? dataPart.crudEntities : undefined,
-			mobileScreens: typeof dataPart.mobileScreens === 'number' ? dataPart.mobileScreens : undefined,
-			integrationsCount: typeof dataPart.integrationsCount === 'number' ? dataPart.integrationsCount : undefined,
-			budgetUSD: typeof dataPart.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
-			requestedDays: typeof dataPart.requestedDays === 'number' ? dataPart.requestedDays : undefined,
-			clientAgentId: typeof dataPart.clientAgentId === 'string' ? dataPart.clientAgentId : 'a2a-client',
-			clientEmail: typeof dataPart.clientEmail === 'string' ? dataPart.clientEmail : undefined,
-		});
-		resultData = { quoteId: quote.id, expiresAt: quote.expiresAt, persisted, evaluation: quote.evaluation };
-		summaryText = quote.evaluation.reason;
-		if (quote.evaluation.decision === 'rejected') state = 'failed';
-		else if (quote.evaluation.decision === 'counter_offer') state = 'input-required';
+		const quoteDesc = typeof dataPart.description === 'string' ? dataPart.description : textParts;
+		const sec = inspectAgentInteraction(`${typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : ''}\n${quoteDesc}`);
+		if (!sec.safe) {
+			state = 'failed';
+			summaryText = sec.refusalMessage || 'Quote blocked by security guardrails.';
+			resultData = { ok: false, code: 'SECURITY_BLOCKED', error: summaryText };
+		} else {
+			const { quote, persisted } = await createAgentQuote({
+				projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : undefined,
+				description: quoteDesc,
+				platform:
+					dataPart.platform === 'web' ||
+					dataPart.platform === 'mobile' ||
+					dataPart.platform === 'fullstack' ||
+					dataPart.platform === 'ai' ||
+					dataPart.platform === 'design' ||
+					dataPart.platform === 'enterprise'
+						? dataPart.platform
+						: undefined,
+				techStack: Array.isArray(dataPart.techStack)
+					? dataPart.techStack.filter((x): x is string => typeof x === 'string')
+					: undefined,
+				crudEntities: typeof dataPart.crudEntities === 'number' ? dataPart.crudEntities : undefined,
+				mobileScreens: typeof dataPart.mobileScreens === 'number' ? dataPart.mobileScreens : undefined,
+				integrationsCount: typeof dataPart.integrationsCount === 'number' ? dataPart.integrationsCount : undefined,
+				budgetUSD: typeof dataPart.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
+				requestedDays: typeof dataPart.requestedDays === 'number' ? dataPart.requestedDays : undefined,
+				clientAgentId: typeof dataPart.clientAgentId === 'string' ? dataPart.clientAgentId : 'a2a-client',
+				clientEmail: typeof dataPart.clientEmail === 'string' ? dataPart.clientEmail : undefined,
+			});
+			resultData = { quoteId: quote.id, expiresAt: quote.expiresAt, persisted, evaluation: quote.evaluation };
+			summaryText = quote.evaluation.reason;
+			if (quote.evaluation.decision === 'rejected') state = 'failed';
+			else if (quote.evaluation.decision === 'counter_offer') state = 'input-required';
+		}
 	} else if (action === 'order' && dataPart) {
 		const orderRes = await createAgentOrder({
 			quoteId: typeof dataPart.quoteId === 'string' ? dataPart.quoteId : undefined,
@@ -196,8 +214,9 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 		summaryText = neg.reply;
 		hitInquiryId = neg.inquiryId;
 		hitOrderId = neg.order?.id;
-		if (neg.decision === 'rejected') state = 'failed';
-		else if (!neg.dealClosed) state = 'input-required';
+		if (neg.status === 'rejected') state = 'failed';
+		else if (neg.dealClosed || neg.workflow.stage === 'meeting_handover') state = 'completed';
+		else state = 'input-required';
 	}
 
 	const task: A2ATaskRecord = {

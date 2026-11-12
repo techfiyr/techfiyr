@@ -14,6 +14,7 @@ import {
 	MCP_PROTOCOL_VERSION,
 } from '@/lib/agent/catalog';
 import type { PaymentRail } from '@/lib/agent/pricing';
+import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { AGENT_CORS_HEADERS, agentJson, agentOptions } from '@/lib/server/agent-http';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
@@ -41,7 +42,7 @@ const MCP_TOOLS = [
 			properties: {
 				category: {
 					type: 'string',
-					enum: ['all', 'prototyping', 'mobile', 'web_saas', 'ai_systems', 'ui_ux'],
+					enum: ['all', 'prototyping', 'mobile', 'web_saas', 'ai_systems', 'enterprise_erp', 'ui_ux', 'partnership'],
 					description: 'Optional service category filter.',
 				},
 			},
@@ -58,8 +59,8 @@ const MCP_TOOLS = [
 			properties: {
 				projectTitle: { type: 'string', description: 'Short name of the application or platform.' },
 				description: { type: 'string', description: 'Functional specification and requirements.' },
-				platform: { type: 'string', enum: ['web', 'mobile', 'fullstack', 'ai', 'design'] },
-				techStack: { type: 'array', items: { type: 'string' }, description: 'Requested technologies (e.g. Next.js, PostgreSQL, Flutter).' },
+				platform: { type: 'string', enum: ['web', 'mobile', 'fullstack', 'ai', 'design', 'enterprise'] },
+				techStack: { type: 'array', items: { type: 'string' }, description: 'Requested technologies (e.g. Next.js, Java Spring, Python, PHP/Laravel, Flutter, React Native, Capacitor, Android, iOS, ERP/HR, AI Try-On).' },
 				crudEntities: { type: 'number', description: 'Estimated database/CRUD entities (max 5 for 7-day SLA).' },
 				mobileScreens: { type: 'number', description: 'Estimated mobile screens (max 4 for 7-day SLA).' },
 				integrationsCount: { type: 'number', description: 'External API/payment/auth integrations (max 3 for 7-day SLA).' },
@@ -78,7 +79,7 @@ const MCP_TOOLS = [
 	{
 		name: 'negotiate_terms',
 		description:
-			'Multi-turn or single-shot autonomous sales negotiation with TechFiyr Lead Architect agent, constrained by programmatic floor pricing and SLA boundaries.',
+			'Smart purpose-first autonomous sales & consulting negotiation with TechFiyr Lead Solutions Advisor: enforces anti-fraud/anti-script security, asks scoping questions before blind quoting, computes requirement-based pricing, hands human/founder meeting requests to https://techfiyr.com/contact#contact, and closes confirmed software deals under programmatic guardrails.',
 		inputSchema: {
 			type: 'object',
 			required: ['message'],
@@ -259,6 +260,14 @@ async function handleToolCall(
 				response: toolFailure({ ok: false, code: 'MISSING_DESCRIPTION', error: 'description is required.' }),
 			};
 		}
+		const sec = inspectAgentInteraction(`${typeof args.projectTitle === 'string' ? args.projectTitle : ''}\n${description}`);
+		if (!sec.safe) {
+			return {
+				normalizedName,
+				summary: `Quote blocked (${sec.category})`,
+				response: toolFailure({ ok: false, code: 'SECURITY_BLOCKED', error: sec.refusalMessage || 'Request rejected by security guardrails.' }),
+			};
+		}
 		const { quote, persisted } = await createAgentQuote({
 			projectTitle: typeof args.projectTitle === 'string' ? args.projectTitle : undefined,
 			description,
@@ -267,7 +276,8 @@ async function handleToolCall(
 				args.platform === 'mobile' ||
 				args.platform === 'fullstack' ||
 				args.platform === 'ai' ||
-				args.platform === 'design'
+				args.platform === 'design' ||
+				args.platform === 'enterprise'
 					? args.platform
 					: undefined,
 			techStack: Array.isArray(args.techStack)
@@ -334,10 +344,13 @@ async function handleToolCall(
 			normalizedName,
 			inquiryId: (result as { inquiryId?: string }).inquiryId,
 			orderId: result.order?.id,
-			summary: result.dealClosed
-				? `MCP deal closed: ${result.order?.id} ($${result.order?.agreedPriceUSD})`
-				: `MCP negotiation (${result.decision}): $${result.evaluation.proposedPriceUSD}`,
-			response: result.decision === 'rejected' ? toolFailure(result) : toolSuccess(result),
+			summary:
+				result.workflow.stage === 'security_blocked'
+					? `MCP negotiate blocked (${result.workflow.stage})`
+					: result.dealClosed
+						? `MCP deal closed: ${result.order?.id} ($${result.order?.agreedPriceUSD})`
+						: `MCP negotiate [${result.workflow.stage}]: $${result.evaluation.proposedPriceUSD}`,
+			response: result.status === 'rejected' ? toolFailure(result) : toolSuccess(result),
 		};
 	}
 

@@ -6,6 +6,7 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { DeliveryPhase } from '@/lib/agent/catalog';
 import type { MilestoneItem, PaymentRail, QuoteEvaluation, QuoteInput } from '@/lib/agent/pricing';
+import type { WorkflowStage } from '@/lib/agent/security';
 import type { AiDeveloperSrs } from '@/types/srs';
 import { env } from './google';
 import { store, storeMode } from './store';
@@ -29,6 +30,10 @@ export type InquiryRecord = {
 	channel: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
 	messages: InquiryMessage[];
 	order_id?: string;
+	workflowStage?: WorkflowStage;
+	purposeConfirmed?: boolean;
+	securityFlag?: string;
+	offTopicTurns?: number;
 	created_at: string;
 	updated_at: string;
 };
@@ -144,6 +149,10 @@ export type NegotiationSessionRecord = {
 	turns: NegotiationTurn[];
 	latestEvaluation?: QuoteEvaluation;
 	status: 'open' | 'deal_closed' | 'rejected';
+	workflowStage?: WorkflowStage;
+	purposeConfirmed?: boolean;
+	securityFlag?: string;
+	offTopicTurns?: number;
 	orderId?: string;
 };
 

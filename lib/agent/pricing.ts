@@ -13,6 +13,7 @@ import {
 	type DeliveryPhase,
 	type ServiceTierId,
 } from './catalog';
+import { inspectAgentInteraction } from './security';
 
 export type PaymentRail =
 	| 'crypto_usdc_solana'
@@ -34,7 +35,7 @@ export const VALID_PAYMENT_RAILS: PaymentRail[] = [
 export type QuoteInput = {
 	projectTitle?: string;
 	serviceId?: string;
-	platform?: 'web' | 'mobile' | 'fullstack' | 'ai' | 'design';
+	platform?: 'web' | 'mobile' | 'fullstack' | 'ai' | 'design' | 'enterprise';
 	description: string;
 	techStack?: string[];
 	crudEntities?: number;
@@ -140,15 +141,17 @@ export function normalizeTechStack(rawStack: string[] = []): {
 	};
 }
 
-function inferPlatform(input: QuoteInput, stack: string[]): 'web' | 'mobile' | 'fullstack' | 'ai' | 'design' {
+function inferPlatform(input: QuoteInput, stack: string[]): 'web' | 'mobile' | 'fullstack' | 'ai' | 'design' | 'enterprise' {
 	if (input.platform) return input.platform;
 	const lower = `${input.projectTitle || ''} ${input.description} ${stack.join(' ')}`.toLowerCase();
-	const hasMobile = /\b(flutter|react native|ios|android|mobile app|play store|app store)\b/.test(lower);
-	const hasWeb = /\b(next\.?js|react|dashboard|saas|web app|website|laravel|spring|fastapi)\b/.test(lower);
-	const hasAi = /\b(rag|vector db|llm training|fine-?tun|ai agent|embeddings|multi-agent)\b/.test(lower);
-	const onlyDesign = /\b(figma|wireframe|prototype|ui\/ux only|design system only)\b/.test(lower) && !hasWeb && !hasMobile;
+	const hasMobile = /\b(flutter|react native|capacitor|ionic|ios|android|mobile app|play store|app store)\b/.test(lower);
+	const hasWeb = /\b(next\.?js|react|angular|dashboard|saas|web app|website|laravel|php|spring|java|fastapi|python)\b/.test(lower);
+	const hasEnterprise = /\b(erp|hrm|hrms|hr\s+solution|payroll|enterprise|large\s+software|multi-?branch)\b/.test(lower);
+	const hasAi = /\b(ai\s*try-?on|virtual\s*try-?on|try-?on|computer\s+vision|rag|vector db|llm training|fine-?tun|ai agent|ai\s+native|embeddings|multi-agent)\b/.test(lower);
+	const onlyDesign = /\b(figma|wireframe|prototype|ui\/ux only|design system only)\b/.test(lower) && !hasWeb && !hasMobile && !hasEnterprise;
 
 	if (onlyDesign) return 'design';
+	if (hasEnterprise && !hasAi) return 'enterprise';
 	if (hasMobile && hasWeb) return 'fullstack';
 	if (hasAi) return 'ai';
 	if (hasMobile) return 'mobile';
@@ -158,7 +161,8 @@ function inferPlatform(input: QuoteInput, stack: string[]): 'web' | 'mobile' | '
 function selectServiceId(platform: ReturnType<typeof inferPlatform>, explicitId?: string): string {
 	if (explicitId && AGENT_SERVICES.some((s) => s.id === explicitId)) return explicitId;
 	if (platform === 'mobile') return 'mobile-app-cross-platform';
-	if (platform === 'ai') return 'ai-rag-agents';
+	if (platform === 'ai') return 'ai-tryon-vision-rag';
+	if (platform === 'enterprise') return 'erp-hr-enterprise';
 	if (platform === 'design') return 'ui-ux-prototyping';
 	if (platform === 'fullstack') return 'web-saas-backend';
 	return 'rapid-mvp-7day';
@@ -206,6 +210,36 @@ export function buildMilestones(totalUSD: number, days: number): MilestoneItem[]
 export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 	const desc = (input.description || '').trim();
 	const title = (input.projectTitle || 'Custom Software Build').trim();
+	const security = inspectAgentInteraction(`${title}\n${desc}`);
+
+	if (!security.safe) {
+		return {
+			decision: 'rejected',
+			reasonCode: 'INVALID_SPEC',
+			reason: security.refusalMessage || 'Specification rejected by TechFiyr security guardrails.',
+			tier: 'rapid_7day',
+			serviceId: 'rapid-mvp-7day',
+			currency: 'USD',
+			floorPriceUSD: GUARDRAILS.minFloorPriceUSD,
+			recommendedPriceUSD: GUARDRAILS.minFloorPriceUSD,
+			minimumAcceptableUSD: GUARDRAILS.minFloorPriceUSD,
+			proposedPriceUSD: GUARDRAILS.minFloorPriceUSD,
+			requiredDeliveryDays: GUARDRAILS.standardTurnaroundDays,
+			normalizedStack: [],
+			unsupportedStacks: [],
+			scopeMetrics: {
+				crudEntities: 0,
+				mobileScreens: 0,
+				integrationsCount: 0,
+				requiresExtendedPipeline: false,
+				triggers: security.reasons,
+			},
+			lineItems: [],
+			milestones: [],
+			phases: DELIVERY_ENGINE_7DAY,
+		};
+	}
+
 	const combinedLower = `${title} ${desc}`.toLowerCase();
 
 	if (desc.length < 12) {
@@ -244,7 +278,7 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		return {
 			decision: 'rejected',
 			reasonCode: 'UNSUPPORTED_TECH_STACK',
-			reason: `Unsupported stack requested (${allUnsupported.join(', ')}). Supported stacks: Next.js/React, Flutter/React Native, Node.js/PostgreSQL/Supabase, Docker.`,
+			reason: `Unsupported stack requested (${allUnsupported.join(', ')}). Supported stacks: AI-Native Dev, Java Spring Boot, Python, PHP/Laravel, Next.js/React, Android/iOS, Flutter, React Native, Capacitor, PostgreSQL/Supabase, Docker.`,
 			tier: 'extended_14day',
 			serviceId: 'web-saas-backend',
 			currency: 'USD',
@@ -273,26 +307,59 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 			? stackCheck.supported
 			: inferPlatform(input, []) === 'mobile'
 				? ['Flutter', 'Supabase', 'Docker']
-				: ['Next.js', 'Node.js', 'PostgreSQL', 'Docker'];
+				: inferPlatform(input, []) === 'enterprise'
+					? ['Java Spring Boot', 'Next.js', 'PostgreSQL', 'Docker']
+					: inferPlatform(input, []) === 'ai'
+						? ['Python', 'FastAPI', 'Next.js', 'PostgreSQL', 'Docker']
+						: ['Next.js', 'Node.js', 'PostgreSQL', 'Docker'];
 
 	const platform = inferPlatform(input, normalizedStack);
 	const serviceId = selectServiceId(platform, input.serviceId);
 
-	const crudEntities = clampInt(input.crudEntities, 1, 100, platform === 'design' ? 1 : 3);
+	const isAiTryOn = /\b(?:ai\s*try-?on|virtual\s*try-?on|try-?on|virtual\s+fitting|garment\s+transfer)\b/.test(combinedLower);
+	const isEnterpriseErpHr = /\b(?:erp|hrm|hrms|hr\s+solution|payroll|attendance|large\s+software|multi-?branch|core\s+banking)\b/.test(combinedLower);
+
+	const proseInt = (re: RegExp): number | undefined => {
+		const m = re.exec(combinedLower);
+		if (!m) return undefined;
+		const n = Number.parseInt(m[1], 10);
+		return Number.isFinite(n) ? n : undefined;
+	};
+
+	const inferredCrud = proseInt(/\b(\d{1,2})\s+(?:crud\s+)?(?:entities|entity|models?|tables?|modules?)\b/);
+	const inferredScreens = proseInt(/\b(\d{1,2})\s+(?:core\s+)?(?:mobile\s+|app\s+|ui\s+)?screens?\b/);
+	const inferredIntegrations = proseInt(
+		/\b(\d{1,2})\s+(?:third-?party\s+)?(?:external\s+)?(?:api|apis|webhook|webhooks|sdk|payment)?\s*integrations?\b/,
+	);
+
+	const crudEntities = clampInt(
+		input.crudEntities ?? inferredCrud,
+		1,
+		100,
+		platform === 'design' ? 1 : isEnterpriseErpHr ? 8 : 3,
+	);
 	const mobileScreens = clampInt(
-		input.mobileScreens,
+		input.mobileScreens ?? inferredScreens,
 		0,
 		100,
 		platform === 'mobile' || platform === 'fullstack' ? 4 : 0,
 	);
-	const integrationsCount = clampInt(input.integrationsCount, 0, 50, 1);
+	const integrationsCount = clampInt(
+		input.integrationsCount ?? inferredIntegrations,
+		0,
+		50,
+		isAiTryOn || isEnterpriseErpHr ? 2 : 1,
+	);
 
 	const complexProseSignals: string[] = [];
-	if (input.requiresCustomAiTraining || /\b(fine-?tun|custom model training|train llm|ml pipeline)\b/.test(combinedLower)) {
+	if (input.requiresCustomAiTraining || /\b(?:fine-?tun|custom model training|train llm|ml pipeline)\b/.test(combinedLower)) {
 		complexProseSignals.push('Custom AI training / ML pipeline');
 	}
-	if (/\b(school erp|enterprise erp|multi-?tenant saas.*billing|hospital management|core banking)\b/.test(combinedLower)) {
-		complexProseSignals.push('Multi-module enterprise / ERP architecture');
+	if (isAiTryOn) {
+		complexProseSignals.push('AI Try-On computer vision & virtual fitting pipeline');
+	}
+	if (isEnterpriseErpHr) {
+		complexProseSignals.push('Enterprise ERP / HR / large software multi-module architecture');
 	}
 	if (platform === 'fullstack' && mobileScreens > 0) {
 		complexProseSignals.push('Combined cross-platform mobile + full-stack web surface');
@@ -357,6 +424,20 @@ export function evaluateProjectSpec(input: QuoteInput): QuoteEvaluation {
 		lineItems.push({
 			label: 'Gemini / LLM structured tool-calling & guardrail module',
 			amountUSD: 250,
+		});
+	}
+
+	if (isAiTryOn) {
+		lineItems.push({
+			label: 'AI Try-On computer vision & garment/product fitting pipeline',
+			amountUSD: 900,
+		});
+	}
+
+	if (isEnterpriseErpHr && !isAiTryOn) {
+		lineItems.push({
+			label: 'Enterprise ERP / HR role-based permissions, reporting & audit engine',
+			amountUSD: 500,
 		});
 	}
 
