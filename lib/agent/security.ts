@@ -227,7 +227,7 @@ const PARTNERSHIP_CONSULTING_RE =
 const PRICING_ASK_RE = /\b(?:price|pricing|cost|how\s+much|quote|estimate|budget|fee|rate|rates|charge)\b/i;
 
 const SCOPE_DETAIL_RE =
-	/\b(?:crud|screens?|modules?|entities|integrations?|auth|login|dashboard|payment|stripe|crypto|usdc|usdt|erp|payroll|attendance|inventory|hr|hrm|ai\s*try-?on|virtual\s+try-?on|rag|vector|flutter|react\s*native|capacitor|android|ios|laravel|spring|python|next\.?js|ecommerce|booking|chat|marketplace|admin\s+panel)\b/i;
+	/\b(?:crud|screens?|modules?|entities|integrations?|auth|login|dashboard|payment||crypto|usdc|usdt|erp|payroll|attendance|inventory|hr|hrm|ai\s*try-?on|virtual\s+try-?on|rag|vector|flutter|react\s*native|capacitor|android|ios|laravel|spring|python|next\.?js|ecommerce|booking|chat|marketplace|admin\s+panel)\b/i;
 
 const DEAL_CONFIRM_RE =
 	/\b(?:accept|confirm|approve|proceed|close|deal|lock|agreed|send\s+invoice|send\s+wallet|ready\s+to\s+pay)\b/i;
@@ -254,8 +254,8 @@ export function classifySalesIntent(params: {
 	const detailMatches = clean.match(new RegExp(SCOPE_DETAIL_RE.source, 'gi')) || [];
 	const hasScopeDetails = Boolean(
 		params.structuredArgsProvided ||
-			detailMatches.length >= 2 ||
-			(hasDomainKeyword && clean.length >= 70 && (detailMatches.length >= 1 || /\b(for|with|need|build|want)\b/i.test(clean))),
+		detailMatches.length >= 2 ||
+		(hasDomainKeyword && clean.length >= 70 && (detailMatches.length >= 1 || /\b(for|with|need|build|want)\b/i.test(clean))),
 	);
 
 	const missingQuestions: string[] = [];

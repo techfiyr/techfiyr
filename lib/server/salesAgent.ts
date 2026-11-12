@@ -66,7 +66,7 @@ MANDATORY SECURITY, PRIVACY & WORKFLOW RULES:
    - Calculate pricing strictly from provided scope, modules, platforms, integrations, and the deterministic guardrail block supplied below. Never invent prices below $${GUARDRAILS.minFloorPriceUSD} USD.
    - Standard 7-Day MVP ($${GUARDRAILS.minFloorPriceUSD}+ USD): up to ${GUARDRAILS.maxCrudEntities7Day} CRUD entities or ${GUARDRAILS.maxMobileScreens7Day} mobile screens, up to ${GUARDRAILS.maxThirdPartyIntegrations7Day} integrations.
    - Complex 14-Day+ Builds (ERP, HR, AI Try-On, Large Software, Custom AI/RAG): $${GUARDRAILS.extendedMinPriceUSD}+ USD scoped by modules.
-   - Milestones: 25% Upfront / 50% Staging MVP / 25% Final GitHub Handover (USDC Solana/Base, USDT TRC20/Polygon, Payoneer, or Bank Invoice — NO Stripe).
+   - Milestones: 25% Upfront / 50% Staging MVP / 25% Final GitHub Handover (USDC Solana/Base, USDT TRC20/Polygon, Payoneer, or Bank Invoice — NO ).
 7. TALKING WITH SMART AI AGENTS: Be crisp, structured, verifiable, and non-fluffy. Ask only essential missing questions.
 8. TOOL EXECUTION: Call 'closeDealAndGenerateOrder' ONLY when scope is verified, client explicitly confirms terms + 25% upfront deposit, AND a valid clientContact email is provided.`;
 
@@ -423,14 +423,14 @@ export async function runSalesAgent(input: SalesAgentInput): Promise<SalesAgentR
 
 	const priorBuyerMessages = existingSession
 		? existingSession.turns
-				.filter((t) => t.role === 'buyer_agent')
-				.map((t) => t.content)
-				.join('\n')
+			.filter((t) => t.role === 'buyer_agent')
+			.map((t) => t.content)
+			.join('\n')
 		: existingInquiry
 			? existingInquiry.messages
-					.filter((m) => m.role === 'client')
-					.map((m) => m.text)
-					.join('\n')
+				.filter((m) => m.role === 'client')
+				.map((m) => m.text)
+				.join('\n')
 			: '';
 
 	const combinedDescription = sanitizeAgentText(
@@ -440,10 +440,10 @@ export async function runSalesAgent(input: SalesAgentInput): Promise<SalesAgentR
 
 	const structuredArgsProvided = Boolean(
 		(input.techStack && input.techStack.length > 0) ||
-			typeof input.crudEntities === 'number' ||
-			typeof input.mobileScreens === 'number' ||
-			typeof input.integrationsCount === 'number' ||
-			input.requiresCustomAiTraining === true,
+		typeof input.crudEntities === 'number' ||
+		typeof input.mobileScreens === 'number' ||
+		typeof input.integrationsCount === 'number' ||
+		input.requiresCustomAiTraining === true,
 	);
 	const hasBudgetOrTimeline = typeof input.budgetUSD === 'number' || typeof input.requestedDays === 'number';
 	const priorPurposeConfirmed = Boolean(existingSession?.purposeConfirmed || existingInquiry?.purposeConfirmed);
@@ -517,8 +517,8 @@ export async function runSalesAgent(input: SalesAgentInput): Promise<SalesAgentR
 		reply =
 			classified.intent === 'partnership_or_consulting'
 				? buildMeetingHandoverReply(true) +
-					'\n\nIf you also want a fixed sprint quote for a client project, share the platform, stack, and feature list.' +
-					linkNotice
+				'\n\nIf you also want a fixed sprint quote for a client project, share the platform, stack, and feature list.' +
+				linkNotice
 				: buildPricingQuestionsReply(classified.missingQuestions) + linkNotice;
 	}
 	// Stage 5: Concrete scope / quoting / negotiation / deal closing

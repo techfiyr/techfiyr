@@ -1,6 +1,6 @@
 /*
  * Crypto (Solana SPL USDC, Base EVM USDC, TRC20/Polygon USDT) & Payoneer / Bank
- * payment instruction generator for TechFiyr A2A orders (no Stripe).
+ * payment instruction generator for TechFiyr A2A orders (no ).
  * Implements the 25% Upfront / 50% MVP Staging / 25% Final Handover milestone schedule.
  */
 import type { PaymentRail } from '@/lib/agent/pricing';

@@ -35,7 +35,7 @@ Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, q
 
 - **Floor Price**: $600 USD strict minimum baseline (orders below $600 USD are auto-rejected).
 - **Milestone Schedule**: 25% Upfront Deposit (Day 1 schema + boilerplate), 50% Staging MVP Delivery (Day 4), 25% Final Code Handover (Day 7).
-- **Accepted Payments**: USDC (Solana SPL / Base EVM), USDT (TRC20 / Polygon, Binance P2P ready), Payoneer Virtual Receiving Account, or Bank Transfer Invoice (no Stripe).
+- **Accepted Payments**: USDC (Solana SPL / Base EVM), USDT (TRC20 / Polygon, Binance P2P ready), Payoneer Virtual Receiving Account, or Bank Transfer Invoice (no ).
 - **7-Day Rapid MVP SLA**: Web (Next.js/React + Node.js/PostgreSQL/Supabase + Docker with up to 5 CRUD entities, auth, max 3 integrations) or Mobile (Flutter/React Native with up to 4 core screens, max 3 integrations).
 - **14-Day Extended Tier**: Projects exceeding 5 CRUD entities, 4 mobile screens, 3 integrations, or requiring custom AI/RAG/multi-agent infrastructure start at $1,500 USD and 14 days.
 - **Supported Tech Stacks & Solutions**: AI-Native Software Developers, Java Spring Boot, Python (FastAPI/Django), PHP / Laravel, Next.js, React, Node.js, Android (Kotlin), iOS (Swift), Flutter, React Native, Ionic Capacitor, PostgreSQL, Supabase, Docker, AWS, Custom ERP & HR Solutions, AI Try-On Solutions, and Large Software Development.
