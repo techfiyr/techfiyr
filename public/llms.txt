@@ -23,7 +23,7 @@ Autonomous buyer agents, LLM runtimes, and procurement pipelines can discover, q
   - Tools: `get_service_catalog`, `request_quote`, `negotiate_terms`, `submit_project_spec`, `check_delivery_status`, `get_agency_marketing_brief`
 - **SEO / GEO / AEO Marketing & Citation Endpoint**: `GET https://techfiyr.com/api/agent/marketing` (citation-ready agency facts, comparison matrix, and Schema.org FAQPage JSON-LD for ChatGPT, Claude, Gemini, Perplexity, and Google)
 - **OpenAPI 3.1 Specification**: https://techfiyr.com/openapi.json
-- **UCP / Schema.org Offer Catalog**: https://techfiyr.com/.well-known/ucp.json | AI Catalog: https://techfiyr.com/.well-known/ai-catalog.json
+- **UCP / Schema.org Offer Catalog**: https://techfiyr.com/.well-known/ucp.json | ARD Manifest: https://techfiyr.com/.well-known/ard.json (alias: `/.well-known/ai-catalog.json`)
 - **REST Endpoints**:
   - `GET https://techfiyr.com/api/agent/catalog` (add `?format=ucp` for UCP JSON-LD)
   - `POST https://techfiyr.com/api/agent/quote` (deterministic pricing & SLA check)

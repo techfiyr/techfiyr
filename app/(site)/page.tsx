@@ -6,8 +6,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { preload } from 'react-dom';
-import FaqSection, { faqSchema } from '@/components/FaqSection';
+import FaqSection from '@/components/FaqSection';
 import JsonLd from '@/components/JsonLd';
+import { faqSchema } from '@/lib/faq';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = {

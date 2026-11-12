@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
 			{ source: '/llm.txt', destination: '/llms.txt' },
 			{ source: '/llms', destination: '/llms.txt' },
 			{ source: '/llms-full.txt', destination: '/llms.txt' },
+			{ source: '/.well-known/ard.json', destination: '/ard.json' },
 			{ source: '/.well-known/ai-catalog.json', destination: '/ai-catalog.json' },
 			{ source: '/.well-known/agent-card.json', destination: '/.well-known/agent.json' },
 			{ source: '/.well-known/mcp-registry-auth', destination: '/api/well-known-mcp-auth' },
@@ -35,8 +36,24 @@ const nextConfig: NextConfig = {
 					{
 						key: 'Link',
 						value:
-							'<https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"',
+							'<https://techfiyr.com/.well-known/ard.json>; rel="ard"; type="application/json", <https://techfiyr.com/.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json", <https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"',
 					},
+				],
+			},
+			{
+				source: '/ard.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
+				],
+			},
+			{
+				source: '/ai-catalog.json',
+				headers: [
+					{ key: 'Content-Type', value: 'application/json; charset=utf-8' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Cache-Control', value: 'public, max-age=3600' },
 				],
 			},
 			{

@@ -306,6 +306,11 @@
   force = true
 
 [[redirects]]
+  from = "/.well-known/ard.json"
+  to = "/ard.json"
+  status = 200
+
+[[redirects]]
   from = "/.well-known/ai-catalog.json"
   to = "/ai-catalog.json"
   status = 200
@@ -364,6 +369,20 @@
   for = "/llms-full.txt"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/ard.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/.well-known/ard.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
     Cache-Control = "public, max-age=3600"
     Access-Control-Allow-Origin = "*"
 
@@ -447,7 +466,7 @@
 [[headers]]
   for = "/"
   [headers.values]
-    Link = '<https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"'
+    Link = '<https://techfiyr.com/.well-known/ard.json>; rel="ard"; type="application/json", <https://techfiyr.com/.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json", <https://techfiyr.com/.well-known/agent.json>; rel="describedby"; type="application/json", <https://techfiyr.com/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <https://techfiyr.com/llms.txt>; rel="alternate"; type="text/markdown"'
 
 [[headers]]
   for = "/sitemap.xml"

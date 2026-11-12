@@ -9,6 +9,7 @@ Allow: /
 Allow: /app-ads.txt
 Allow: /.well-known/
 Allow: /openapi.json
+Allow: /ard.json
 Allow: /ai-catalog.json
 Allow: /llms.txt
 Allow: /llms-install.md

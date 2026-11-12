@@ -27,6 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		// data-scroll-behavior: Bootstrap makes scrolling smooth; Next.js turns that off while it
 		// changes page, so a new page starts at the top straight away
 		<html lang="en" data-scroll-behavior="smooth">
+			<head>
+				<link rel="ard" href="/.well-known/ard.json" type="application/json" />
+				<link rel="ai-catalog" href="/.well-known/ai-catalog.json" type="application/json" />
+			</head>
 			<body>{children}</body>
 		</html>
 	);

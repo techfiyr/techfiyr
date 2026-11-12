@@ -8,46 +8,191 @@
     "contactUrl": "https://techfiyr.com/contact",
     "email": "info@techfiyr.com"
   },
+  "entries": [
+    {
+      "identifier": "urn:air:techfiyr.com:agent:a2a-agency",
+      "displayName": "TechFiyr A2A Agent Card",
+      "type": "application/a2a-agent-card+json",
+      "url": "https://techfiyr.com/.well-known/agent.json",
+      "name": "TechFiyr A2A Agent Card",
+      "endpoint": "https://techfiyr.com/.well-known/agent.json",
+      "description": "Agent-to-Agent (A2A) Commerce card, protocols, programmatic pricing guardrails ($600 USD / 7-day floor), and JSON-RPC 2.0 endpoint for autonomous software procurement.",
+      "protocol": "a2a-jsonrpc-2.0",
+      "capabilities": [
+        "AutonomousProcurement",
+        "PricingGuardrails",
+        "MachineReadableSOW",
+        "DeliveryTracking"
+      ],
+      "representativeQueries": [
+        "Hire TechFiyr via agent to agent protocol",
+        "Request quote for MVP mobile app in Flutter",
+        "Autonomous software procurement with TechFiyr"
+      ]
+    },
+    {
+      "identifier": "urn:air:techfiyr.com:mcp:agency-server",
+      "displayName": "TechFiyr MCP Server (Streamable HTTP)",
+      "type": "application/mcp-server-card+json",
+      "url": "https://techfiyr.com/.well-known/mcp.json",
+      "manifest": "https://techfiyr.com/.well-known/mcp.json",
+      "name": "TechFiyr MCP Server (Streamable HTTP)",
+      "endpoint": "https://techfiyr.com/api/mcp",
+      "description": "Model Context Protocol server exposing get_service_catalog, request_quote, negotiate_terms, submit_project_spec, and check_delivery_status tools.",
+      "protocol": "mcp-streamable-http",
+      "capabilities": [
+        "get_service_catalog",
+        "request_quote",
+        "negotiate_terms",
+        "submit_project_spec",
+        "check_delivery_status"
+      ],
+      "representativeQueries": [
+        "Connect to TechFiyr Model Context Protocol server",
+        "Call TechFiyr get_service_catalog tool via MCP",
+        "Negotiate mobile development contract with TechFiyr MCP"
+      ]
+    },
+    {
+      "identifier": "urn:air:techfiyr.com:api:openapi-3.1",
+      "displayName": "TechFiyr A2A Commerce OpenAPI 3.1 Specification",
+      "type": "application/vnd.oai.openapi+json",
+      "url": "https://techfiyr.com/openapi.json",
+      "name": "TechFiyr A2A Commerce OpenAPI 3.1 Specification",
+      "endpoint": "https://techfiyr.com/openapi.json",
+      "description": "OpenAPI 3.1 schema for catalog discovery, deterministic quoting, Gemini negotiation, autonomous order intake (/api/v1/agent-order), and delivery status tracking.",
+      "protocol": "http-get",
+      "capabilities": [
+        "OpenApi31",
+        "OrderIntake",
+        "DeterministicQuoting",
+        "DeliveryStatus"
+      ],
+      "representativeQueries": [
+        "Fetch TechFiyr OpenAPI 3.1 specification",
+        "Autonomous agent order endpoint documentation",
+        "TechFiyr software engineering API schema"
+      ]
+    },
+    {
+      "identifier": "urn:air:techfiyr.com:commerce:ucp-catalog",
+      "displayName": "TechFiyr UCP & Schema.org Offer Catalog",
+      "type": "application/ld+json",
+      "url": "https://techfiyr.com/.well-known/ucp.json",
+      "name": "TechFiyr UCP & Schema.org Offer Catalog",
+      "endpoint": "https://techfiyr.com/.well-known/ucp.json",
+      "description": "Universal Commerce Protocol (UCP) feed describing 7-day MVP and 14-day complex engineering offers with floor pricing and payment rails.",
+      "protocol": "http-get",
+      "capabilities": [
+        "UCP10",
+        "SchemaOrgOffers",
+        "MilestonePricing",
+        "MultiRailPayments"
+      ],
+      "representativeQueries": [
+        "View TechFiyr UCP service offers and pricing",
+        "7-day MVP fixed price catalog TechFiyr",
+        "TechFiyr accepted payment rails for software contracts"
+      ]
+    },
+    {
+      "identifier": "urn:air:techfiyr.com:agent:ai-assistant",
+      "displayName": "TechFiyr AI Consultation Agent",
+      "type": "application/ai-agent",
+      "url": "https://techfiyr.com/api/chat",
+      "name": "TechFiyr AI Consultation Agent",
+      "endpoint": "https://techfiyr.com/api/chat",
+      "description": "Interactive AI assistant powered by Gemini for project scoping, mobile app and web tech stack advisory, team member specialties, and consultation scheduling.",
+      "protocol": "http-post",
+      "capabilities": [
+        "ProjectScoping",
+        "StackAdvisory",
+        "TeamConsultation",
+        "MeetingScheduling"
+      ],
+      "representativeQueries": [
+        "What services does TechFiyr provide?",
+        "Can you build a cross-platform mobile app in Flutter or React Native?",
+        "How do I schedule a consultation or meeting with TechFiyr?"
+      ]
+    },
+    {
+      "identifier": "urn:air:techfiyr.com:document:llms-txt",
+      "displayName": "TechFiyr LLM Context Knowledge Base",
+      "type": "text/markdown",
+      "url": "https://techfiyr.com/llms.txt",
+      "name": "TechFiyr LLM Context Knowledge Base",
+      "endpoint": "https://techfiyr.com/llms.txt",
+      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, A2A agent endpoints, and portfolio case studies for autonomous agents and LLMs.",
+      "protocol": "http-get",
+      "capabilities": [
+        "CompanyContext",
+        "TeamRoster",
+        "PortfolioCaseStudies",
+        "A2AEndpoints"
+      ],
+      "representativeQueries": [
+        "Read TechFiyr llms.txt knowledge base",
+        "TechFiyr company profile and engineering team details",
+        "TechFiyr technical capabilities summary for LLMs"
+      ]
+    }
+  ],
   "resources": [
     {
-      "urn": "urn:ai:techfiyr.com:agent:a2a-agency",
-      "type": "application/a2a+json",
+      "urn": "urn:air:techfiyr.com:agent:a2a-agency",
+      "identifier": "urn:air:techfiyr.com:agent:a2a-agency",
       "name": "TechFiyr A2A Agent Card",
-      "description": "Agent-to-Agent (A2A) Commerce card, protocols, programmatic pricing guardrails ($600 USD / 7-day floor), and JSON-RPC 2.0 endpoint for autonomous software procurement.",
+      "displayName": "TechFiyr A2A Agent Card",
+      "type": "application/a2a-agent-card+json",
+      "url": "https://techfiyr.com/.well-known/agent.json",
       "endpoint": "https://techfiyr.com/.well-known/agent.json",
+      "description": "Agent-to-Agent (A2A) Commerce card, protocols, programmatic pricing guardrails ($600 USD / 7-day floor), and JSON-RPC 2.0 endpoint for autonomous software procurement.",
       "protocol": "a2a-jsonrpc-2.0"
     },
     {
-      "urn": "urn:ai:techfiyr.com:mcp:agency-server",
-      "type": "application/mcp+json",
+      "urn": "urn:air:techfiyr.com:mcp:agency-server",
+      "identifier": "urn:air:techfiyr.com:mcp:agency-server",
       "name": "TechFiyr MCP Server (Streamable HTTP)",
-      "description": "Model Context Protocol server exposing get_service_catalog, request_quote, negotiate_terms, submit_project_spec, and check_delivery_status tools.",
-      "endpoint": "https://techfiyr.com/api/mcp",
+      "displayName": "TechFiyr MCP Server (Streamable HTTP)",
+      "type": "application/mcp-server-card+json",
+      "url": "https://techfiyr.com/api/mcp",
       "manifest": "https://techfiyr.com/.well-known/mcp.json",
+      "endpoint": "https://techfiyr.com/api/mcp",
+      "description": "Model Context Protocol server exposing get_service_catalog, request_quote, negotiate_terms, submit_project_spec, and check_delivery_status tools.",
       "protocol": "mcp-streamable-http"
     },
     {
-      "urn": "urn:ai:techfiyr.com:api:openapi-3.1",
-      "type": "application/vnd.oai.openapi+json",
+      "urn": "urn:air:techfiyr.com:api:openapi-3.1",
+      "identifier": "urn:air:techfiyr.com:api:openapi-3.1",
       "name": "TechFiyr A2A Commerce OpenAPI 3.1 Specification",
-      "description": "OpenAPI 3.1 schema for catalog discovery, deterministic quoting, Gemini negotiation, autonomous order intake (/api/v1/agent-order), and delivery status tracking.",
+      "displayName": "TechFiyr A2A Commerce OpenAPI 3.1 Specification",
+      "type": "application/vnd.oai.openapi+json",
+      "url": "https://techfiyr.com/openapi.json",
       "endpoint": "https://techfiyr.com/openapi.json",
+      "description": "OpenAPI 3.1 schema for catalog discovery, deterministic quoting, Gemini negotiation, autonomous order intake (/api/v1/agent-order), and delivery status tracking.",
       "protocol": "http-get"
     },
     {
-      "urn": "urn:ai:techfiyr.com:commerce:ucp-catalog",
-      "type": "application/ld+json",
+      "urn": "urn:air:techfiyr.com:commerce:ucp-catalog",
+      "identifier": "urn:air:techfiyr.com:commerce:ucp-catalog",
       "name": "TechFiyr UCP & Schema.org Offer Catalog",
-      "description": "Universal Commerce Protocol (UCP) feed describing 7-day MVP and 14-day complex engineering offers with floor pricing and payment rails.",
+      "displayName": "TechFiyr UCP & Schema.org Offer Catalog",
+      "type": "application/ld+json",
+      "url": "https://techfiyr.com/.well-known/ucp.json",
       "endpoint": "https://techfiyr.com/.well-known/ucp.json",
+      "description": "Universal Commerce Protocol (UCP) feed describing 7-day MVP and 14-day complex engineering offers with floor pricing and payment rails.",
       "protocol": "http-get"
     },
     {
-      "urn": "urn:ai:techfiyr.com:agent:ai-assistant",
-      "type": "application/ai-agent",
+      "urn": "urn:air:techfiyr.com:agent:ai-assistant",
+      "identifier": "urn:air:techfiyr.com:agent:ai-assistant",
       "name": "TechFiyr AI Consultation Agent",
-      "description": "Interactive AI assistant powered by Gemini for project scoping, mobile app and web tech stack advisory, team member specialties, and consultation scheduling.",
+      "displayName": "TechFiyr AI Consultation Agent",
+      "type": "application/ai-agent",
+      "url": "https://techfiyr.com/api/chat",
       "endpoint": "https://techfiyr.com/api/chat",
+      "description": "Interactive AI assistant powered by Gemini for project scoping, mobile app and web tech stack advisory, team member specialties, and consultation scheduling.",
       "protocol": "http-post",
       "representativeQueries": [
         "What services does TechFiyr provide?",
@@ -56,11 +201,14 @@
       ]
     },
     {
-      "urn": "urn:ai:techfiyr.com:document:llms-txt",
-      "type": "text/markdown",
+      "urn": "urn:air:techfiyr.com:document:llms-txt",
+      "identifier": "urn:air:techfiyr.com:document:llms-txt",
       "name": "TechFiyr LLM Context Knowledge Base",
-      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, A2A agent endpoints, and portfolio case studies for autonomous agents and LLMs.",
+      "displayName": "TechFiyr LLM Context Knowledge Base",
+      "type": "text/markdown",
+      "url": "https://techfiyr.com/llms.txt",
       "endpoint": "https://techfiyr.com/llms.txt",
+      "description": "Structured machine-readable guide detailing company profile, team roster, technical stack, service offerings, A2A agent endpoints, and portfolio case studies for autonomous agents and LLMs.",
       "protocol": "http-get"
     }
   ]

@@ -475,7 +475,10 @@ export async function triggerIndexNowSweep(recordRun = true): Promise<{
 		'/.well-known/agent.json',
 		'/.well-known/agent-card.json',
 		'/.well-known/ucp.json',
+		'/.well-known/ard.json',
+		'/.well-known/ai-catalog.json',
 		'/openapi.json',
+		'/ard.json',
 		'/ai-catalog.json',
 	];
 	const keyConfigured = Boolean(indexNowKey());
