@@ -14,6 +14,7 @@ import {
 	type AgentOrderRecord,
 	type MilestoneStatus,
 } from '@/lib/server/agent-store';
+import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -22,8 +23,17 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request, context: { params: Promise<{ orderId: string }> }) {
+	const rl = checkRateLimit(req, { limit: 60, windowMs: 60_000, keyPrefix: 'agent_get_order' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const { orderId } = await context.params;
+	if (!orderId || !/^[a-zA-Z0-9_\-\.:]{1,128}$/.test(orderId)) {
+		return agentJson({ ok: false, code: 'INVALID_ORDER_ID', error: 'Invalid order identifier.' }, 400);
+	}
+
 	const order = await getOrder(orderId);
 	if (!order) {
 		await recordAgentHit(req, {
@@ -70,6 +80,15 @@ export async function GET(req: Request, context: { params: Promise<{ orderId: st
 }
 
 export async function PATCH(req: Request, context: { params: Promise<{ orderId: string }> }) {
+	if (!isPayloadWithinLimit(req, 100_000)) {
+		return agentJson({ ok: false, code: 'PAYLOAD_TOO_LARGE', error: 'Request payload exceeds 100 KB limit.' }, 413);
+	}
+
+	const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, keyPrefix: 'agent_patch_order' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	if (!isOperatorAuthorized(req)) {
 		return agentJson(
 			{

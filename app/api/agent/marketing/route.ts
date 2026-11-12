@@ -17,6 +17,7 @@ import {
 	triggerIndexNowSweep,
 	type MarketingChannel,
 } from '@/lib/server/marketingAgent';
+import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -27,6 +28,11 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+	const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'agent_marketing_get' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const url = new URL(req.url);
 	const targetQuery = url.searchParams.get('query') || undefined;
@@ -49,6 +55,15 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	if (!isPayloadWithinLimit(req, 100_000)) {
+		return agentJson({ ok: false, code: 'PAYLOAD_TOO_LARGE', error: 'Request payload exceeds 100 KB limit.' }, 413);
+	}
+
+	const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, keyPrefix: 'agent_marketing_post' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const parsed = await readJsonBody<Record<string, unknown>>(req);
 	if (!parsed.ok) {

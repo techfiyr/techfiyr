@@ -20,6 +20,12 @@ import {
 	type A2ATaskRecord,
 } from '@/lib/server/agent-store';
 import { buildAgentMarketingBrief, type MarketingChannel } from '@/lib/server/marketingAgent';
+import {
+	checkRateLimit,
+	isPayloadWithinLimit,
+	mcpRateLimitError,
+	rateLimitResponse,
+} from '@/lib/server/rateLimit';
 import { SITE_URL } from '@/lib/site';
 
 export const runtime = 'nodejs';
@@ -55,6 +61,11 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+	const rl = checkRateLimit(req, { limit: 60, windowMs: 60_000, keyPrefix: 'a2a_get' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	await recordAgentHit(req, {
 		protocol: 'a2a',
@@ -260,6 +271,20 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 }
 
 export async function POST(req: Request) {
+	if (!isPayloadWithinLimit(req, 131_072)) {
+		return agentJson(rpcErr(null, -32600, 'Payload too large (max 128 KB).'), 413);
+	}
+
+	const rl = checkRateLimit(req, { limit: 60, windowMs: 60_000, keyPrefix: 'a2a_post' });
+	if (!rl.allowed) {
+		return agentJson(mcpRateLimitError(null, rl), 429, {
+			'Retry-After': String(Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))),
+			'X-RateLimit-Limit': String(rl.limit),
+			'X-RateLimit-Remaining': '0',
+			'X-RateLimit-Reset': String(Math.ceil(rl.resetAt / 1000)),
+		});
+	}
+
 	const startedAtMs = Date.now();
 	let body: A2ARpc;
 	try {

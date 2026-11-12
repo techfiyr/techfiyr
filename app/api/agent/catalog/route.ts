@@ -5,6 +5,7 @@
 import { buildAgentCatalog } from '@/lib/agent/catalog';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
+import { checkRateLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 import { SITE_URL } from '@/lib/site';
 
 export const runtime = 'nodejs';
@@ -14,6 +15,11 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+	const rl = checkRateLimit(req, { limit: 60, windowMs: 60_000, keyPrefix: 'agent_catalog' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const format = new URL(req.url).searchParams.get('format')?.toLowerCase();
 	const catalog = buildAgentCatalog();

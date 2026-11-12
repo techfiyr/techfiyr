@@ -5,6 +5,7 @@
 import { getAgentReachSummary } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
 import { isOperatorAuthorized } from '@/lib/server/agent-store';
+import { checkRateLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +14,11 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: Request) {
+	const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'agent_audit' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	if (!isOperatorAuthorized(req)) {
 		return agentJson(
 			{

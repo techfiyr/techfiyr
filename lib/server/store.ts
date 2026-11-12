@@ -98,8 +98,17 @@ async function fsFetch(url: string, init: RequestInit = {}) {
 	}
 }
 
+function isValidCollection(col: string): boolean {
+	return typeof col === 'string' && /^[a-zA-Z0-9_]{1,64}$/.test(col);
+}
+
+function isValidDocId(id: string): boolean {
+	return typeof id === 'string' && /^[a-zA-Z0-9_\-\.:]{1,128}$/.test(id) && !id.includes('..');
+}
+
 const firestore = {
 	async list(collection: string): Promise<Doc[]> {
+		if (!isValidCollection(collection)) return [];
 		const docs: Doc[] = [];
 		let pageToken = '';
 		do {
@@ -115,6 +124,7 @@ const firestore = {
 	},
 
 	async get(collection: string, id: string): Promise<Doc | null> {
+		if (!isValidCollection(collection) || !isValidDocId(id)) return null;
 		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`);
 		if (res.status === 404) return null;
 		if (!res.ok) throw new GoogleError('get', res.status, await googleError(res));
@@ -123,6 +133,7 @@ const firestore = {
 	},
 
 	async put(collection: string, id: string, data: Data): Promise<void> {
+		if (!isValidCollection(collection) || !isValidDocId(id)) throw new Error('Invalid collection name or document ID');
 		// PATCH without an update mask replaces the whole document and creates it when missing
 		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, {
 			method: 'PATCH',
@@ -132,6 +143,7 @@ const firestore = {
 	},
 
 	async remove(collection: string, id: string): Promise<void> {
+		if (!isValidCollection(collection) || !isValidDocId(id)) throw new Error('Invalid collection name or document ID');
 		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, { method: 'DELETE' });
 		if (!res.ok && res.status !== 404) throw new GoogleError('delete', res.status, await googleError(res));
 	},

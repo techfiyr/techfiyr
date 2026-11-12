@@ -7,6 +7,7 @@ import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { createAgentQuote } from '@/lib/server/agent-orders';
+import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -15,6 +16,15 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
+	if (!isPayloadWithinLimit(req, 100_000)) {
+		return agentJson({ ok: false, code: 'PAYLOAD_TOO_LARGE', error: 'Request payload exceeds 100 KB limit.' }, 413);
+	}
+
+	const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, keyPrefix: 'agent_quote' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const parsed = await readJsonBody<Record<string, unknown>>(req);
 	if (!parsed.ok) {

@@ -555,7 +555,13 @@ export async function listAuditHits(limit = 100): Promise<AgentAuditHit[]> {
 	}
 }
 
+let cachedMetrics: AgentReachMetrics | null = null;
+let cachedMetricsUntil = 0;
+
 export async function getAgentMetrics(): Promise<AgentReachMetrics> {
+	if (cachedMetrics && Date.now() < cachedMetricsUntil) {
+		return cachedMetrics;
+	}
 	const empty: AgentReachMetrics = {
 		totalHits: 0,
 		mcpHits: 0,
@@ -569,9 +575,13 @@ export async function getAgentMetrics(): Promise<AgentReachMetrics> {
 	if (!canPersistAgentStore()) return empty;
 	try {
 		const doc = await store.get(COLLECTIONS.meta, 'agent-metrics');
-		if (!doc) return empty;
+		if (!doc) {
+			cachedMetrics = empty;
+			cachedMetricsUntil = Date.now() + 60_000;
+			return empty;
+		}
 		const raw = doc as Partial<AgentReachMetrics>;
-		return {
+		const parsed: AgentReachMetrics = {
 			totalHits: Number(raw.totalHits || 0),
 			mcpHits: Number(raw.mcpHits || 0),
 			a2aHits: Number(raw.a2aHits || 0),
@@ -581,6 +591,9 @@ export async function getAgentMetrics(): Promise<AgentReachMetrics> {
 			uniqueAgents: Array.isArray(raw.uniqueAgents) ? raw.uniqueAgents.filter((x): x is string => typeof x === 'string') : [],
 			lastHitAt: typeof raw.lastHitAt === 'string' ? raw.lastHitAt : '',
 		};
+		cachedMetrics = parsed;
+		cachedMetricsUntil = Date.now() + 60_000;
+		return parsed;
 	} catch (err) {
 		console.warn('[agent-store] getAgentMetrics fallback:', err instanceof Error ? err.message : err);
 		return empty;
@@ -588,6 +601,8 @@ export async function getAgentMetrics(): Promise<AgentReachMetrics> {
 }
 
 export async function saveAgentMetrics(metrics: AgentReachMetrics): Promise<void> {
+	cachedMetrics = metrics;
+	cachedMetricsUntil = Date.now() + 60_000;
 	if (!canPersistAgentStore()) return;
 	await store.put(COLLECTIONS.meta, 'agent-metrics', cleanDoc(metrics));
 }

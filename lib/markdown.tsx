@@ -48,7 +48,7 @@ function mdLink(href: string, children: ReactNode, key: string) {
 	if (href.startsWith('/') || href.startsWith('#')) return <Link key={key} href={href}>{children}</Link>;
 	if (/^(mailto|tel):/i.test(href)) return <a key={key} href={href}>{children}</a>;
 	return (
-		<a key={key} href={href} target="_blank" rel="noopener">
+		<a key={key} href={href} target="_blank" rel="noopener noreferrer">
 			{children}
 			<span className="sr-only">{' '}(opens in a new tab)</span>
 		</a>

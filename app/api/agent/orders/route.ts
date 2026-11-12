@@ -8,6 +8,7 @@ import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
 import { createAgentOrder } from '@/lib/server/agent-orders';
 import { isOperatorAuthorized, listOrders, publicOrderView } from '@/lib/server/agent-store';
+import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -16,6 +17,15 @@ export async function OPTIONS() {
 }
 
 export async function handleCreateOrderRequest(req: Request) {
+	if (!isPayloadWithinLimit(req, 100_000)) {
+		return agentJson({ ok: false, code: 'PAYLOAD_TOO_LARGE', error: 'Request payload exceeds 100 KB limit.' }, 413);
+	}
+
+	const rl = checkRateLimit(req, { limit: 20, windowMs: 60_000, keyPrefix: 'agent_create_order' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	const startedAtMs = Date.now();
 	const parsed = await readJsonBody<Record<string, unknown>>(req);
 	if (!parsed.ok) {
@@ -106,6 +116,11 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+	const rl = checkRateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'agent_list_orders' });
+	if (!rl.allowed) {
+		return rateLimitResponse(rl);
+	}
+
 	if (!isOperatorAuthorized(req)) {
 		return agentJson(
 			{

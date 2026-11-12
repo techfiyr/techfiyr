@@ -38,6 +38,10 @@ export function classifyAgentClient(userAgent: string, explicitAgent?: string): 
 	return ua ? ua.slice(0, 60) : 'Unknown Agent';
 }
 
+let lastMetricsPersistedAt = 0;
+let pendingHitsCount = 0;
+const recentAuditThrottle = new Map<string, number>();
+
 export async function recordAgentHit(
 	req: Request,
 	params: {
@@ -55,6 +59,14 @@ export async function recordAgentHit(
 ): Promise<void> {
 	if (!canPersistAgentStore()) return;
 
+	// Skip writing Firestore documents for lightweight read-only probes to preserve free-tier quota
+	const isReadOnlyProbe =
+		params.action === 'discovery_get' ||
+		params.action.startsWith('resources/') ||
+		params.action === 'catalog' ||
+		params.action === 'catalog_ucp';
+	if (isReadOnlyProbe) return;
+
 	try {
 		const now = new Date().toISOString();
 		const ua = (req.headers.get('user-agent') || '').slice(0, 180);
@@ -66,6 +78,15 @@ export async function recordAgentHit(
 			params.agentName || req.headers.get('x-agent-id') || req.headers.get('x-agent-did') || undefined;
 		const agentName = classifyAgentClient(ua, explicitAgent);
 		const endpoint = params.endpoint || new URL(req.url).pathname;
+		const clientHash = hashSecret(`${ip}|${ua}`).slice(0, 12);
+
+		// Throttle hit writes per client hash to at most 1 write per 5s (unless associated with order/inquiry)
+		const lastHitTime = recentAuditThrottle.get(clientHash) || 0;
+		const nowMs = Date.now();
+		if (!params.orderId && !params.inquiryId && nowMs - lastHitTime < 5000) {
+			return;
+		}
+		recentAuditThrottle.set(clientHash, nowMs);
 
 		const hit: AgentAuditHit = {
 			id: `hit_${Date.now().toString(36)}_${generateId('h').slice(2, 8)}`,
@@ -76,7 +97,7 @@ export async function recordAgentHit(
 			action: params.action.slice(0, 100),
 			agent_name: agentName,
 			user_agent: ua,
-			client_hash: hashSecret(`${ip}|${ua}`).slice(0, 12),
+			client_hash: clientHash,
 			status_code: params.statusCode,
 			duration_ms: Math.max(0, Date.now() - params.startedAtMs),
 			summary: params.summary.slice(0, 240),
@@ -104,7 +125,15 @@ export async function recordAgentHit(
 			lastHitAt: now,
 		};
 
-		await Promise.all([saveAuditHit(hit), saveAgentMetrics(nextMetrics)]);
+		pendingHitsCount += 1;
+		const shouldPersistMetrics = pendingHitsCount >= 5 || (nowMs - lastMetricsPersistedAt > 30000);
+		if (shouldPersistMetrics) {
+			pendingHitsCount = 0;
+			lastMetricsPersistedAt = nowMs;
+			await Promise.all([saveAuditHit(hit), saveAgentMetrics(nextMetrics)]);
+		} else {
+			await saveAuditHit(hit);
+		}
 	} catch (err) {
 		console.warn('[agent-audit] failed to record hit:', err instanceof Error ? err.message : err);
 	}
