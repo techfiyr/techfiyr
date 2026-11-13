@@ -102,6 +102,8 @@ const MCP_TOOLS = [
 				requestedDays: { type: 'number' },
 				clientEmail: { type: 'string' },
 				clientAgentId: { type: 'string' },
+				clientLocation: { type: 'string', description: 'City and country of client or agent operator.' },
+				companyName: { type: 'string', description: 'Client company or principal enterprise name.' },
 				paymentPreference: {
 					type: 'string',
 					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'payoneer', 'bank_invoice'],
@@ -342,6 +344,8 @@ async function handleToolCall(
 			requestedDays: typeof args.requestedDays === 'number' ? args.requestedDays : undefined,
 			clientEmail: typeof args.clientEmail === 'string' ? args.clientEmail : undefined,
 			clientAgentId: typeof args.clientAgentId === 'string' ? args.clientAgentId : 'mcp-client',
+			clientLocation: typeof args.clientLocation === 'string' ? args.clientLocation : undefined,
+			companyName: typeof args.companyName === 'string' ? args.companyName : undefined,
 			paymentPreference:
 				typeof args.paymentPreference === 'string' ? (args.paymentPreference as PaymentRail) : undefined,
 			acceptOffer: typeof args.acceptOffer === 'boolean' ? args.acceptOffer : undefined,

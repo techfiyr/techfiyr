@@ -259,6 +259,10 @@ export function classifySalesIntent(params: {
 	);
 
 	const missingQuestions: string[] = [];
+	const hasLocationOrCompany = /\b(?:based\s+in|location|city|country|company|client|firm|agency|enterprise|startup|from\s+[a-z]+)\b/i.test(clean);
+	if (!hasLocationOrCompany) {
+		missingQuestions.push('Agent ownership/operator name, company or client name, and location (city & country)');
+	}
 	if (!purposeConfirmed) {
 		missingQuestions.push('Purpose: custom software build, ERP/HR/AI Try-On system, startup technical partner, or development partnership?');
 	}

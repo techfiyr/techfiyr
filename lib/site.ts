@@ -80,8 +80,8 @@ export const NAV = [
  * ?v= value here whenever the file changes; every page picks it up from this one place.
  */
 export const ASSET_VERSION = {
-	bootstrap: '20261003',
-	style: '20261112',
+	bootstrap: '20261113',
+	style: '20261113',
 	meanmenu: '20261003',
 	responsive: '20261003',
 	vendor: '20261003',

@@ -24,6 +24,8 @@ export type InquiryRecord = {
 	id: string;
 	sender_email: string;
 	sender_name?: string;
+	sender_location?: string;
+	company_name?: string;
 	subject: string;
 	thread_id: string;
 	status: InquiryStatus;
@@ -146,6 +148,8 @@ export type NegotiationSessionRecord = {
 	updatedAt: string;
 	clientAgentId: string;
 	clientEmail?: string;
+	clientLocation?: string;
+	companyName?: string;
 	turns: NegotiationTurn[];
 	latestEvaluation?: QuoteEvaluation;
 	status: 'open' | 'deal_closed' | 'rejected';

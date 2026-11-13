@@ -39,12 +39,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<>
 			{/* Stylesheets (React places them in <head>, in this order) */}
-			<link rel="stylesheet" href={'/assets/vendor/bootstrap/bootstrap.css?v=' + V.bootstrap} precedence="template" />
+			<link rel="stylesheet" href={'/assets/vendor/bootstrap/bootstrap.min.css?v=' + V.bootstrap} precedence="template" />
 			<link rel="stylesheet" href={'/assets/css/style.css?v=' + V.style} precedence="template" />
 			<link rel="stylesheet" href={'/assets/vendor/meanmenu/meanmenu.min.css?v=' + V.meanmenu} precedence="template" />
 			<link rel="stylesheet" href={'/assets/css/responsive.css?v=' + V.responsive} precedence="template" />
-			<link rel="preconnect" href="https://fonts.googleapis.com" />
-			<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 			<link rel="stylesheet" href={FONTS} precedence="template" />
 
 			<a className="skip-link" href="#main">Skip to content</a>

@@ -219,6 +219,8 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 			budgetUSD: typeof dataPart?.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
 			requestedDays: typeof dataPart?.requestedDays === 'number' ? dataPart.requestedDays : undefined,
 			clientEmail: typeof dataPart?.clientEmail === 'string' ? dataPart.clientEmail : undefined,
+			clientLocation: typeof dataPart?.clientLocation === 'string' ? dataPart.clientLocation : undefined,
+			companyName: typeof dataPart?.companyName === 'string' ? dataPart.companyName : undefined,
 			acceptOffer: typeof dataPart?.acceptOffer === 'boolean' ? dataPart.acceptOffer : undefined,
 		});
 		resultData = neg as unknown as Record<string, unknown>;
