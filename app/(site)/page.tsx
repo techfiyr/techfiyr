@@ -591,7 +591,7 @@ export default function HomePage() {
 										</div>
 										{' '}
 										<h3 className="offer-one_heading">
-											<Link href="/contact">Mobile App Design &amp; Development</Link>
+											<Link href="/projects">Mobile App Design &amp; Development</Link>
 										</h3>
 										{' '}
 										<ul className="offer-one_tags">
@@ -612,7 +612,7 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Mobile App Design & Development">
+										<Link className="offer-one_arrow" href="/projects" aria-label="Explore Mobile App Design & Development projects">
 											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
@@ -628,7 +628,7 @@ export default function HomePage() {
 										</div>
 										{' '}
 										<h3 className="offer-one_heading">
-											<Link href="/contact">Custom Web Software &amp; SaaS</Link>
+											<Link href="/projects">Custom Web Software &amp; SaaS</Link>
 										</h3>
 										{' '}
 										<ul className="offer-one_tags">
@@ -649,7 +649,7 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Custom Web Software & SaaS">
+										<Link className="offer-one_arrow" href="/projects" aria-label="Explore Custom Web Software & SaaS projects">
 											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
@@ -665,7 +665,7 @@ export default function HomePage() {
 										</div>
 										{' '}
 										<h3 className="offer-one_heading">
-											<Link href="/contact">UI/UX &amp; Product Prototyping</Link>
+											<Link href="/projects">UI/UX &amp; Product Prototyping</Link>
 										</h3>
 										{' '}
 										<ul className="offer-one_tags">
@@ -686,7 +686,7 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for UI/UX & Product Prototyping">
+										<Link className="offer-one_arrow" href="/projects" aria-label="Explore UI/UX & Product Prototyping projects">
 											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
@@ -702,7 +702,7 @@ export default function HomePage() {
 										</div>
 										{' '}
 										<h3 className="offer-one_heading">
-											<Link href="/contact">Backend, Cloud &amp; CI/CD Pipelines</Link>
+											<Link href="/projects">Backend, Cloud &amp; CI/CD Pipelines</Link>
 										</h3>
 										{' '}
 										<ul className="offer-one_tags">
@@ -723,7 +723,7 @@ export default function HomePage() {
 											</li>
 										</ul>
 										{' '}
-										<Link className="offer-one_arrow" href="/contact" aria-label="Get a quote for Backend, Cloud & CI/CD Pipelines">
+										<Link className="offer-one_arrow" href="/projects" aria-label="Explore Backend, Cloud & CI/CD Pipelines projects">
 											<img width="24" height="24" loading="lazy" decoding="async" src="/assets/images/icons/offer-arrow.svg" alt="" />
 										</Link>
 									</div>
