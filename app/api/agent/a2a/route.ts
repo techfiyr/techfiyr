@@ -108,7 +108,16 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 	const now = new Date().toISOString();
 
 	const action = typeof dataPart?.action === 'string' ? dataPart.action : '';
-	const clientAgentId = typeof dataPart?.clientAgentId === 'string' ? dataPart.clientAgentId : undefined;
+	const clientAgentId =
+		(typeof dataPart?.clientAgentId === 'string' && dataPart.clientAgentId) ||
+		(typeof dataPart?.agentId === 'string' && dataPart.agentId) ||
+		(typeof params.clientAgentId === 'string' && params.clientAgentId) ||
+		(typeof params.agentId === 'string' && params.agentId) ||
+		(typeof (params as Record<string, unknown>).sender === 'string' && (params as Record<string, unknown>).sender as string) ||
+		(typeof (msg as Record<string, unknown>).sender === 'string' && (msg as Record<string, unknown>).sender as string) ||
+		req.headers.get('x-agent-id') ||
+		req.headers.get('x-client-agent-id') ||
+		'autonomous-buyer';
 	let summaryText = '';
 	let resultData: Record<string, unknown> = {};
 	let state: A2ATaskRecord['status']['state'] = 'completed';
@@ -209,7 +218,9 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 		const neg = await negotiateWithAgent({
 			channel: 'a2a',
 			sessionId: contextId,
+			threadId: msg.contextId || undefined,
 			clientAgentId,
+			clientName: typeof dataPart?.clientName === 'string' ? dataPart.clientName : clientAgentId,
 			message: textParts || JSON.stringify(dataPart || {}),
 			description: typeof dataPart?.description === 'string' ? dataPart.description : textParts,
 			projectTitle: typeof dataPart?.projectTitle === 'string' ? dataPart.projectTitle : undefined,
@@ -218,6 +229,10 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 				: undefined,
 			budgetUSD: typeof dataPart?.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
 			requestedDays: typeof dataPart?.requestedDays === 'number' ? dataPart.requestedDays : undefined,
+			paymentPreference:
+				typeof dataPart?.paymentPreference === 'string'
+					? (dataPart.paymentPreference as PaymentRail)
+					: undefined,
 			clientEmail: typeof dataPart?.clientEmail === 'string' ? dataPart.clientEmail : undefined,
 			clientLocation: typeof dataPart?.clientLocation === 'string' ? dataPart.clientLocation : undefined,
 			companyName: typeof dataPart?.companyName === 'string' ? dataPart.companyName : undefined,

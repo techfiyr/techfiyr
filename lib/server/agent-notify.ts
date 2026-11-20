@@ -2,6 +2,7 @@
  * Founder notification dispatcher for closed A2A / Email deals (server only).
  * No Twilio or SMS — uses unified Mail SMTP alert (Gmail/Zoho) and/or optional HTTPS webhook.
  */
+import { CONTACT } from '@/lib/site';
 import type { AgentOrderRecord } from './agent-store';
 import { sendAgentEmail } from './emailWorker';
 import { env } from './google';
@@ -40,13 +41,20 @@ export async function notifyFounderOrderEvent(
 	let webhookSent = false;
 	const notes: string[] = [];
 
-	const alertRecipient = env('FOUNDER_ALERT_EMAIL');
+	const alertRecipient =
+		env('FOUNDER_ALERT_EMAIL') ||
+		env('GMAIL_EMAIL') ||
+		env('MAIL_EMAIL') ||
+		env('ZOHO_EMAIL') ||
+		CONTACT.email ||
+		'info@techfiyr.com';
+
 	if (alertRecipient) {
 		const mailRes = await sendAgentEmail({
 			to: alertRecipient,
 			fromName: 'TechFiyr Sales Agent',
 			subject: `[TechFiyr Agent] ${label}: ${order.projectTitle} ($${order.total_price_usd})`,
-			bodyText: `${messageText}\n\n--- SRS SUMMARY ---\n${order.srs_markdown.slice(0, 3000)}`,
+			bodyText: `${messageText}\n\n--- SRS SUMMARY ---\n${order.srs_markdown.slice(0, 3000)}\n\nManage in TechFiyr Admin: https://techfiyr.com/admin/agent?order=${order.id}`,
 		});
 		if (mailRes.ok) {
 			emailAlertSent = true;

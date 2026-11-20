@@ -230,7 +230,7 @@ const SCOPE_DETAIL_RE =
 	/\b(?:crud|screens?|modules?|entities|integrations?|auth|login|dashboard|payment||crypto|usdc|usdt|erp|payroll|attendance|inventory|hr|hrm|ai\s*try-?on|virtual\s+try-?on|rag|vector|flutter|react\s*native|capacitor|android|ios|laravel|spring|python|next\.?js|ecommerce|booking|chat|marketplace|admin\s+panel)\b/i;
 
 const DEAL_CONFIRM_RE =
-	/\b(?:accept|confirm|approve|proceed|close|deal|lock|agreed|send\s+invoice|send\s+wallet|ready\s+to\s+pay)\b/i;
+	/\b(?:accept|confirm|approve|proceed|close|deal|lock|agreed?|send\s+invoice|send\s+wallet|ready\s+to\s+pay|create\s+(?:an?\s+)?order|place\s+(?:an?\s+)?order|make\s+(?:an?\s+)?order|start\s+(?:the\s+)?sprint|start\s+project|let'?s\s+build|order\s+for|order\s+now|book\s+(?:this|now))\b/i;
 
 /**
  * Classifies caller workflow stage so Sales Agent confirms purpose first,
@@ -258,6 +258,8 @@ export function classifySalesIntent(params: {
 		(hasDomainKeyword && clean.length >= 70 && (detailMatches.length >= 1 || /\b(for|with|need|build|want)\b/i.test(clean))),
 	);
 
+	const isDealConfirm = Boolean(params.acceptOffer || DEAL_CONFIRM_RE.test(clean));
+
 	const missingQuestions: string[] = [];
 	const hasLocationOrCompany = /\b(?:based\s+in|location|city|country|company|client|firm|agency|enterprise|startup|from\s+[a-z]+)\b/i.test(clean);
 	if (!hasLocationOrCompany) {
@@ -277,7 +279,7 @@ export function classifySalesIntent(params: {
 		intent = 'human_handoff';
 	} else if (!purposeConfirmed) {
 		intent = clean.length > 0 ? 'purpose_unconfirmed' : 'off_topic_chat';
-	} else if (params.acceptOffer || (DEAL_CONFIRM_RE.test(clean) && hasScopeDetails)) {
+	} else if (params.acceptOffer || (isDealConfirm && (hasScopeDetails || params.hasBudgetOrTimeline || hasDomainKeyword))) {
 		intent = 'deal_confirmation';
 	} else if (asksPricing && !hasScopeDetails) {
 		intent = 'pricing_inquiry_missing_details';

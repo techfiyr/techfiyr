@@ -26,6 +26,8 @@ export type InquiryRecord = {
 	sender_name?: string;
 	sender_location?: string;
 	company_name?: string;
+	clientAgentId?: string;
+	contact_id?: string;
 	subject: string;
 	thread_id: string;
 	status: InquiryStatus;
@@ -38,6 +40,22 @@ export type InquiryRecord = {
 	offTopicTurns?: number;
 	created_at: string;
 	updated_at: string;
+};
+
+export type AgentContactRecord = {
+	id: string;
+	name: string;
+	agentId?: string;
+	email: string;
+	company?: string;
+	location?: string;
+	channel: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
+	firstSeenAt: string;
+	lastSeenAt: string;
+	totalInquiries: number;
+	totalOrders: number;
+	activeInquiryId?: string;
+	status: 'active' | 'negotiating' | 'customer' | 'blocked';
 };
 
 export type MilestoneStatus = 'AWAITING_DEPOSIT' | 'UPFRONT_PAID' | 'MVP_DELIVERED' | 'FULLY_PAID';
@@ -244,6 +262,7 @@ const COLLECTIONS = {
 	tasks: 'agent_tasks',
 	audit: 'agent_audit_logs',
 	marketing: 'agent_marketing_runs',
+	contacts: 'agent_contacts',
 	meta: 'meta',
 } as const;
 
@@ -323,6 +342,10 @@ export function sanitizeInquiry(raw: unknown): InquiryRecord {
 		id: String(d.id || ''),
 		sender_email: String(d.sender_email || ''),
 		sender_name: d.sender_name ? String(d.sender_name) : undefined,
+		sender_location: d.sender_location ? String(d.sender_location) : undefined,
+		company_name: d.company_name ? String(d.company_name) : undefined,
+		clientAgentId: d.clientAgentId ? String(d.clientAgentId) : undefined,
+		contact_id: d.contact_id ? String(d.contact_id) : undefined,
 		subject: String(d.subject || 'Project Inquiry'),
 		thread_id: String(d.thread_id || d.id || ''),
 		status: (d.status === 'NEGOTIATING' || d.status === 'CLOSED' || d.status === 'REJECTED' ? d.status : 'PENDING'),
@@ -420,13 +443,162 @@ export async function listInquiries(): Promise<InquiryRecord[]> {
 	if (!canPersistAgentStore()) return [];
 	try {
 		const docs = await store.list(COLLECTIONS.inquiries);
-		return docs
-			.map((d) => sanitizeInquiry(d))
-			.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+		const sanitized = docs.map((d) => sanitizeInquiry(d));
+		return await consolidateInquiries(sanitized);
 	} catch (err) {
 		console.warn('[agent-store] listInquiries fallback:', err instanceof Error ? err.message : err);
 		return [];
 	}
+}
+
+export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<InquiryRecord[]> {
+	if (!rawList.length) return [];
+
+	const groups = new Map<string, InquiryRecord[]>();
+	for (const inq of rawList) {
+		const emailPrefix = inq.sender_email.endsWith('@a2a.client') ? inq.sender_email.split('@')[0] : '';
+		const identityKey = (
+			inq.clientAgentId ||
+			emailPrefix ||
+			inq.sender_email ||
+			inq.sender_name ||
+			inq.thread_id
+		).trim().toLowerCase();
+
+		const list = groups.get(identityKey) || [];
+		list.push(inq);
+		groups.set(identityKey, list);
+	}
+
+	const consolidated: InquiryRecord[] = [];
+	for (const inqs of groups.values()) {
+		if (inqs.length === 1) {
+			consolidated.push(inqs[0]);
+			continue;
+		}
+
+		// Multiple fragmented inquiries for the same agent identity -> merge
+		const withOrder = inqs.find((i) => i.order_id);
+		const primary = withOrder || inqs.reduce((prev, curr) => (prev.created_at <= curr.created_at ? prev : curr));
+
+		const allMessages: InquiryMessage[] = [];
+		const seenMsgKeys = new Set<string>();
+
+		let latestUpdate = primary.updated_at;
+		let mergedStatus = primary.status;
+		let mergedOrderId = primary.order_id;
+		let mergedCompanyName = primary.company_name;
+		let mergedLocation = primary.sender_location;
+		let mergedSenderName = primary.sender_name;
+		let mergedClientAgentId = primary.clientAgentId;
+
+		for (const inq of inqs) {
+			if (inq.updated_at > latestUpdate) latestUpdate = inq.updated_at;
+			if (inq.order_id) {
+				mergedOrderId = inq.order_id;
+				mergedStatus = 'CLOSED';
+			} else if (mergedStatus !== 'CLOSED' && inq.status === 'NEGOTIATING') {
+				mergedStatus = 'NEGOTIATING';
+			}
+			if (!mergedCompanyName && inq.company_name) mergedCompanyName = inq.company_name;
+			if (!mergedLocation && inq.sender_location) mergedLocation = inq.sender_location;
+			if (!mergedSenderName && inq.sender_name) mergedSenderName = inq.sender_name;
+			if (!mergedClientAgentId && inq.clientAgentId) mergedClientAgentId = inq.clientAgentId;
+
+			for (const m of inq.messages) {
+				const timeKey = m.timestamp.slice(0, 19);
+				const textSnippet = m.text.trim().slice(0, 80);
+				const msgKey = `${m.role}:${timeKey}:${textSnippet}`;
+				if (!seenMsgKeys.has(msgKey)) {
+					seenMsgKeys.add(msgKey);
+					allMessages.push(m);
+				}
+			}
+		}
+
+		allMessages.sort((a, b) => (a.timestamp < b.timestamp ? -1 : 1));
+
+		const updatedPrimary: InquiryRecord = {
+			...primary,
+			status: mergedStatus,
+			order_id: mergedOrderId,
+			company_name: mergedCompanyName,
+			sender_location: mergedLocation,
+			sender_name: mergedSenderName,
+			clientAgentId: mergedClientAgentId || (primary.sender_email.endsWith('@a2a.client') ? primary.sender_email.split('@')[0] : undefined),
+			messages: allMessages,
+			updated_at: latestUpdate,
+		};
+
+		if (canPersistAgentStore()) {
+			await store.put(COLLECTIONS.inquiries, updatedPrimary.id, cleanDoc(updatedPrimary));
+			for (const inq of inqs) {
+				if (inq.id !== primary.id) {
+					try {
+						await store.remove(COLLECTIONS.inquiries, inq.id);
+					} catch {
+						// Ignore deletion failure in read-only / test mode
+					}
+				}
+			}
+		}
+
+		consolidated.push(updatedPrimary);
+	}
+
+	return consolidated.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+}
+
+export async function findInquiryForAgent(params: {
+	inquiryId?: string;
+	sessionId?: string;
+	threadId?: string;
+	clientAgentId?: string;
+	clientEmail?: string;
+	clientName?: string;
+}): Promise<InquiryRecord | null> {
+	if (params.inquiryId) {
+		const byId = await getInquiry(params.inquiryId.trim());
+		if (byId) return byId;
+	}
+	if (params.sessionId) {
+		const session = await getSession(params.sessionId.trim());
+		if (session?.inquiryId) {
+			const bySession = await getInquiry(session.inquiryId);
+			if (bySession) return bySession;
+		}
+	}
+
+	const all = await listInquiries();
+	const cleanAgentId = params.clientAgentId?.trim().toLowerCase();
+	const cleanEmail = params.clientEmail?.trim().toLowerCase();
+	const cleanName = params.clientName?.trim().toLowerCase();
+	const cleanThread = params.threadId?.trim().toLowerCase();
+
+	const candidates = all.filter((inq) => {
+		if (cleanThread && (inq.thread_id.toLowerCase() === cleanThread || inq.id.toLowerCase() === cleanThread)) {
+			return true;
+		}
+		if (cleanAgentId) {
+			if (inq.clientAgentId && inq.clientAgentId.toLowerCase() === cleanAgentId) return true;
+			if (inq.sender_name && inq.sender_name.toLowerCase() === cleanAgentId) return true;
+			if (inq.sender_email && inq.sender_email.toLowerCase().startsWith(`${cleanAgentId}@`)) return true;
+		}
+		if (cleanEmail && inq.sender_email.toLowerCase() === cleanEmail) {
+			return true;
+		}
+		if (cleanName && inq.sender_name && inq.sender_name.toLowerCase() === cleanName) {
+			return true;
+		}
+		return false;
+	});
+
+	if (candidates.length === 0) return null;
+
+	const active = candidates.find((inq) => inq.status === 'NEGOTIATING' || inq.status === 'PENDING');
+	if (active) return active;
+
+	return candidates[0] || null;
 }
 
 export async function findInquiryByThread(threadIds: string[], senderEmail: string): Promise<InquiryRecord | null> {
@@ -439,6 +611,95 @@ export async function findInquiryByThread(threadIds: string[], senderEmail: stri
 		if (inq.messages.some((m) => m.messageId && idSet.has(m.messageId))) return inq;
 	}
 	return all.find((inq) => inq.sender_email.toLowerCase() === cleanSender && inq.status !== 'CLOSED' && inq.status !== 'REJECTED') || null;
+}
+
+// ---------- Agent Contacts ----------
+export async function saveAgentContact(contact: AgentContactRecord): Promise<boolean> {
+	if (!canPersistAgentStore()) return false;
+	await store.put(COLLECTIONS.contacts, contact.id, cleanDoc(contact));
+	return true;
+}
+
+export async function getAgentContact(id: string): Promise<AgentContactRecord | null> {
+	if (!canPersistAgentStore() || !id) return null;
+	try {
+		const doc = await store.get(COLLECTIONS.contacts, id);
+		return doc ? (doc as unknown as AgentContactRecord) : null;
+	} catch (err) {
+		console.warn('[agent-store] getAgentContact fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
+}
+
+export async function listAgentContacts(): Promise<AgentContactRecord[]> {
+	if (!canPersistAgentStore()) return [];
+	try {
+		const docs = await store.list(COLLECTIONS.contacts);
+		return (docs as unknown as AgentContactRecord[]).sort((a, b) => (a.lastSeenAt < b.lastSeenAt ? 1 : -1));
+	} catch (err) {
+		console.warn('[agent-store] listAgentContacts fallback:', err instanceof Error ? err.message : err);
+		return [];
+	}
+}
+
+export async function trackAgentContact(
+	inquiry: InquiryRecord,
+	clientAgentId?: string,
+): Promise<AgentContactRecord | null> {
+	if (!canPersistAgentStore()) return null;
+	try {
+		const agentId = clientAgentId || inquiry.clientAgentId;
+		const email = inquiry.sender_email.trim().toLowerCase();
+		const name = inquiry.sender_name || agentId || 'Agent Contact';
+
+		const all = await listAgentContacts();
+		const existing = all.find((c) => {
+			if (agentId && c.agentId && c.agentId.toLowerCase() === agentId.toLowerCase()) return true;
+			if (email && c.email.toLowerCase() === email) return true;
+			if (name && c.name.toLowerCase() === name.toLowerCase()) return true;
+			return false;
+		});
+
+		const now = new Date().toISOString();
+		if (existing) {
+			const updated: AgentContactRecord = {
+				...existing,
+				lastSeenAt: now,
+				name: inquiry.sender_name || existing.name,
+				agentId: agentId || existing.agentId,
+				company: inquiry.company_name || existing.company,
+				location: inquiry.sender_location || existing.location,
+				channel: inquiry.channel || existing.channel,
+				activeInquiryId: inquiry.id,
+				totalInquiries: existing.totalInquiries + 1,
+				totalOrders: inquiry.order_id ? existing.totalOrders + 1 : existing.totalOrders,
+				status: inquiry.order_id ? 'customer' : existing.status,
+			};
+			await store.put(COLLECTIONS.contacts, updated.id, cleanDoc(updated));
+			return updated;
+		}
+
+		const newContact: AgentContactRecord = {
+			id: generateId('agt_cnt'),
+			name,
+			agentId: agentId || undefined,
+			email: inquiry.sender_email,
+			company: inquiry.company_name,
+			location: inquiry.sender_location,
+			channel: inquiry.channel,
+			firstSeenAt: now,
+			lastSeenAt: now,
+			totalInquiries: 1,
+			totalOrders: inquiry.order_id ? 1 : 0,
+			activeInquiryId: inquiry.id,
+			status: inquiry.order_id ? 'customer' : 'negotiating',
+		};
+		await store.put(COLLECTIONS.contacts, newContact.id, cleanDoc(newContact));
+		return newContact;
+	} catch (err) {
+		console.warn('[agent-store] trackAgentContact fallback:', err instanceof Error ? err.message : err);
+		return null;
+	}
 }
 
 // ---------- Quotes ----------
