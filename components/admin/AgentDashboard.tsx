@@ -10,7 +10,7 @@
  */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
 	broadcastRegistriesAction,
 	pingIndexNowAction,
@@ -133,10 +133,25 @@ export default function AgentDashboard({
 	const [campaignQuery, setCampaignQuery] = useState<string>(
 		safeSeoAudit.recommendedQueries?.[0] || 'How much does a 7-day Flutter or Next.js MVP cost?',
 	);
+	const chatLogRef = useRef<HTMLOListElement>(null);
 
 	function insertTemplate(snippet: string) {
 		setReplyText((prev) => (prev ? `${prev}\n\n${snippet}` : snippet));
 	}
+
+	const selectedInquiry = safeInquiries.find((i) => i.id === selectedInquiryId) || safeInquiries[0] || null;
+	const selectedOrder = safeOrders.find((o) => o.id === selectedOrderId) || safeOrders[0] || null;
+	const recentHits = safeReachSummary.recentHits || [];
+	const filteredHits =
+		auditFilter === 'all'
+			? recentHits
+			: recentHits.filter((h) => h.protocol === auditFilter);
+
+	useEffect(() => {
+		if (chatLogRef.current) {
+			chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
+		}
+	}, [selectedInquiryId, selectedInquiry?.messages?.length]);
 
 	useEffect(() => {
 		if (!livePolling) return;
@@ -146,14 +161,6 @@ export default function AgentDashboard({
 		}, 30000);
 		return () => clearInterval(timer);
 	}, [livePolling, router]);
-
-	const selectedInquiry = safeInquiries.find((i) => i.id === selectedInquiryId) || safeInquiries[0] || null;
-	const selectedOrder = safeOrders.find((o) => o.id === selectedOrderId) || safeOrders[0] || null;
-	const recentHits = safeReachSummary.recentHits || [];
-	const filteredHits =
-		auditFilter === 'all'
-			? recentHits
-			: recentHits.filter((h) => h.protocol === auditFilter);
 
 	async function copyDevPrompt(order: PublicOrder) {
 		const prompt = srsToDevAgentPrompt(order.srs_json);
@@ -251,73 +258,81 @@ export default function AgentDashboard({
 
 			{/* TAB 1: LIVE INQUIRIES MONITOR */}
 			{tab === 'inquiries' && (
-				<div className={mobileChatOpen ? 'agent-split is-mobile-chat-open' : 'agent-split'}>
-					<section className="admin-panel agent-thread-list" aria-label="Inquiry threads">
-						<div className="admin-panel_head">
+				<div className={mobileChatOpen ? 'agent-whatsapp-box is-mobile-chat-open' : 'agent-whatsapp-box'}>
+					<aside className="agent-inbox-pane" aria-label="Inquiry threads">
+						<div className="agent-inbox-header">
 							<h2>Inquiry Threads</h2>
-							<span className="admin-panel_meta">
+							<span className="agent-inbox-count">
 								{inquiries.length} total · {reachSummary.inquiries.totalMessagesExchanged} msgs
 							</span>
 						</div>
-						{inquiries.length === 0 ? (
-							<div className="admin-empty is-compact">
-								<p className="admin-empty_title">No agent inquiries yet</p>
-								<p className="admin-muted">
-									Threads appear here as soon as a client emails Gmail/Zoho or queries /api/agent/negotiate or /api/mcp.
-								</p>
-							</div>
-						) : (
-							<ul className="agent-threads">
-								{safeInquiries.map((inq) => {
-									const active = selectedInquiry?.id === inq.id;
-									const msgs = Array.isArray(inq.messages) ? inq.messages : [];
-									const lastMsg = msgs[msgs.length - 1];
-									const avatarInitial = (inq.sender_name || inq.sender_email || 'C')[0]?.toUpperCase() || 'C';
-									return (
-										<li key={inq.id}>
-											<button
-												type="button"
-												className={active ? 'agent-thread-btn is-active' : 'agent-thread-btn'}
-												onClick={() => {
-													setSelectedInquiryId(inq.id);
-													setMobileChatOpen(true);
-												}}
-											>
-												<div className="agent-thread-avatar">
-													{avatarInitial}
-													<span className="agent-thread-avatar-dot"></span>
-												</div>
-												<div className="agent-thread-item-content">
-													<div className="agent-thread-top">
-														<strong>{inq.sender_name || inq.sender_email}</strong>
-														<span className={`admin-chip is-${inquiryTone(inq.status)}`}>{inq.status}</span>
+						<div className="agent-inbox-scroll">
+							{inquiries.length === 0 ? (
+								<div className="admin-empty is-compact">
+									<p className="admin-empty_title">No agent inquiries yet</p>
+									<p className="admin-muted">
+										Threads appear here as soon as a client emails Gmail/Zoho or queries /api/agent/negotiate or /api/mcp.
+									</p>
+								</div>
+							) : (
+								<ul className="agent-threads">
+									{safeInquiries.map((inq) => {
+										const active = selectedInquiry?.id === inq.id;
+										const msgs = Array.isArray(inq.messages) ? inq.messages : [];
+										const lastMsg = msgs[msgs.length - 1];
+										const avatarInitial = (inq.sender_name || inq.sender_email || 'C')[0]?.toUpperCase() || 'C';
+										return (
+											<li key={inq.id}>
+												<button
+													type="button"
+													className={active ? 'agent-thread-btn is-active' : 'agent-thread-btn'}
+													onClick={() => {
+														setSelectedInquiryId(inq.id);
+														setMobileChatOpen(true);
+													}}
+												>
+													<div className="agent-thread-avatar">
+														{avatarInitial}
+														<span className="agent-thread-avatar-dot"></span>
 													</div>
-													<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
-													<p className="agent-thread-preview">{lastMsg?.text?.slice(0, 85) || 'No messages'}</p>
-													<div className="agent-thread-meta">
-														<span>
-															{inq.channel === 'gmail'
-																? 'Gmail'
-																: inq.channel === 'zoho_email'
-																	? 'Zoho Mail'
-																	: inq.channel.toUpperCase()}
-														</span>
-														<span>{msgs.length} msgs · {formatTs(inq.updated_at)}</span>
+													<div className="agent-thread-item-content">
+														<div className="agent-thread-top">
+															<strong>{inq.sender_name || inq.sender_email}</strong>
+															<span className={`admin-chip is-${inquiryTone(inq.status)}`}>{inq.status}</span>
+														</div>
+														<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
+														<p className="agent-thread-preview">{lastMsg?.text?.slice(0, 85) || 'No messages'}</p>
+														<div className="agent-thread-meta">
+															<span>
+																{inq.channel === 'gmail'
+																	? 'Gmail'
+																	: inq.channel === 'zoho_email'
+																		? 'Zoho Mail'
+																		: inq.channel.toUpperCase()}
+															</span>
+															<span>{msgs.length} msgs · {formatTs(inq.updated_at)}</span>
+														</div>
 													</div>
-												</div>
-											</button>
-										</li>
-									);
-								})}
-							</ul>
-						)}
-					</section>
+												</button>
+											</li>
+										);
+									})}
+								</ul>
+							)}
+						</div>
+					</aside>
 
-					<section className="agent-thread-detail" aria-label="Conversation window">
+					<main className="agent-conversation-pane" aria-label="Conversation window">
 						{!selectedInquiry ? (
-							<div className="admin-panel admin-empty is-compact">
-								<p className="admin-empty_title">Select a thread</p>
-								<p className="admin-muted">Choose an inquiry on the left to inspect the WhatsApp-style client exchange.</p>
+							<div className="agent-chat-empty-state">
+								<div className="agent-chat-empty-icon">
+									<i className="fa-brands fa-whatsapp text-success" aria-hidden="true"></i>
+								</div>
+								<h3>TechFiyr Live Agent Inquiries</h3>
+								<p>Select a thread on the left to inspect conversation history, chat like WhatsApp, or dispatch replies.</p>
+								<div className="agent-chat-empty-badge">
+									<i className="fa-solid fa-shield-halved me-1" aria-hidden="true"></i> End-to-end multi-rail A2A &amp; Email commerce
+								</div>
 							</div>
 						) : (
 							<div className="agent-chat-window">
@@ -372,7 +387,7 @@ export default function AgentDashboard({
 									</div>
 								</div>
 
-								<ol className="agent-chat-log">
+								<ol className="agent-chat-log" ref={chatLogRef}>
 									<li className="agent-chat-date-pill">
 										<span>
 											{selectedInquiry.subject || 'Project Negotiation'} · Thread {selectedInquiry.thread_id.slice(0, 12)}
@@ -477,7 +492,7 @@ export default function AgentDashboard({
 								)}
 							</div>
 						)}
-					</section>
+					</main>
 				</div>
 			)}
 

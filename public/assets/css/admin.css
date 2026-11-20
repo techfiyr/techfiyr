@@ -2095,17 +2095,75 @@ body:has(.admin-root) {
   gap: 8px;
 }
 
+/* WhatsApp-Style Single-Box Screen Layout */
+.agent-whatsapp-box,
 .agent-split {
-  display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.55fr);
-  gap: 22px;
-  align-items: start;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  height: 720px;
+  max-height: calc(100vh - 150px);
+  min-height: 560px;
+  border-radius: 20px;
+  border: 1px solid var(--admin-line);
+  background-color: var(--white-color);
+  box-shadow: 0 8px 30px rgba(var(--black-color-rgb), 0.06);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.agent-inbox-pane,
+.agent-thread-list {
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  min-width: 300px;
+  max-width: 400px;
+  height: 100%;
+  border-right: 1px solid var(--admin-line);
+  background-color: var(--white-color);
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.agent-inbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-line);
+  background-color: #f7f9f8;
+  flex-shrink: 0;
+}
+
+.agent-inbox-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black-color);
+}
+
+.agent-inbox-count {
+  font-size: 12px;
+  color: var(--admin-muted);
+  font-weight: 500;
+}
+
+.agent-inbox-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
 }
 
 .agent-threads {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2118,7 +2176,7 @@ body:has(.admin-root) {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--admin-line);
-  border-radius: 16px;
+  border-radius: 14px;
   font: inherit;
   text-align: left;
   background-color: var(--admin-bg);
@@ -2129,7 +2187,7 @@ body:has(.admin-root) {
 .agent-thread-btn.is-active,
 .agent-thread-btn:hover {
   border-color: var(--main-color);
-  background-color: rgba(var(--main-color-rgb), 0.06);
+  background-color: rgba(var(--main-color-rgb), 0.08);
   box-shadow: 0 4px 14px rgba(35, 122, 87, 0.1);
 }
 
@@ -2209,14 +2267,30 @@ body:has(.admin-root) {
 /* ==========================================================================
    WhatsApp-Style Interactive Chat Window
    ========================================================================== */
+.agent-conversation-pane,
+.agent-thread-detail {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--white-color);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .agent-chat-window {
   display: flex;
   flex-direction: column;
-  min-height: 580px;
-  border-radius: 20px;
-  border: 1px solid var(--admin-line);
-  background-color: var(--white-color);
-  box-shadow: 0 6px 24px rgba(var(--black-color-rgb), 0.05);
+  height: 100%;
+  min-height: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background-color: transparent;
   overflow: hidden;
 }
 
@@ -2225,9 +2299,10 @@ body:has(.admin-root) {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 14px 20px;
-  background-color: var(--white-color);
+  padding: 12px 20px;
+  background-color: #f7f9f8;
   border-bottom: 1px solid var(--admin-line);
+  flex-shrink: 0;
 }
 
 .agent-chat-header-user {
@@ -2319,14 +2394,84 @@ body:has(.admin-root) {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 440px;
+  flex: 1;
+  min-height: 0;
+  height: auto;
   overflow-y: auto;
   margin: 0;
   padding: 20px;
   list-style: none;
-  background-color: #f3f6f4;
-  background-image: radial-gradient(rgba(35, 122, 87, 0.08) 1px, transparent 0);
+  background-color: #efeae2;
+  background-image: radial-gradient(rgba(35, 122, 87, 0.08) 1.2px, transparent 0);
+  background-size: 22px 22px;
+}
+
+/* Custom Sleek Scrollbars for WhatsApp feel */
+.agent-inbox-scroll::-webkit-scrollbar,
+.agent-chat-log::-webkit-scrollbar {
+  width: 6px;
+}
+
+.agent-inbox-scroll::-webkit-scrollbar-thumb,
+.agent-chat-log::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.16);
+  border-radius: 4px;
+}
+
+.agent-inbox-scroll::-webkit-scrollbar-track,
+.agent-chat-log::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Empty state when no inquiry selected */
+.agent-chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 40px 24px;
+  background-color: #f7f9f8;
+  background-image: radial-gradient(rgba(35, 122, 87, 0.05) 1px, transparent 0);
   background-size: 20px 20px;
+}
+
+.agent-chat-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: rgba(35, 122, 87, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin-bottom: 16px;
+}
+
+.agent-chat-empty-state h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--black-color);
+}
+
+.agent-chat-empty-state p {
+  max-width: 420px;
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--admin-muted);
+  line-height: 1.5;
+}
+
+.agent-chat-empty-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  color: #555f59;
 }
 
 .agent-chat-date-pill {
@@ -2814,18 +2959,34 @@ body:has(.admin-root) {
 }
 
 @media (max-width: 991.98px) {
+  .agent-whatsapp-box,
   .agent-split {
-    grid-template-columns: minmax(0, 1fr);
+    height: 600px;
+    max-height: none;
+    flex-direction: column;
   }
 
+  .agent-whatsapp-box.is-mobile-chat-open .agent-inbox-pane,
   .agent-split.is-mobile-chat-open .agent-thread-list {
     display: none;
   }
 
+  .agent-whatsapp-box.is-mobile-chat-open .agent-conversation-pane,
   .agent-split.is-mobile-chat-open .agent-thread-detail {
-    display: block;
+    display: flex;
+    width: 100%;
+    height: 100%;
   }
 
+  .agent-whatsapp-box:not(.is-mobile-chat-open) .agent-inbox-pane,
+  .agent-split:not(.is-mobile-chat-open) .agent-thread-list {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border-right: none;
+  }
+
+  .agent-whatsapp-box:not(.is-mobile-chat-open) .agent-conversation-pane,
   .agent-split:not(.is-mobile-chat-open) .agent-thread-detail {
     display: none;
   }
