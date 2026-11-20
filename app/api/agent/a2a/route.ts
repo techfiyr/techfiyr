@@ -8,6 +8,7 @@ import type { PaymentRail } from '@/lib/agent/pricing';
 import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
+import { resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
 import {
@@ -108,16 +109,20 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 	const now = new Date().toISOString();
 
 	const action = typeof dataPart?.action === 'string' ? dataPart.action : '';
-	const clientAgentId =
-		(typeof dataPart?.clientAgentId === 'string' && dataPart.clientAgentId) ||
-		(typeof dataPart?.agentId === 'string' && dataPart.agentId) ||
-		(typeof params.clientAgentId === 'string' && params.clientAgentId) ||
-		(typeof params.agentId === 'string' && params.agentId) ||
-		(typeof (params as Record<string, unknown>).sender === 'string' && (params as Record<string, unknown>).sender as string) ||
-		(typeof (msg as Record<string, unknown>).sender === 'string' && (msg as Record<string, unknown>).sender as string) ||
-		req.headers.get('x-agent-id') ||
-		req.headers.get('x-client-agent-id') ||
-		'autonomous-buyer';
+	const identity = resolveAgentIdentity(
+		req,
+		{
+			...dataPart,
+			clientAgentId: dataPart?.clientAgentId || dataPart?.agentId || params.clientAgentId || params.agentId,
+			clientName: dataPart?.clientName || dataPart?.agentName,
+			clientEmail: dataPart?.clientEmail || dataPart?.email,
+			companyName: dataPart?.companyName || dataPart?.company,
+			clientLocation: dataPart?.clientLocation || dataPart?.location,
+		},
+		'a2a',
+	);
+	const clientAgentId = identity.agentId;
+	const clientName = identity.clientName;
 	let summaryText = '';
 	let resultData: Record<string, unknown> = {};
 	let state: A2ATaskRecord['status']['state'] = 'completed';
@@ -219,8 +224,8 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 			channel: 'a2a',
 			sessionId: contextId,
 			threadId: msg.contextId || undefined,
-			clientAgentId,
-			clientName: typeof dataPart?.clientName === 'string' ? dataPart.clientName : clientAgentId,
+			clientAgentId: identity.agentId,
+			clientName: identity.clientName,
 			message: textParts || JSON.stringify(dataPart || {}),
 			description: typeof dataPart?.description === 'string' ? dataPart.description : textParts,
 			projectTitle: typeof dataPart?.projectTitle === 'string' ? dataPart.projectTitle : undefined,
@@ -233,9 +238,9 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 				typeof dataPart?.paymentPreference === 'string'
 					? (dataPart.paymentPreference as PaymentRail)
 					: undefined,
-			clientEmail: typeof dataPart?.clientEmail === 'string' ? dataPart.clientEmail : undefined,
-			clientLocation: typeof dataPart?.clientLocation === 'string' ? dataPart.clientLocation : undefined,
-			companyName: typeof dataPart?.companyName === 'string' ? dataPart.companyName : undefined,
+			clientEmail: identity.clientEmail,
+			clientLocation: identity.clientLocation,
+			companyName: identity.companyName,
 			acceptOffer: typeof dataPart?.acceptOffer === 'boolean' ? dataPart.acceptOffer : undefined,
 		});
 		resultData = neg as unknown as Record<string, unknown>;
@@ -277,7 +282,7 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 	await recordAgentHit(req, {
 		protocol: 'a2a',
 		action: action ? `message:${action}` : 'message:negotiate',
-		agentName: clientAgentId,
+		agentName: identity.agentName,
 		statusCode: 200,
 		startedAtMs,
 		summary: `A2A ${action || 'negotiate'} -> ${state}`,

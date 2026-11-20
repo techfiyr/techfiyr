@@ -10,7 +10,7 @@
  */
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	broadcastRegistriesAction,
 	pingIndexNowAction,
@@ -72,6 +72,11 @@ function inquiryTone(status: InquiryRecord['status']): 'good' | 'warn' | 'neutra
 	return 'neutral';
 }
 
+function isAiPlatformName(name?: string): boolean {
+	if (!name) return false;
+	return /chatgpt|openai|claude|anthropic|perplexity|smithery|gemini|mistral|cursor|windsurf|agent\s*framework/i.test(name);
+}
+
 function formatTs(iso: string): string {
 	if (!iso) return '';
 	try {
@@ -123,6 +128,7 @@ export default function AgentDashboard({
 
 	const [tab, setTab] = useState<TabId>(initialTab);
 	const [livePolling, setLivePolling] = useState(true);
+	const [inboxViewMode, setInboxViewMode] = useState<'agents' | 'threads'>('agents');
 	const [selectedInquiryId, setSelectedInquiryId] = useState<string>(initialInquiryId || safeInquiries[0]?.id || '');
 	const [mobileChatOpen, setMobileChatOpen] = useState<boolean>(Boolean(initialInquiryId));
 	const [replyText, setReplyText] = useState<string>('');
@@ -146,6 +152,85 @@ export default function AgentDashboard({
 		auditFilter === 'all'
 			? recentHits
 			: recentHits.filter((h) => h.protocol === auditFilter);
+
+	const agentGroups = useMemo(() => {
+		const hitMap = new Map<string, string>();
+		for (const h of safeReachSummary.recentHits || []) {
+			if (h.inquiry_id && h.agent_name) hitMap.set(h.inquiry_id, h.agent_name);
+			if (h.order_id && h.agent_name) hitMap.set(h.order_id, h.agent_name);
+		}
+
+		const map = new Map<string, InquiryRecord[]>();
+		for (const inq of safeInquiries) {
+			const hitName = hitMap.get(inq.id) || (inq.order_id ? hitMap.get(inq.order_id) : undefined);
+			const rawName = inq.sender_name || '';
+			const displayName =
+				rawName && !rawName.startsWith('autonomous-buyer') && !rawName.startsWith('mcp-client')
+					? rawName
+					: hitName || inq.sender_name || inq.clientAgentId || inq.sender_email;
+
+			const groupKey = (inq.clientAgentId || displayName || inq.id).toLowerCase();
+			const list = map.get(groupKey) || [];
+			list.push(inq);
+			map.set(groupKey, list);
+		}
+
+		const list: {
+			key: string;
+			name: string;
+			agentId: string;
+			email: string;
+			company?: string;
+			location?: string;
+			channel: InquiryRecord['channel'];
+			status: InquiryRecord['status'];
+			inquiries: InquiryRecord[];
+			totalMessages: number;
+			lastUpdated: string;
+			latestSubject: string;
+			latestSnippet: string;
+		}[] = [];
+
+		for (const [key, inqs] of map.entries()) {
+			inqs.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1));
+			const primary = inqs[0];
+			const totalMsgs = inqs.reduce((sum, i) => sum + (Array.isArray(i.messages) ? i.messages.length : 0), 0);
+			const lastMsg = primary.messages?.[primary.messages.length - 1];
+			const hitName = hitMap.get(primary.id) || (primary.order_id ? hitMap.get(primary.order_id) : undefined);
+			const rawName = primary.sender_name || '';
+			const name =
+				rawName && !rawName.startsWith('autonomous-buyer') && !rawName.startsWith('mcp-client')
+					? rawName
+					: hitName || primary.sender_name || primary.clientAgentId || 'Agent';
+
+			list.push({
+				key,
+				name,
+				agentId: primary.clientAgentId || key,
+				email: primary.sender_email,
+				company: inqs.find((i) => i.company_name)?.company_name,
+				location: inqs.find((i) => i.sender_location)?.sender_location,
+				channel: primary.channel,
+				status: inqs.some((i) => i.status === 'CLOSED')
+					? 'CLOSED'
+					: inqs.some((i) => i.status === 'NEGOTIATING')
+						? 'NEGOTIATING'
+						: primary.status,
+				inquiries: inqs,
+				totalMessages: totalMsgs,
+				lastUpdated: primary.updated_at,
+				latestSubject: primary.subject || 'Project Inquiry',
+				latestSnippet: lastMsg?.text?.slice(0, 85) || 'No messages',
+			});
+		}
+
+		return list.sort((a, b) => (a.lastUpdated < b.lastUpdated ? 1 : -1));
+	}, [safeInquiries, safeReachSummary.recentHits]);
+
+	const activeGroup = useMemo(() => {
+		if (!selectedInquiry) return null;
+		return agentGroups.find((g) => g.inquiries.some((i) => i.id === selectedInquiry.id)) || null;
+	}, [agentGroups, selectedInquiry]);
 
 	useEffect(() => {
 		if (chatLogRef.current) {
@@ -261,26 +346,96 @@ export default function AgentDashboard({
 				<div className={mobileChatOpen ? 'agent-whatsapp-box is-mobile-chat-open' : 'agent-whatsapp-box'}>
 					<aside className="agent-inbox-pane" aria-label="Inquiry threads">
 						<div className="agent-inbox-header">
-							<h2>Inquiry Threads</h2>
-							<span className="agent-inbox-count">
-								{inquiries.length} total · {reachSummary.inquiries.totalMessagesExchanged} msgs
-							</span>
+							<div className="agent-inbox-header-top">
+								<h2>Agent Inquiries</h2>
+								<span className="agent-inbox-count">
+									{agentGroups.length} unique agents · {safeInquiries.length} threads · {safeReachSummary.inquiries.totalMessagesExchanged} msgs
+								</span>
+							</div>
+							<div className="agent-inbox-views">
+								<button
+									type="button"
+									className={inboxViewMode === 'agents' ? 'agent-view-tab is-active' : 'agent-view-tab'}
+									onClick={() => setInboxViewMode('agents')}
+								>
+									<i className="fa-solid fa-users-viewfinder me-1" aria-hidden="true"></i> By Agent ({agentGroups.length})
+								</button>
+								<button
+									type="button"
+									className={inboxViewMode === 'threads' ? 'agent-view-tab is-active' : 'agent-view-tab'}
+									onClick={() => setInboxViewMode('threads')}
+								>
+									<i className="fa-solid fa-comments me-1" aria-hidden="true"></i> All Threads ({safeInquiries.length})
+								</button>
+							</div>
 						</div>
 						<div className="agent-inbox-scroll">
-							{inquiries.length === 0 ? (
+							{safeInquiries.length === 0 ? (
 								<div className="admin-empty is-compact">
 									<p className="admin-empty_title">No agent inquiries yet</p>
 									<p className="admin-muted">
 										Threads appear here as soon as a client emails Gmail/Zoho or queries /api/agent/negotiate or /api/mcp.
 									</p>
 								</div>
+							) : inboxViewMode === 'agents' ? (
+								<ul className="agent-threads">
+									{agentGroups.map((group) => {
+										const isSelected = selectedInquiry && group.inquiries.some((i) => i.id === selectedInquiry.id);
+										const isAi = isAiPlatformName(group.name);
+										const avatarInitial = (group.name || 'A')[0]?.toUpperCase() || 'A';
+
+										return (
+											<li key={group.key}>
+												<button
+													type="button"
+													className={isSelected ? 'agent-thread-btn is-active' : 'agent-thread-btn'}
+													onClick={() => {
+														setSelectedInquiryId(group.inquiries[0].id);
+														setMobileChatOpen(true);
+													}}
+												>
+													<div className="agent-thread-avatar">
+														{isAi ? <i className="fa-solid fa-robot" aria-hidden="true"></i> : avatarInitial}
+														<span className="agent-thread-avatar-dot"></span>
+													</div>
+													<div className="agent-thread-item-content">
+														<div className="agent-thread-top">
+															<strong title={group.name}>{group.name}</strong>
+															<span className={`admin-chip is-${inquiryTone(group.status)}`}>{group.status}</span>
+														</div>
+														<div className="agent-group-subinfo">
+															<span className="agent-group-tag">{group.agentId}</span>
+															{group.company && <span className="agent-group-company">· {group.company}</span>}
+														</div>
+														<p className="agent-thread-subject">{group.latestSubject}</p>
+														<p className="agent-thread-preview">{group.latestSnippet}</p>
+														<div className="agent-thread-meta">
+															<span className="agent-meta-badge">
+																{group.channel === 'gmail'
+																	? 'Gmail'
+																	: group.channel === 'zoho_email'
+																		? 'Zoho Mail'
+																		: group.channel.toUpperCase()}
+															</span>
+															<span>
+																{group.inquiries.length} {group.inquiries.length === 1 ? 'inquiry' : 'inquiries'} · {group.totalMessages} msgs · {formatTs(group.lastUpdated)}
+															</span>
+														</div>
+													</div>
+												</button>
+											</li>
+										);
+									})}
+								</ul>
 							) : (
 								<ul className="agent-threads">
 									{safeInquiries.map((inq) => {
 										const active = selectedInquiry?.id === inq.id;
 										const msgs = Array.isArray(inq.messages) ? inq.messages : [];
 										const lastMsg = msgs[msgs.length - 1];
+										const isAi = isAiPlatformName(inq.sender_name);
 										const avatarInitial = (inq.sender_name || inq.sender_email || 'C')[0]?.toUpperCase() || 'C';
+
 										return (
 											<li key={inq.id}>
 												<button
@@ -292,18 +447,18 @@ export default function AgentDashboard({
 													}}
 												>
 													<div className="agent-thread-avatar">
-														{avatarInitial}
+														{isAi ? <i className="fa-solid fa-robot" aria-hidden="true"></i> : avatarInitial}
 														<span className="agent-thread-avatar-dot"></span>
 													</div>
 													<div className="agent-thread-item-content">
 														<div className="agent-thread-top">
-															<strong>{inq.sender_name || inq.sender_email}</strong>
+															<strong>{inq.sender_name || inq.clientAgentId || inq.sender_email}</strong>
 															<span className={`admin-chip is-${inquiryTone(inq.status)}`}>{inq.status}</span>
 														</div>
 														<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
 														<p className="agent-thread-preview">{lastMsg?.text?.slice(0, 85) || 'No messages'}</p>
 														<div className="agent-thread-meta">
-															<span>
+															<span className="agent-meta-badge">
 																{inq.channel === 'gmail'
 																	? 'Gmail'
 																	: inq.channel === 'zoho_email'
@@ -347,16 +502,24 @@ export default function AgentDashboard({
 											<i className="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
 										</button>
 										<div className="agent-chat-avatar">
-											{(selectedInquiry.sender_name || selectedInquiry.sender_email || 'C')[0]?.toUpperCase() || 'C'}
+											{isAiPlatformName(selectedInquiry.sender_name) ? (
+												<i className="fa-solid fa-robot" aria-hidden="true"></i>
+											) : (
+												(selectedInquiry.sender_name || selectedInquiry.sender_email || 'C')[0]?.toUpperCase() || 'C'
+											)}
 											<span className="agent-chat-avatar-status"></span>
 										</div>
 										<div className="agent-chat-meta-wrap">
-											<h3>{selectedInquiry.sender_name || selectedInquiry.sender_email}</h3>
+											<h3>{selectedInquiry.sender_name || selectedInquiry.clientAgentId || selectedInquiry.sender_email}</h3>
 											<div className="agent-chat-submeta">
-												<span>{selectedInquiry.sender_email}</span>
+												<span className="agent-chat-id-tag">id: {selectedInquiry.clientAgentId || selectedInquiry.thread_id}</span>
+												<span>· {selectedInquiry.sender_email}</span>
 												{selectedInquiry.company_name && <span>· <strong>{selectedInquiry.company_name}</strong></span>}
 												{selectedInquiry.sender_location && <span>· <i className="fa-solid fa-location-dot" aria-hidden="true"></i> {selectedInquiry.sender_location}</span>}
 												<span>· {selectedInquiry.channel.toUpperCase()}</span>
+												{activeGroup && activeGroup.inquiries.length > 1 && (
+													<span className="admin-chip is-neutral is-small">{activeGroup.inquiries.length} projects</span>
+												)}
 											</div>
 										</div>
 									</div>
@@ -386,6 +549,25 @@ export default function AgentDashboard({
 										)}
 									</div>
 								</div>
+
+								{activeGroup && activeGroup.inquiries.length > 1 && (
+									<div className="agent-chat-threads-switcher">
+										<span className="agent-chat-switcher-label">Projects with this Agent:</span>
+										<div className="agent-chat-switcher-pills">
+											{activeGroup.inquiries.map((inq) => (
+												<button
+													key={inq.id}
+													type="button"
+													className={selectedInquiry?.id === inq.id ? 'agent-switcher-pill is-active' : 'agent-switcher-pill'}
+													onClick={() => setSelectedInquiryId(inq.id)}
+												>
+													<span className="agent-switcher-title">{inq.subject || inq.id.slice(-6)}</span>
+													<span className="agent-switcher-count">({inq.messages?.length || 0})</span>
+												</button>
+											))}
+										</div>
+									</div>
+								)}
 
 								<ol className="agent-chat-log" ref={chatLogRef}>
 									<li className="agent-chat-date-pill">

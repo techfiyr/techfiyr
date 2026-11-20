@@ -6,6 +6,7 @@ import type { PaymentRail } from '@/lib/agent/pricing';
 import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
+import { resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { createAgentQuote } from '@/lib/server/agent-orders';
 import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
@@ -77,13 +78,12 @@ export async function POST(req: Request) {
 		);
 	}
 
-	const agentId =
-		(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined;
+	const identity = resolveAgentIdentity(req, body, 'a2a');
 
 	const { quote, persisted } = await createAgentQuote({
-		clientAgentId: agentId,
+		clientAgentId: identity.agentId,
 		clientDid: (typeof body.clientDid === 'string' ? body.clientDid : req.headers.get('x-agent-did')) || undefined,
-		clientEmail: typeof body.clientEmail === 'string' ? body.clientEmail : undefined,
+		clientEmail: identity.clientEmail,
 		projectTitle: typeof body.projectTitle === 'string' ? body.projectTitle : undefined,
 		serviceId: typeof body.serviceId === 'string' ? body.serviceId : undefined,
 		platform:
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
 	await recordAgentHit(req, {
 		protocol: 'rest',
 		action: 'request_quote',
-		agentName: agentId,
+		agentName: identity.agentName,
 		statusCode,
 		startedAtMs,
 		summary: `Quote ${quote.evaluation.decision}: $${quote.evaluation.proposedPriceUSD} (${quote.evaluation.requiredDeliveryDays}d)`,

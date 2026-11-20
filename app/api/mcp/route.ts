@@ -17,6 +17,7 @@ import type { PaymentRail } from '@/lib/agent/pricing';
 import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { AGENT_CORS_HEADERS, agentJson, agentOptions } from '@/lib/server/agent-http';
+import { resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
 import { generateId, getOrder, isOrderAuthorized, publicOrderView } from '@/lib/server/agent-store';
@@ -328,6 +329,7 @@ async function handleToolCall(
 				response: toolFailure({ ok: false, code: 'MISSING_INPUT', error: 'message or description is required.' }),
 			};
 		}
+		const identity = resolveAgentIdentity(req, args, 'mcp');
 		const result = await negotiateWithAgent({
 			channel: 'mcp',
 			sessionId: typeof args.sessionId === 'string' ? args.sessionId : undefined,
@@ -342,10 +344,11 @@ async function handleToolCall(
 			integrationsCount: typeof args.integrationsCount === 'number' ? args.integrationsCount : undefined,
 			budgetUSD: typeof args.budgetUSD === 'number' ? args.budgetUSD : undefined,
 			requestedDays: typeof args.requestedDays === 'number' ? args.requestedDays : undefined,
-			clientEmail: typeof args.clientEmail === 'string' ? args.clientEmail : undefined,
-			clientAgentId: typeof args.clientAgentId === 'string' ? args.clientAgentId : 'mcp-client',
-			clientLocation: typeof args.clientLocation === 'string' ? args.clientLocation : undefined,
-			companyName: typeof args.companyName === 'string' ? args.companyName : undefined,
+			clientEmail: identity.clientEmail,
+			clientAgentId: identity.agentId,
+			clientName: identity.clientName,
+			clientLocation: identity.clientLocation,
+			companyName: identity.companyName,
 			paymentPreference:
 				typeof args.paymentPreference === 'string' ? (args.paymentPreference as PaymentRail) : undefined,
 			acceptOffer: typeof args.acceptOffer === 'boolean' ? args.acceptOffer : undefined,

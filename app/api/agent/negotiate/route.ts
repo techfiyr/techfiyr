@@ -5,6 +5,7 @@
 import type { PaymentRail } from '@/lib/agent/pricing';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
+import { resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
@@ -52,18 +53,17 @@ export async function POST(req: Request) {
 		);
 	}
 
-	const agentId =
-		(typeof body.clientAgentId === 'string' ? body.clientAgentId : req.headers.get('x-agent-id')) || undefined;
+	const identity = resolveAgentIdentity(req, body, 'a2a');
 
 	const result = await negotiateWithAgent({
 		channel: 'a2a',
 		sessionId: typeof body.sessionId === 'string' ? body.sessionId : undefined,
-		clientAgentId: agentId,
+		clientAgentId: identity.agentId,
 		clientDid: (typeof body.clientDid === 'string' ? body.clientDid : req.headers.get('x-agent-did')) || undefined,
-		clientEmail: typeof body.clientEmail === 'string' ? body.clientEmail : undefined,
-		clientName: typeof body.clientName === 'string' ? body.clientName : undefined,
-		clientLocation: typeof body.clientLocation === 'string' ? body.clientLocation : undefined,
-		companyName: typeof body.companyName === 'string' ? body.companyName : undefined,
+		clientEmail: identity.clientEmail,
+		clientName: identity.clientName,
+		clientLocation: identity.clientLocation,
+		companyName: identity.companyName,
 		message: message || undefined,
 		projectTitle: typeof body.projectTitle === 'string' ? body.projectTitle : undefined,
 		description: description || undefined,
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
 	await recordAgentHit(req, {
 		protocol: 'rest',
 		action: 'negotiate',
-		agentName: agentId,
+		agentName: identity.agentName,
 		statusCode: 200,
 		startedAtMs,
 		inquiryId: result.inquiryId,

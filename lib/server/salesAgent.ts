@@ -32,6 +32,7 @@ import {
 	type WorkflowStage,
 } from '@/lib/agent/security';
 import type { AiDeveloperSrs } from '@/types/srs';
+import { extractAgentIdentityFromText, isGenericAgentIdentity } from './agent-identity';
 import { createAgentOrder } from './agent-orders';
 import { formatPaymentInstructionsBlock } from './agent-payments';
 import {
@@ -355,14 +356,27 @@ ${contextSummary}`;
 }
 
 export async function runSalesAgent(input: SalesAgentInput): Promise<SalesAgentResult> {
-	const candidateAgentId = (input.clientAgentId || input.clientName || '').trim();
+	const rawCurrentText = sanitizeAgentText(
+		[input.projectTitle, input.message, input.description].filter(Boolean).join('\n'),
+		6000,
+	);
+	const buyerText = sanitizeAgentText(input.message || input.description || '', 4000) || 'Initial inquiry.';
+	const extractedIdentity = extractAgentIdentityFromText(buyerText);
+
+	const candidateAgentId = (
+		input.clientAgentId ||
+		extractedIdentity.name ||
+		input.clientName ||
+		''
+	).trim();
+
 	const existingInquiry = await findInquiryForAgent({
 		inquiryId: input.inquiryId,
 		sessionId: input.sessionId,
 		threadId: input.threadId,
 		clientAgentId: candidateAgentId || undefined,
-		clientEmail: input.clientEmail,
-		clientName: input.clientName,
+		clientEmail: input.clientEmail || extractedIdentity.email,
+		clientName: input.clientName || extractedIdentity.name,
 	});
 
 	const existingSession = input.sessionId
@@ -379,26 +393,33 @@ export async function runSalesAgent(input: SalesAgentInput): Promise<SalesAgentR
 		input.clientAgentId ||
 		existingInquiry?.clientAgentId ||
 		existingSession?.clientAgentId ||
-		candidateAgentId ||
-		'autonomous-buyer'
+		(candidateAgentId && !isGenericAgentIdentity(candidateAgentId) ? candidateAgentId : '') ||
+		(input.channel === 'mcp' ? `mcp-agent-${sessionId.slice(-6)}` : `a2a-agent-${sessionId.slice(-6)}`)
 	).slice(0, 120);
 
 	const clientEmail = (
 		input.clientEmail ||
+		extractedIdentity.email ||
 		existingInquiry?.sender_email ||
 		existingSession?.clientEmail ||
 		(clientAgentId ? `${clientAgentId}@a2a.client` : 'client@techfiyr.com')
 	).trim();
 
-	const clientName = input.clientName || existingInquiry?.sender_name || clientAgentId;
-	const companyName = input.companyName || existingInquiry?.company_name || existingSession?.companyName;
-	const clientLocation = input.clientLocation || existingInquiry?.sender_location || existingSession?.clientLocation;
-
-	const rawCurrentText = sanitizeAgentText(
-		[input.projectTitle, input.message, input.description].filter(Boolean).join('\n'),
-		6000,
-	);
-	const buyerText = sanitizeAgentText(input.message || input.description || '', 4000) || 'Initial inquiry.';
+	const clientName =
+		input.clientName ||
+		extractedIdentity.name ||
+		existingInquiry?.sender_name ||
+		clientAgentId;
+	const companyName =
+		input.companyName ||
+		extractedIdentity.company ||
+		existingInquiry?.company_name ||
+		existingSession?.companyName;
+	const clientLocation =
+		input.clientLocation ||
+		extractedIdentity.location ||
+		existingInquiry?.sender_location ||
+		existingSession?.clientLocation;
 
 	let budgetUSD = input.budgetUSD;
 	if (typeof budgetUSD !== 'number') {

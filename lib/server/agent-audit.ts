@@ -18,25 +18,19 @@ import {
 	type AgentReachMetrics,
 } from './agent-store';
 
-export function classifyAgentClient(userAgent: string, explicitAgent?: string): string {
-	const cleanExplicit = (explicitAgent || '').trim();
-	if (cleanExplicit && cleanExplicit !== 'anonymous-agent') {
-		return cleanExplicit.slice(0, 80);
-	}
-	const ua = userAgent || '';
-	if (/chatgpt|oai-searchbot|gptbot|openai/i.test(ua)) return 'ChatGPT / OpenAI';
-	if (/claude|anthropic/i.test(ua)) return 'Claude / Anthropic';
-	if (/gemini|google-extended|googlebot/i.test(ua)) return 'Gemini / Google';
-	if (/perplexity/i.test(ua)) return 'Perplexity';
-	if (/smithery/i.test(ua)) return 'Smithery MCP';
-	if (/mistral/i.test(ua)) return 'Mistral';
-	if (/langchain|langgraph|crewai|autogen/i.test(ua)) return 'Agent Framework';
-	if (/curl|httpie|node|undici|python|axios|postman/i.test(ua)) {
-		const m = ua.match(/([A-Za-z0-9_-]+\/[0-9.]+)/);
-		return m ? m[1] : 'API / Script Client';
-	}
-	return ua ? ua.slice(0, 60) : 'Unknown Agent';
-}
+import {
+	classifyAgentClient,
+	extractAgentIdentityFromText,
+	isGenericAgentIdentity,
+	resolveAgentIdentity,
+} from './agent-identity';
+
+export {
+	classifyAgentClient,
+	extractAgentIdentityFromText,
+	isGenericAgentIdentity,
+	resolveAgentIdentity,
+};
 
 let lastMetricsPersistedAt = 0;
 let pendingHitsCount = 0;

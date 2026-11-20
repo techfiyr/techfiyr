@@ -8,6 +8,7 @@ import type { DeliveryPhase } from '@/lib/agent/catalog';
 import type { MilestoneItem, PaymentRail, QuoteEvaluation, QuoteInput } from '@/lib/agent/pricing';
 import type { WorkflowStage } from '@/lib/agent/security';
 import type { AiDeveloperSrs } from '@/types/srs';
+import { extractAgentIdentityFromText, isGenericAgentIdentity } from './agent-identity';
 import { env } from './google';
 import { store, storeMode } from './store';
 
@@ -442,8 +443,66 @@ export async function getInquiry(id: string): Promise<InquiryRecord | null> {
 export async function listInquiries(): Promise<InquiryRecord[]> {
 	if (!canPersistAgentStore()) return [];
 	try {
-		const docs = await store.list(COLLECTIONS.inquiries);
-		const sanitized = docs.map((d) => sanitizeInquiry(d));
+		const [docs, rawAudit] = await Promise.all([
+			store.list(COLLECTIONS.inquiries),
+			store.list(COLLECTIONS.audit).catch(() => []),
+		]);
+		const hitMap = new Map<string, string>();
+		for (const h of rawAudit) {
+			const inqId = h.inquiry_id ? String(h.inquiry_id) : '';
+			const agentName = h.agent_name ? String(h.agent_name) : '';
+			if (inqId && agentName && !isGenericAgentIdentity(agentName)) {
+				hitMap.set(inqId, agentName);
+			}
+			const ordId = h.order_id ? String(h.order_id) : '';
+			if (ordId && agentName && !isGenericAgentIdentity(agentName)) {
+				hitMap.set(ordId, agentName);
+			}
+		}
+
+		const sanitized = docs.map((d) => {
+			const inq = sanitizeInquiry(d);
+			// 1. Audit trail hit lookup
+			if (isGenericAgentIdentity(inq.sender_name)) {
+				const auditMatch = hitMap.get(inq.id) || (inq.order_id ? hitMap.get(inq.order_id) : undefined);
+				if (auditMatch) {
+					inq.sender_name = auditMatch;
+					if (isGenericAgentIdentity(inq.clientAgentId)) {
+						inq.clientAgentId = auditMatch.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+					}
+				}
+			}
+			// 2. Message extraction
+			if (isGenericAgentIdentity(inq.sender_name) && inq.messages?.length) {
+				for (const m of inq.messages) {
+					if (m.role === 'client') {
+						const ext = extractAgentIdentityFromText(m.text);
+						if (ext.name && !isGenericAgentIdentity(ext.name)) {
+							inq.sender_name = ext.name;
+							if (isGenericAgentIdentity(inq.clientAgentId)) {
+								inq.clientAgentId = ext.name.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+							}
+						}
+						if (ext.company && !inq.company_name) inq.company_name = ext.company;
+						if (ext.location && !inq.sender_location) inq.sender_location = ext.location;
+						if (ext.email && (!inq.sender_email || inq.sender_email.endsWith('@a2a.client'))) {
+							inq.sender_email = ext.email;
+						}
+					}
+				}
+			}
+			// 3. Fallback clarification
+			if (isGenericAgentIdentity(inq.sender_name)) {
+				const tag = inq.channel === 'mcp' ? 'MCP' : 'A2A';
+				const label = inq.company_name || (inq.subject ? inq.subject.slice(0, 24) : inq.id.slice(-6));
+				inq.sender_name = `${tag} Agent (${label})`;
+				if (isGenericAgentIdentity(inq.clientAgentId)) {
+					inq.clientAgentId = `${tag.toLowerCase()}-${inq.id.slice(-6)}`;
+				}
+			}
+			return inq;
+		});
+
 		return await consolidateInquiries(sanitized);
 	} catch (err) {
 		console.warn('[agent-store] listInquiries fallback:', err instanceof Error ? err.message : err);
@@ -456,14 +515,15 @@ export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<In
 
 	const groups = new Map<string, InquiryRecord[]>();
 	for (const inq of rawList) {
-		const emailPrefix = inq.sender_email.endsWith('@a2a.client') ? inq.sender_email.split('@')[0] : '';
-		const identityKey = (
-			inq.clientAgentId ||
-			emailPrefix ||
-			inq.sender_email ||
-			inq.sender_name ||
-			inq.thread_id
-		).trim().toLowerCase();
+		const specificCandidate =
+			(inq.clientAgentId && !isGenericAgentIdentity(inq.clientAgentId) ? inq.clientAgentId : '') ||
+			(!inq.sender_email.endsWith('@a2a.client') && inq.sender_email ? inq.sender_email : '') ||
+			(inq.sender_name && !isGenericAgentIdentity(inq.sender_name) ? inq.sender_name : '');
+
+		// Only merge threads if there is a verified specific non-generic agent ID/name, or same thread_id
+		const identityKey = specificCandidate
+			? specificCandidate.trim().toLowerCase()
+			: (inq.thread_id || inq.id).trim().toLowerCase();
 
 		const list = groups.get(identityKey) || [];
 		list.push(inq);
@@ -579,15 +639,15 @@ export async function findInquiryForAgent(params: {
 		if (cleanThread && (inq.thread_id.toLowerCase() === cleanThread || inq.id.toLowerCase() === cleanThread)) {
 			return true;
 		}
-		if (cleanAgentId) {
+		if (cleanAgentId && !isGenericAgentIdentity(cleanAgentId)) {
 			if (inq.clientAgentId && inq.clientAgentId.toLowerCase() === cleanAgentId) return true;
 			if (inq.sender_name && inq.sender_name.toLowerCase() === cleanAgentId) return true;
 			if (inq.sender_email && inq.sender_email.toLowerCase().startsWith(`${cleanAgentId}@`)) return true;
 		}
-		if (cleanEmail && inq.sender_email.toLowerCase() === cleanEmail) {
+		if (cleanEmail && !isGenericAgentIdentity(cleanEmail) && !cleanEmail.endsWith('@a2a.client') && inq.sender_email.toLowerCase() === cleanEmail) {
 			return true;
 		}
-		if (cleanName && inq.sender_name && inq.sender_name.toLowerCase() === cleanName) {
+		if (cleanName && !isGenericAgentIdentity(cleanName) && inq.sender_name && inq.sender_name.toLowerCase() === cleanName) {
 			return true;
 		}
 		return false;
@@ -653,10 +713,11 @@ export async function trackAgentContact(
 		const name = inquiry.sender_name || agentId || 'Agent Contact';
 
 		const all = await listAgentContacts();
+		const isGeneric = isGenericAgentIdentity(agentId) && isGenericAgentIdentity(name);
 		const existing = all.find((c) => {
-			if (agentId && c.agentId && c.agentId.toLowerCase() === agentId.toLowerCase()) return true;
-			if (email && c.email.toLowerCase() === email) return true;
-			if (name && c.name.toLowerCase() === name.toLowerCase()) return true;
+			if (!isGeneric && agentId && c.agentId && c.agentId.toLowerCase() === agentId.toLowerCase()) return true;
+			if (email && !email.endsWith('@a2a.client') && c.email.toLowerCase() === email) return true;
+			if (!isGeneric && name && c.name.toLowerCase() === name.toLowerCase()) return true;
 			return false;
 		});
 
