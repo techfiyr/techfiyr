@@ -133,7 +133,12 @@ export async function PATCH(req: Request, context: { params: Promise<{ orderId: 
 		milestoneStatus,
 		cryptoChain: typeof body.cryptoChain === 'string' ? body.cryptoChain : undefined,
 		cryptoTxHash: typeof body.cryptoTxHash === 'string' ? body.cryptoTxHash : undefined,
-		payoneerReference: typeof body.payoneerReference === 'string' ? body.payoneerReference : undefined,
+		bankReference:
+			typeof body.bankReference === 'string'
+				? body.bankReference
+				: typeof body.payoneerReference === 'string'
+					? body.payoneerReference
+					: undefined,
 		repoUrl: typeof body.repoUrl === 'string' ? body.repoUrl : undefined,
 		stagingUrl: typeof body.stagingUrl === 'string' ? body.stagingUrl : undefined,
 		deliveryReportUrl: typeof body.deliveryReportUrl === 'string' ? body.deliveryReportUrl : undefined,

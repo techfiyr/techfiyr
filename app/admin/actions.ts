@@ -17,7 +17,12 @@ import { saveImage } from '@/lib/server/media';
 import { refreshNews } from '@/lib/server/news';
 import { store } from '@/lib/server/store';
 import { generateBlogWithGemini, type GeneratedBlogPost } from '@/lib/server/gemini';
-import { updateOrderFulfillment } from '@/lib/server/agent-orders';
+import {
+	confirmOrderUpfrontPayment,
+	sendOrderPaymentReminder,
+	startOrderDevelopment,
+	updateOrderFulfillment,
+} from '@/lib/server/agent-orders';
 import type { MilestoneStatus } from '@/lib/server/agent-store';
 import { sendManualInquiryReply, syncMailInbox } from '@/lib/server/emailWorker';
 import {
@@ -386,15 +391,67 @@ export async function updateOrderMilestoneAction(fd: FormData) {
 		phaseStatus: milestoneStatus === 'FULLY_PAID' ? 'completed' : 'in_progress',
 		cryptoChain: text(fd, 'cryptoChain', 80) || undefined,
 		cryptoTxHash: text(fd, 'cryptoTxHash', 200) || undefined,
-		payoneerReference: text(fd, 'payoneerReference', 200) || undefined,
+		bankReference: text(fd, 'bankReference', 200) || text(fd, 'payoneerReference', 200) || undefined,
 		stagingUrl: text(fd, 'stagingUrl', 400) || undefined,
 		repoUrl: text(fd, 'repoUrl', 400) || undefined,
+		notes: text(fd, 'notes', 1000) || undefined,
 	});
 
 	try {
 		revalidatePath('/admin/agent');
 	} catch {}
 	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&updated=1`);
+}
+
+export async function startOrderDevelopmentAction(fd: FormData) {
+	await requireAdmin();
+	const orderId = text(fd, 'orderId', 80);
+	if (!orderId) redirect('/admin/agent?tab=orders&err=missing_order_id');
+
+	const notes = text(fd, 'notes', 500) || undefined;
+	await startOrderDevelopment(orderId, {
+		startedBy: 'Founder',
+		notes,
+	});
+
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&started=1`);
+}
+
+export async function confirmOrderPaymentAction(fd: FormData) {
+	await requireAdmin();
+	const orderId = text(fd, 'orderId', 80);
+	if (!orderId) redirect('/admin/agent?tab=orders&err=missing_order_id');
+
+	const txHash = text(fd, 'cryptoTxHash', 200) || undefined;
+	const bankReference = text(fd, 'bankReference', 200) || undefined;
+	const notes = text(fd, 'notes', 500) || undefined;
+
+	await confirmOrderUpfrontPayment(orderId, {
+		txHash,
+		bankReference,
+		notes,
+	});
+
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&confirmed=1`);
+}
+
+export async function sendOrderPaymentReminderAction(fd: FormData) {
+	await requireAdmin();
+	const orderId = text(fd, 'orderId', 80);
+	if (!orderId) redirect('/admin/agent?tab=orders&err=missing_order_id');
+
+	await sendOrderPaymentReminder(orderId);
+
+	try {
+		revalidatePath('/admin/agent');
+	} catch {}
+	redirect(`/admin/agent?tab=orders&order=${encodeURIComponent(orderId)}&reminded=1`);
 }
 
 // ---------- SEO / GEO / AEO Marketing Agent ----------

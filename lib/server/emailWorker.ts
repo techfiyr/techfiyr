@@ -106,7 +106,7 @@ function formatReplySubject(subject: string): string {
 	return /^re:/i.test(clean) ? clean : `Re: ${clean}`;
 }
 
-function detectPaymentProof(text: string): { txHash?: string; payoneerRef?: string } {
+function detectPaymentProof(text: string): { txHash?: string; bankRef?: string } {
 	const evmMatch = text.match(/\b0x[a-fA-F0-9]{64}\b/);
 	if (evmMatch) return { txHash: evmMatch[0] };
 
@@ -115,8 +115,8 @@ function detectPaymentProof(text: string): { txHash?: string; payoneerRef?: stri
 	);
 	if (solOrTronMatch) return { txHash: solOrTronMatch[1] };
 
-	const payoneerMatch = text.match(/payoneer(?:\s+ref(?:erence)?|\s+id|\s+tx)?[:#\s]+([A-Z0-9-]{6,32})/i);
-	if (payoneerMatch) return { payoneerRef: payoneerMatch[1] };
+	const wireMatch = text.match(/(?:wire|bank|transfer|swift)(?:\s+ref(?:erence)?|\s+id|\s+tx)?[:#\s]+([A-Z0-9-]{6,32})/i);
+	if (wireMatch) return { bankRef: wireMatch[1] };
 
 	return {};
 }
@@ -227,7 +227,7 @@ export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 		logger: false,
 	});
 
-	const channelName: InquiryRecord['channel'] = cfg.provider === 'gmail' ? 'gmail' : 'zoho_email';
+	const channelName: InquiryRecord['channel'] = cfg.provider === 'gmail' ? 'gmail' : 'email';
 
 	try {
 		await client.connect();
@@ -316,17 +316,17 @@ export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 						await saveInquiry(inquiry);
 
 						const proof = detectPaymentProof(cleanText);
-						if (inquiry.order_id && (proof.txHash || proof.payoneerRef)) {
+						if (inquiry.order_id && (proof.txHash || proof.bankRef)) {
 							const existingOrder = await getOrder(inquiry.order_id);
 							if (existingOrder) {
 								await updateOrderFulfillment(existingOrder.id, {
 									milestoneStatus: 'UPFRONT_PAID',
 									cryptoTxHash: proof.txHash,
-									payoneerReference: proof.payoneerRef,
+									bankReference: proof.bankRef,
 								});
 								const ackBody = [
-									`Payment reference received for Order ${existingOrder.id} (${proof.txHash || proof.payoneerRef}).`,
-									'Status updated to UPFRONT_PAID. Day 1 schema and monorepo boilerplate work is now underway.',
+									`Payment reference received for Order ${existingOrder.id} (${proof.txHash || proof.bankRef}).`,
+									'Status updated to UPFRONT_PAID. Day 1 architecture, schema design, and monorepo scaffolding is now underway.',
 									'',
 									'Best,',
 									'Saurav Wahid · TechFiyr',

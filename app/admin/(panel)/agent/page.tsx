@@ -33,6 +33,9 @@ export default async function AdminAgentPage({
 		syncErr?: string;
 		sent?: string;
 		updated?: string;
+		started?: string;
+		reminded?: string;
+		confirmed?: string;
 		audited?: string;
 		pinged?: string;
 		broadcasted?: string;
@@ -112,6 +115,21 @@ export default async function AdminAgentPage({
 			{params.updated && (
 				<p className="admin-alert is-good" role="status">
 					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> Order milestone &amp; payment proof updated.
+				</p>
+			)}
+			{params.started && (
+				<p className="admin-alert is-good" role="status">
+					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> Development sprint officially started! Delivery clock is now active and client has been notified.
+				</p>
+			)}
+			{params.confirmed && (
+				<p className="admin-alert is-good" role="status">
+					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> 25% Upfront payment verified!
+				</p>
+			)}
+			{params.reminded && (
+				<p className="admin-alert is-good" role="status">
+					<i className="fa-solid fa-circle-check" aria-hidden="true"></i> Payment reminder sent to client inquiry thread and email.
 				</p>
 			)}
 			{params.audited !== undefined && (

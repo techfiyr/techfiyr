@@ -17,6 +17,7 @@ export type WorkflowStage =
 	| 'quoting_pricing'
 	| 'negotiating'
 	| 'meeting_handover'
+	| 'order_placed'
 	| 'deal_closed'
 	| 'closed_off_topic';
 
@@ -75,6 +76,46 @@ const FRAUD_SCAM_PATTERNS: { re: RegExp; reason: string }[] = [
 const SPAM_PATTERNS: { re: RegExp; reason: string }[] = [
 	{ re: /\b(?:buy\s+backlinks|guest\s+post\s+exchange|casino\s+backlink|viagra|cialis|crypto\s+pump\s+signal|telegram\s+airdrop|guaranteed\s+#1\s+seo\s+spam|bulk\s+email\s+list\s+sale)\b/i, reason: 'Unsolicited promotional or SEO spam' },
 ];
+
+/**
+ * Detects generic / synthetic agent identifiers that bots or scrapers provide,
+ * ensuring real client identities are verified and distinct threads are preserved.
+ */
+export function isGenericAgentIdentity(nameOrId?: string): boolean {
+	if (!nameOrId) return true;
+	const clean = nameOrId.trim().toLowerCase();
+	return (
+		!clean ||
+		clean === 'autonomous-buyer' ||
+		clean === 'autonomous buyer' ||
+		clean === 'mcp-client' ||
+		clean === 'a2a-client' ||
+		clean === 'client-agent' ||
+		clean === 'client' ||
+		clean === 'anonymous-agent' ||
+		clean === 'unknown agent' ||
+		clean === 'agent' ||
+		clean === 'autonomous agent' ||
+		clean === 'unidentified' ||
+		clean === 'unidentified caller' ||
+		clean === 'unidentified agent' ||
+		clean === 'client@techfiyr.com' ||
+		clean === 'client@a2a.client' ||
+		clean === 'autonomous-buyer@a2a.client' ||
+		clean === 'mcp-client@a2a.client' ||
+		clean === 'api / script client' ||
+		clean === 'api-script-client' ||
+		clean.startsWith('autonomous-buyer') ||
+		clean.startsWith('mcp-client') ||
+		clean.startsWith('client-agent') ||
+		clean.startsWith('anonymous-agent') ||
+		clean.startsWith('a2a agent') ||
+		clean.startsWith('mcp agent') ||
+		clean.startsWith('a2a-agent') ||
+		clean.startsWith('mcp-agent') ||
+		clean.endsWith('@a2a.client')
+	);
+}
 
 /**
  * Removes control bytes and HTML tags so untrusted text can never execute as script or markup.

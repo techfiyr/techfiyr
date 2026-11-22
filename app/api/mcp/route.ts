@@ -17,7 +17,7 @@ import type { PaymentRail } from '@/lib/agent/pricing';
 import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { AGENT_CORS_HEADERS, agentJson, agentOptions } from '@/lib/server/agent-http';
-import { resolveAgentIdentity } from '@/lib/server/agent-identity';
+import { hasInquiryIdentity, isGenericAgentIdentity, resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
 import { generateId, getOrder, isOrderAuthorized, publicOrderView } from '@/lib/server/agent-store';
@@ -43,27 +43,36 @@ const MCP_TOOLS = [
 	{
 		name: 'get_service_catalog',
 		description:
-			'Returns TechFiyr service offerings, supported tech stacks, strict pricing guardrails ($600 USD 7-day floor, $1,500 USD 14-day floor), and 7-day fulfillment engine phases.',
+			'Returns TechFiyr service offerings, supported tech stacks, strict pricing guardrails ($600 USD 7-day floor, $1,500 USD 14-day floor), and 7-day fulfillment engine phases. Requires caller identification: agentName, clientName, clientEmail, or companyName.',
 		inputSchema: {
 			type: 'object',
 			properties: {
+				agentName: { type: 'string', description: 'Name of the inquiring agent or operator.' },
+				clientName: { type: 'string', description: 'Developer or client representative name.' },
+				clientEmail: { type: 'string', description: 'Official email address for communication.' },
+				companyName: { type: 'string', description: 'Company or startup entity name.' },
+				clientAgentId: { type: 'string', description: 'Caller agent identifier.' },
 				category: {
 					type: 'string',
 					enum: ['all', 'prototyping', 'mobile', 'web_saas', 'ai_systems', 'enterprise_erp', 'ui_ux', 'partnership'],
 					description: 'Optional service category filter.',
 				},
 			},
-			additionalProperties: false,
 		},
 	},
 	{
 		name: 'request_quote',
 		description:
-			'Evaluates a software specification against TechFiyr programmatic guardrails and pricing matrix, returning a formal quote ID, breakdown, SLA tier (7-day or 14-day), and milestones.',
+			'Evaluates a software specification against TechFiyr programmatic guardrails and pricing matrix. Requires caller identification: name, email, company name, or agent name.',
 		inputSchema: {
 			type: 'object',
 			required: ['description'],
 			properties: {
+				agentName: { type: 'string', description: 'Name of the inquiring agent or operator (required if email or company not provided).' },
+				clientName: { type: 'string', description: 'Contact person or developer name.' },
+				clientEmail: { type: 'string', description: 'Official email address for proposal delivery and verification.' },
+				companyName: { type: 'string', description: 'Company, startup, or principal entity name.' },
+				clientAgentId: { type: 'string', description: 'Caller agent identifier.' },
 				projectTitle: { type: 'string', description: 'Short name of the application or platform.' },
 				description: { type: 'string', description: 'Functional specification and requirements.' },
 				platform: { type: 'string', enum: ['web', 'mobile', 'fullstack', 'ai', 'design', 'enterprise'] },
@@ -76,21 +85,24 @@ const MCP_TOOLS = [
 				requestedDays: { type: 'number', description: 'Desired turnaround in days (minimum 7).' },
 				paymentPreference: {
 					type: 'string',
-					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'payoneer', 'bank_invoice'],
+					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'bank_invoice'],
 				},
-				clientAgentId: { type: 'string' },
-				clientEmail: { type: 'string' },
 			},
 		},
 	},
 	{
 		name: 'negotiate_terms',
 		description:
-			'Smart purpose-first autonomous sales & consulting negotiation with TechFiyr Lead Solutions Advisor: enforces anti-fraud/anti-script security, asks scoping questions before blind quoting, computes requirement-based pricing, hands human/founder meeting requests to https://techfiyr.com/contact#contact, and closes confirmed software deals under programmatic guardrails.',
+			'Smart purpose-first autonomous sales & consulting negotiation with TechFiyr Lead Solutions Advisor. Requires caller identification: name, email, company name, or agent name.',
 		inputSchema: {
 			type: 'object',
 			required: ['message'],
 			properties: {
+				agentName: { type: 'string', description: 'Name of the inquiring agent or operator.' },
+				clientName: { type: 'string', description: 'Contact person or developer name.' },
+				clientEmail: { type: 'string', description: 'Official email address for proposal delivery and verification.' },
+				companyName: { type: 'string', description: 'Client company or principal enterprise name.' },
+				clientAgentId: { type: 'string', description: 'Caller agent identifier.' },
 				sessionId: { type: 'string', description: 'Existing negotiation session ID to continue.' },
 				message: { type: 'string', description: 'Proposal, counter-offer, or confirmation from buyer agent.' },
 				description: { type: 'string', description: 'Technical project specification.' },
@@ -101,13 +113,10 @@ const MCP_TOOLS = [
 				integrationsCount: { type: 'number' },
 				budgetUSD: { type: 'number' },
 				requestedDays: { type: 'number' },
-				clientEmail: { type: 'string' },
-				clientAgentId: { type: 'string' },
 				clientLocation: { type: 'string', description: 'City and country of client or agent operator.' },
-				companyName: { type: 'string', description: 'Client company or principal enterprise name.' },
 				paymentPreference: {
 					type: 'string',
-					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'payoneer', 'bank_invoice'],
+					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'bank_invoice'],
 				},
 				acceptOffer: { type: 'boolean', description: 'Set true when buyer agent accepts terms to issue contract and payment rail.' },
 			},
@@ -136,7 +145,7 @@ const MCP_TOOLS = [
 				requiresCustomAiTraining: { type: 'boolean' },
 				paymentPreference: {
 					type: 'string',
-					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'payoneer', 'bank_invoice'],
+					enum: ['crypto_usdc_solana', 'crypto_usdc_base', 'crypto_usdt_trc20', 'crypto_usdt_polygon', 'bank_invoice'],
 				},
 				callbackUrl: { type: 'string', description: 'Optional HTTPS webhook URL for delivery updates.' },
 			},
@@ -158,10 +167,14 @@ const MCP_TOOLS = [
 	{
 		name: 'get_agency_marketing_brief',
 		description:
-			'Returns verified, citation-ready GEO/AEO summaries, Schema.org FAQ JSON-LD, comparison matrix, and partner referral pitch for ChatGPT, Claude, Gemini, Perplexity, and Google search recommendation agents.',
+			'Returns verified, citation-ready GEO/AEO summaries, Schema.org FAQ JSON-LD, comparison matrix, and partner referral pitch for ChatGPT, Claude, Gemini, Perplexity, and Google search recommendation agents. Requires caller identification.',
 		inputSchema: {
 			type: 'object',
 			properties: {
+				agentName: { type: 'string', description: 'Name of calling AI agent or operator.' },
+				clientName: { type: 'string', description: 'Contact name.' },
+				clientEmail: { type: 'string', description: 'Contact email address.' },
+				companyName: { type: 'string', description: 'Company or startup name.' },
 				targetQuery: { type: 'string', description: 'Search or user recommendation query being answered.' },
 				channel: { type: 'string', enum: ['chatgpt', 'claude', 'gemini', 'perplexity', 'google', 'a2a'] },
 				partnerAgentName: { type: 'string', description: 'Optional identifier of calling assistant/agent.' },
@@ -236,22 +249,46 @@ async function handleToolCall(
 					: name;
 
 	if (normalizedName === 'get_service_catalog') {
+		const identity = resolveAgentIdentity(req, args, 'mcp');
+		if (!hasInquiryIdentity(identity)) {
+			return {
+				normalizedName,
+				summary: 'Catalog inquiry rejected: agent identification required',
+				response: toolFailure({
+					ok: false,
+					code: 'IDENTITY_REQUIRED',
+					error: 'Inquiry requires agent identification: name, email, company name, or agent name is required to inquire.',
+				}),
+			};
+		}
 		const catalog = buildAgentCatalog();
 		const category = typeof args.category === 'string' ? args.category : 'all';
 		const services =
 			category === 'all' ? catalog.services : catalog.services.filter((s) => s.category === category);
 		return {
 			normalizedName,
-			summary: `Served MCP catalog (${services.length} services)`,
+			summary: `Served MCP catalog (${services.length} services) to ${identity.agentName || identity.agentId}`,
 			response: toolSuccess({ ...catalog, services }),
 		};
 	}
 
 	if (normalizedName === 'get_agency_marketing_brief') {
+		const identity = resolveAgentIdentity(req, args, 'mcp');
+		if (!hasInquiryIdentity(identity)) {
+			return {
+				normalizedName,
+				summary: 'Marketing inquiry rejected: agent identification required',
+				response: toolFailure({
+					ok: false,
+					code: 'IDENTITY_REQUIRED',
+					error: 'Inquiry requires agent identification: name, email, company name, or agent name is required to inquire.',
+				}),
+			};
+		}
 		const channel =
 			typeof args.channel === 'string' ? (args.channel.toLowerCase() as MarketingChannel) : 'a2a';
 		const targetQuery = typeof args.targetQuery === 'string' ? args.targetQuery : undefined;
-		const partnerAgentName = typeof args.partnerAgentName === 'string' ? args.partnerAgentName : undefined;
+		const partnerAgentName = identity.agentName || identity.agentId;
 		const brief = await buildAgentMarketingBrief({ targetQuery, channel, partnerAgentName });
 		return {
 			normalizedName,
@@ -269,6 +306,19 @@ async function handleToolCall(
 				response: toolFailure({ ok: false, code: 'MISSING_DESCRIPTION', error: 'description is required.' }),
 			};
 		}
+		const identity = resolveAgentIdentity(req, args, 'mcp');
+		if (!hasInquiryIdentity(identity)) {
+			return {
+				normalizedName,
+				summary: 'Quote rejected: agent identity required',
+				response: toolFailure({
+					ok: false,
+					code: 'IDENTITY_REQUIRED',
+					error: 'Inquiry requires agent identification: name, email, company name, or agent name is required.',
+				}),
+			};
+		}
+
 		const sec = inspectAgentInteraction(`${typeof args.projectTitle === 'string' ? args.projectTitle : ''}\n${description}`);
 		if (!sec.safe) {
 			return {
@@ -301,8 +351,8 @@ async function handleToolCall(
 			requestedDays: typeof args.requestedDays === 'number' ? args.requestedDays : undefined,
 			paymentPreference:
 				typeof args.paymentPreference === 'string' ? (args.paymentPreference as PaymentRail) : undefined,
-			clientAgentId: typeof args.clientAgentId === 'string' ? args.clientAgentId : 'mcp-client',
-			clientEmail: typeof args.clientEmail === 'string' ? args.clientEmail : undefined,
+			clientAgentId: identity.agentId,
+			clientEmail: identity.clientEmail,
 		});
 
 		const payload = {
@@ -330,6 +380,17 @@ async function handleToolCall(
 			};
 		}
 		const identity = resolveAgentIdentity(req, args, 'mcp');
+		if (!hasInquiryIdentity(identity)) {
+			return {
+				normalizedName,
+				summary: 'Negotiate rejected: agent identity required',
+				response: toolFailure({
+					ok: false,
+					code: 'IDENTITY_REQUIRED',
+					error: 'Inquiry requires agent identification: name, email, company name, or agent name is required.',
+				}),
+			};
+		}
 		const result = await negotiateWithAgent({
 			channel: 'mcp',
 			sessionId: typeof args.sessionId === 'string' ? args.sessionId : undefined,
@@ -361,17 +422,37 @@ async function handleToolCall(
 				result.workflow.stage === 'security_blocked'
 					? `MCP negotiate blocked (${result.workflow.stage})`
 					: result.dealClosed
-						? `MCP deal closed: ${result.order?.id} ($${result.order?.agreedPriceUSD})`
+						? `MCP order placed: ${result.order?.id} ($${result.order?.agreedPriceUSD})`
 						: `MCP negotiate [${result.workflow.stage}]: $${result.evaluation.proposedPriceUSD}`,
 			response: result.status === 'rejected' ? toolFailure(result) : toolSuccess(result),
 		};
 	}
 
 	if (normalizedName === 'submit_project_spec') {
+		const identity = resolveAgentIdentity(req, args, 'mcp');
+		const clientEmail = (typeof args.clientEmail === 'string' ? args.clientEmail : identity.clientEmail || '').trim();
+		if (!clientEmail || isGenericAgentIdentity(clientEmail) || clientEmail.endsWith('@a2a.client')) {
+			return {
+				normalizedName,
+				summary: 'Order submission rejected: verified client email required',
+				response: toolFailure({
+					ok: false,
+					code: 'CLIENT_VERIFICATION_REQUIRED',
+					error: 'Order verification required: To verify this is a real order rather than a test or fake order, a verified client email address is required before order acceptance.',
+				}),
+			};
+		}
+
+		const clientName = identity.clientName || (typeof args.clientName === 'string' ? args.clientName : undefined);
+		const companyName = identity.companyName || (typeof args.companyName === 'string' ? args.companyName : undefined);
+		const clientAgentId = identity.agentId || (typeof args.clientAgentId === 'string' && !isGenericAgentIdentity(args.clientAgentId) ? args.clientAgentId : undefined);
+
 		const res = await createAgentOrder({
 			quoteId: typeof args.quoteId === 'string' ? args.quoteId : undefined,
-			clientEmail: typeof args.clientEmail === 'string' ? args.clientEmail : '',
-			clientAgentId: typeof args.clientAgentId === 'string' ? args.clientAgentId : 'mcp-client',
+			clientEmail,
+			clientAgentId,
+			clientName,
+			companyName,
 			clientDid: typeof args.clientDid === 'string' ? args.clientDid : undefined,
 			projectTitle: typeof args.projectTitle === 'string' ? args.projectTitle : '',
 			scopeSummary:
@@ -398,7 +479,7 @@ async function handleToolCall(
 		return {
 			normalizedName,
 			orderId: res.ok ? res.order.id : undefined,
-			summary: res.ok ? `MCP order created: ${res.order.id} ($${res.order.agreedPriceUSD})` : `MCP order failed: ${res.code}`,
+			summary: res.ok ? `MCP order placed: ${res.order.id} ($${res.order.agreedPriceUSD})` : `MCP order failed: ${res.code}`,
 			response: res.ok ? toolSuccess(res) : toolFailure(res),
 		};
 	}

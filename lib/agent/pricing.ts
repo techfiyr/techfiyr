@@ -20,7 +20,6 @@ export type PaymentRail =
 	| 'crypto_usdc_base'
 	| 'crypto_usdt_trc20'
 	| 'crypto_usdt_polygon'
-	| 'payoneer'
 	| 'bank_invoice';
 
 export const VALID_PAYMENT_RAILS: PaymentRail[] = [
@@ -28,7 +27,6 @@ export const VALID_PAYMENT_RAILS: PaymentRail[] = [
 	'crypto_usdc_base',
 	'crypto_usdt_trc20',
 	'crypto_usdt_polygon',
-	'payoneer',
 	'bank_invoice',
 ];
 

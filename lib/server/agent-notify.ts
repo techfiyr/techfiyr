@@ -29,12 +29,12 @@ function formatAlertText(order: AgentOrderRecord, eventLabel: string): string {
 
 export async function notifyFounderOrderEvent(
 	order: AgentOrderRecord,
-	event: 'deal_closed' | 'payment_confirmed' = 'deal_closed',
+	event: 'order_placed' | 'deal_closed' | 'payment_confirmed' = 'order_placed',
 ): Promise<NotificationResult> {
 	const label =
 		event === 'payment_confirmed'
 			? 'Payment Milestone Confirmed for AI Agent Order'
-			: 'Deal Closed by TechFiyr Sales Agent';
+			: 'Order Placed via TechFiyr Sales Agent';
 	const messageText = formatAlertText(order, label);
 
 	let emailAlertSent = false;

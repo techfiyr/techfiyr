@@ -13,7 +13,7 @@ export const MEETING_BOOKING_URL = `${SITE_URL}/contact#contact`;
 
 export const GUARDRAILS = {
 	currency: 'USD',
-	minFloorPriceUSD: 600,
+	minFloorPriceUSD: 500,
 	extendedMinPriceUSD: 1500,
 	standardTurnaroundDays: 7,
 	extendedTurnaroundDays: 14,
@@ -33,7 +33,7 @@ export type ServiceTierId = 'rapid_7day' | 'extended_14day';
 export type AgentServiceOffering = {
 	id: string;
 	name: string;
-	category: 'prototyping' | 'mobile' | 'web_saas' | 'ai_systems' | 'enterprise_erp' | 'ui_ux' | 'partnership';
+	category: 'mvp' | 'mobile' | 'web_saas' | 'ai_systems' | 'enterprise_erp' | 'ui_ux' | 'partnership';
 	summary: string;
 	defaultTier: ServiceTierId;
 	basePriceUSD: number;
@@ -46,8 +46,8 @@ export type AgentServiceOffering = {
 export const AGENT_SERVICES: AgentServiceOffering[] = [
 	{
 		id: 'rapid-mvp-7day',
-		name: 'Autonomous & Rapid App Prototyping (7-Day MVP Engine)',
-		category: 'prototyping',
+		name: 'Autonomous & Rapid App mvp (7-Day MVP Engine)',
+		category: 'mvp',
 		summary:
 			'Full-cycle MVP execution by AI-native software developers: database schema, backend APIs, modular web frontend, Docker containerization, and automated tests shipped in 7 days.',
 		defaultTier: 'rapid_7day',
@@ -168,8 +168,8 @@ export const AGENT_SERVICES: AgentServiceOffering[] = [
 		],
 	},
 	{
-		id: 'ui-ux-prototyping',
-		name: 'UI/UX Design Systems & Clickable Prototyping',
+		id: 'ui-ux-mvp',
+		name: 'UI/UX Design Systems & Clickable mvp',
 		category: 'ui_ux',
 		summary:
 			'Figma design systems, responsive mobile/web interfaces, and clickable product prototypes led by a 10+ year Lead UI/UX Designer.',
@@ -431,17 +431,10 @@ export function buildAgentCatalog() {
 				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
 			},
 			{
-				id: 'payoneer',
-				label: 'Payoneer Virtual Receiving Account (USD)',
-				currency: 'USD',
-				network: 'Payoneer Global Receiving',
-				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
-			},
-			{
 				id: 'bank_invoice',
 				label: 'Manual Bank Transfer Invoice (SWIFT / Wire)',
 				currency: 'USD',
-				network: 'International Wire',
+				network: 'International Wire (Requires Founder Meeting Confirmation)',
 				settlement: '25% Upfront / 50% Staging MVP / 25% Final Handover',
 			},
 		],

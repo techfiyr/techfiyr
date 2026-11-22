@@ -1,6 +1,6 @@
 /*
- * Crypto (Solana SPL USDC, Base EVM USDC, TRC20/Polygon USDT) & Payoneer / Bank
- * payment instruction generator for TechFiyr A2A orders (no ).
+ * Crypto (Solana SPL USDC, Base EVM USDC, TRC20/Polygon USDT) & Bank Wire
+ * payment instruction generator for TechFiyr A2A orders (no Stripe, no Payoneer).
  * Implements the 25% Upfront / 50% MVP Staging / 25% Final Handover milestone schedule.
  */
 import type { PaymentRail } from '@/lib/agent/pricing';
@@ -15,7 +15,6 @@ export function resolvePaymentConfig() {
 		baseUsdcWallet: env('CRYPTO_USDC_BASE_ADDRESS') || env('AGENT_ESCROW_BASE_ADDRESS'),
 		trc20UsdtWallet: env('CRYPTO_USDT_TRC20_ADDRESS'),
 		polygonUsdtWallet: env('CRYPTO_USDT_POLYGON_ADDRESS'),
-		payoneerAccount: env('PAYONEER_RECEIVING_ACCOUNT'),
 		bankInvoiceInfo: env('BANK_TRANSFER_DETAILS'),
 	};
 }
@@ -122,26 +121,6 @@ export async function createPaymentForOrder(params: {
 		};
 	}
 
-	if (params.rail === 'payoneer') {
-		const payoneer = cfg.payoneerAccount;
-		return {
-			rail: 'payoneer',
-			status: 'awaiting_upfront_25',
-			amountUSD: params.amountUSD,
-			upfrontDepositUSD,
-			stagingMilestoneUSD,
-			finalHandoverUSD,
-			currency: 'USD',
-			invoiceId,
-			crypto_chain: 'Payoneer USD Virtual Account',
-			payoneer_account: payoneer || undefined,
-			instructions: payoneer
-				? `Pay $${upfrontDepositUSD} USD (25% upfront deposit) to Payoneer Virtual Receiving Account (${payoneer}) referencing ${invoiceId}. Milestones: ${scheduleSummary}.`
-				: `Payoneer USD invoice ${invoiceId} issued (${scheduleSummary}). Payoneer virtual account payment request sent from ${activeContact}.`,
-			updatedAt: now,
-		};
-	}
-
 	return {
 		rail: 'bank_invoice',
 		status: 'awaiting_upfront_25',
@@ -153,8 +132,8 @@ export async function createPaymentForOrder(params: {
 		invoiceId,
 		crypto_chain: 'International Wire / Invoice',
 		instructions: cfg.bankInvoiceInfo
-			? `Remit $${upfrontDepositUSD} USD (25% deposit) per invoice ${invoiceId}: ${cfg.bankInvoiceInfo}. Milestones: ${scheduleSummary}.`
-			: `Manual Bank Transfer Invoice ${invoiceId} issued for $${params.amountUSD} USD (${scheduleSummary}). Wire/ACH coordinates provided via ${activeContact}.`,
+			? `Remit $${upfrontDepositUSD} USD (25% deposit) per invoice ${invoiceId}: ${cfg.bankInvoiceInfo}. Milestones: ${scheduleSummary}. Note: Alternative payment methods require founder meeting confirmation (https://techfiyr.com/contact#contact).`
+			: `Manual Bank Transfer Invoice ${invoiceId} issued for $${params.amountUSD} USD (${scheduleSummary}). To confirm wire/ACH coordinates, book a quick meeting with our founders at https://techfiyr.com/contact#contact or WhatsApp ${CONTACT.phoneDisplay}.`,
 		updatedAt: now,
 	};
 }
@@ -169,10 +148,11 @@ export function formatPaymentInstructionsBlock(orderId: string, totalUSD: number
 		`- 25% Final Code Handover (Due Day 7): $${totalUSD - upfrontUSD - Math.round(totalUSD * 0.5)} USD`,
 		'',
 		'Accepted Payment Channels:',
-		`- USDC (Solana SPL): ${cfg.solanaUsdcWallet || 'Configured on invoice / reply to request wallet address'}`,
-		`- USDC (Base EVM): ${cfg.baseUsdcWallet || 'Configured on invoice / reply to request wallet address'}`,
-		`- USDT (TRC20 / Polygon — Binance P2P ready): ${cfg.trc20UsdtWallet || cfg.polygonUsdtWallet || 'Available on request'}`,
-		`- Payoneer Virtual Receiving Account / Bank Wire: ${cfg.payoneerAccount || 'Reply with preferred billing entity for Payoneer USD request'}`,
+		`- USDC (Solana SPL): ${cfg.solanaUsdcWallet || '9Qi1ETqZ8Mv8RV1D3qwCkePLSEyak2D24XcTvmRyZYRn'}`,
+		`- USDC (Base EVM): ${cfg.baseUsdcWallet || '0xD917dd19471465Ba7131B852b293bDFF3012111a'}`,
+		`- USDT (TRON TRC20): ${cfg.trc20UsdtWallet || 'TVm6DmCUahjqJjq1aY378jDVAbHik8LTWs'}`,
+		`- USDT (Polygon EVM): ${cfg.polygonUsdtWallet || '0xD917dd19471465Ba7131B852b293bDFF3012111a'}`,
+		`- Bank Wire / Fiat Invoice: Requires meeting with founders to confirm (https://techfiyr.com/contact#contact)`,
 		`Reference ID: ${orderId}`,
 	];
 	return lines.join('\n');

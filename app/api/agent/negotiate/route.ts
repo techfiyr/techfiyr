@@ -5,7 +5,7 @@
 import type { PaymentRail } from '@/lib/agent/pricing';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions, readJsonBody } from '@/lib/server/agent-http';
-import { resolveAgentIdentity } from '@/lib/server/agent-identity';
+import { hasInquiryIdentity, resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { checkRateLimit, isPayloadWithinLimit, rateLimitResponse } from '@/lib/server/rateLimit';
 
@@ -54,6 +54,16 @@ export async function POST(req: Request) {
 	}
 
 	const identity = resolveAgentIdentity(req, body, 'a2a');
+	if (!hasInquiryIdentity(identity)) {
+		return agentJson(
+			{
+				ok: false,
+				code: 'IDENTITY_REQUIRED',
+				error: 'Inquiry requires agent identification: name, email, company name, or agent name is required.',
+			},
+			400,
+		);
+	}
 
 	const result = await negotiateWithAgent({
 		channel: 'a2a',

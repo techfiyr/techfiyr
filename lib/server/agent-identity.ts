@@ -4,27 +4,10 @@
  * parses identity details from buyer conversation turns, and prevents generic
  * fallback collisions across disparate A2A and MCP clients.
  */
-import { hashSecret } from './agent-store';
+import { isGenericAgentIdentity } from '@/lib/agent/security';
+import { generateId, hashSecret } from './agent-store';
 
-export function isGenericAgentIdentity(nameOrId?: string): boolean {
-	if (!nameOrId) return true;
-	const clean = nameOrId.trim().toLowerCase();
-	return (
-		!clean ||
-		clean === 'autonomous-buyer' ||
-		clean === 'mcp-client' ||
-		clean === 'a2a-client' ||
-		clean === 'client' ||
-		clean === 'anonymous-agent' ||
-		clean === 'unknown agent' ||
-		clean === 'agent' ||
-		clean === 'client@techfiyr.com' ||
-		clean === 'client@a2a.client' ||
-		clean === 'autonomous-buyer@a2a.client' ||
-		clean === 'mcp-client@a2a.client' ||
-		clean === 'api / script client'
-	);
-}
+export { isGenericAgentIdentity };
 
 export function classifyAgentClient(userAgent: string, explicitAgent?: string): string {
 	const cleanExplicit = (explicitAgent || '').trim();
@@ -32,20 +15,20 @@ export function classifyAgentClient(userAgent: string, explicitAgent?: string): 
 		return cleanExplicit.slice(0, 80);
 	}
 	const ua = userAgent || '';
-	if (/chatgpt|oai-searchbot|gptbot|openai/i.test(ua)) return 'ChatGPT / OpenAI';
-	if (/claude|anthropic/i.test(ua)) return 'Claude / Anthropic';
-	if (/gemini|google-extended|googlebot/i.test(ua)) return 'Gemini / Google';
-	if (/perplexity/i.test(ua)) return 'Perplexity';
-	if (/smithery/i.test(ua)) return 'Smithery MCP';
-	if (/mistral/i.test(ua)) return 'Mistral';
-	if (/cursor/i.test(ua)) return 'Cursor IDE';
-	if (/windsurf/i.test(ua)) return 'Windsurf';
-	if (/langchain|langgraph|crewai|autogen/i.test(ua)) return 'Agent Framework';
+	if (/chatgpt|oai-searchbot|gptbot|openai/i.test(ua)) return 'ChatGPT / OpenAI Agent';
+	if (/claude|anthropic/i.test(ua)) return 'Claude / Anthropic Agent';
+	if (/gemini|google-extended|googlebot/i.test(ua)) return 'Gemini / Google Agent';
+	if (/perplexity/i.test(ua)) return 'Perplexity Agent';
+	if (/smithery/i.test(ua)) return 'Smithery MCP Agent';
+	if (/mistral/i.test(ua)) return 'Mistral Agent';
+	if (/cursor/i.test(ua)) return 'Cursor IDE Agent';
+	if (/windsurf/i.test(ua)) return 'Windsurf Agent';
+	if (/langchain|langgraph|crewai|autogen/i.test(ua)) return 'Agent Framework Client';
 	if (/curl|httpie|node|undici|python|axios|postman/i.test(ua)) {
 		const m = ua.match(/([A-Za-z0-9_-]+\/[0-9.]+)/);
-		return m ? m[1] : 'API / Script Client';
+		return m ? `${m[1]} Client` : 'Developer API Client';
 	}
-	return ua ? ua.slice(0, 60) : 'Autonomous Agent';
+	return '';
 }
 
 export function extractAgentIdentityFromText(text: string): {
@@ -63,7 +46,7 @@ export function extractAgentIdentityFromText(text: string): {
 		text.match(/(?:i\s*am|my\s*name\s*is|this\s*is)\s+([A-Za-z0-9_\-\s]{2,40})/i);
 	if (nameMatch) {
 		const val = nameMatch[1].trim().replace(/^[*_~`]+|[*_~`]+$/g, '').trim();
-		if (val && !/^(who|what|city|country|official|client|an\s*ai)/i.test(val)) {
+		if (val && !/^(who|what|city|country|official|client|an\s*ai|autonomous)/i.test(val)) {
 			res.name = val.slice(0, 60);
 		}
 	}
@@ -95,6 +78,23 @@ export function extractAgentIdentityFromText(text: string): {
 	return res;
 }
 
+export function hasInquiryIdentity(params: {
+	clientName?: string;
+	agentName?: string;
+	clientEmail?: string;
+	companyName?: string;
+	clientAgentId?: string;
+	agentId?: string;
+}): boolean {
+	if (params.clientName && !isGenericAgentIdentity(params.clientName)) return true;
+	if (params.agentName && !isGenericAgentIdentity(params.agentName)) return true;
+	if (params.companyName && !isGenericAgentIdentity(params.companyName)) return true;
+	if (params.clientEmail && !isGenericAgentIdentity(params.clientEmail) && !params.clientEmail.endsWith('@a2a.client')) return true;
+	if (params.clientAgentId && !isGenericAgentIdentity(params.clientAgentId)) return true;
+	if (params.agentId && !isGenericAgentIdentity(params.agentId)) return true;
+	return false;
+}
+
 export function resolveAgentIdentity(
 	req: Request,
 	data?: Record<string, unknown>,
@@ -106,8 +106,16 @@ export function resolveAgentIdentity(
 	clientName?: string;
 	companyName?: string;
 	clientLocation?: string;
+	hasProvidedIdentity: boolean;
+	threadId?: string;
+	sessionId?: string;
 } {
 	const ua = req.headers.get('user-agent') || '';
+	const rawMessageText =
+		(typeof data?.message === 'string' ? data.message : '') ||
+		(typeof data?.description === 'string' ? data.description : '');
+	const textExtracted = extractAgentIdentityFromText(rawMessageText);
+
 	const explicitId =
 		(typeof data?.clientAgentId === 'string' && data.clientAgentId) ||
 		(typeof data?.agentId === 'string' && data.agentId) ||
@@ -120,10 +128,12 @@ export function resolveAgentIdentity(
 
 	const explicitName =
 		(typeof data?.clientName === 'string' && data.clientName) ||
+		(typeof data?.name === 'string' && data.name) ||
 		(typeof data?.agentName === 'string' && data.agentName) ||
 		(typeof data?.agent_name === 'string' && data.agent_name) ||
 		(typeof data?.senderName === 'string' && data.senderName) ||
 		(typeof data?.sender === 'string' && data.sender) ||
+		textExtracted.name ||
 		req.headers.get('x-agent-name') ||
 		req.headers.get('x-client-name') ||
 		req.headers.get('x-sender-name') ||
@@ -132,55 +142,82 @@ export function resolveAgentIdentity(
 	const explicitEmail =
 		(typeof data?.clientEmail === 'string' && data.clientEmail) ||
 		(typeof data?.email === 'string' && data.email) ||
+		textExtracted.email ||
 		req.headers.get('x-client-email') ||
 		undefined;
 
 	const companyName =
 		(typeof data?.companyName === 'string' && data.companyName) ||
 		(typeof data?.company === 'string' && data.company) ||
+		(typeof data?.organization === 'string' && data.organization) ||
+		textExtracted.company ||
+		req.headers.get('x-company-name') ||
+		req.headers.get('x-client-company') ||
 		undefined;
 
 	const clientLocation =
 		(typeof data?.clientLocation === 'string' && data.clientLocation) ||
 		(typeof data?.location === 'string' && data.location) ||
+		textExtracted.location ||
+		undefined;
+
+	const threadId =
+		(typeof data?.threadId === 'string' && data.threadId) ||
+		(typeof data?.thread_id === 'string' && data.thread_id) ||
+		req.headers.get('x-thread-id') ||
+		undefined;
+
+	const sessionId =
+		(typeof data?.sessionId === 'string' && data.sessionId) ||
+		(typeof data?.session_id === 'string' && data.session_id) ||
+		(typeof data?.contextId === 'string' && data.contextId) ||
+		req.headers.get('x-session-id') ||
+		threadId ||
 		undefined;
 
 	const classified = classifyAgentClient(ua, explicitName || explicitId);
 
 	let finalName = '';
+	let finalId = '';
+
 	if (explicitName && !isGenericAgentIdentity(explicitName)) {
 		finalName = explicitName.trim();
-	} else if (explicitId && !isGenericAgentIdentity(explicitId)) {
-		finalName = explicitId.trim();
-	} else if (classified && !isGenericAgentIdentity(classified)) {
-		finalName = classified;
-	} else {
-		const ip =
-			req.headers.get('x-nf-client-connection-ip') ||
-			req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-			'loc';
-		const clientHash = hashSecret(`${ip}|${ua}`).slice(0, 6);
-		finalName = `${fallbackProtocol.toUpperCase()}-Agent-${clientHash}`;
+	} else if (companyName && !isGenericAgentIdentity(companyName)) {
+		finalName = companyName.trim();
+	} else if (explicitEmail && !isGenericAgentIdentity(explicitEmail)) {
+		const emailUser = explicitEmail.split('@')[0]?.replace(/[._-]+/g, ' ').trim();
+		finalName = emailUser ? `${emailUser.charAt(0).toUpperCase()}${emailUser.slice(1)}` : explicitEmail;
 	}
 
-	let finalId = '';
 	if (explicitId && !isGenericAgentIdentity(explicitId)) {
 		finalId = explicitId.trim();
-	} else {
-		finalId =
-			finalName
-				.toLowerCase()
-				.replace(/[^a-z0-9_-]+/g, '-')
-				.replace(/^-+|-+$/g, '') || `${fallbackProtocol}-agent`;
+	} else if (finalName) {
+		finalId = finalName.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
 	}
+
+	const hasProvidedIdentity = Boolean(
+		(explicitName && !isGenericAgentIdentity(explicitName)) ||
+		(companyName && !isGenericAgentIdentity(companyName)) ||
+		(explicitEmail && !isGenericAgentIdentity(explicitEmail) && !explicitEmail.endsWith('@a2a.client')) ||
+		(explicitId && !isGenericAgentIdentity(explicitId))
+	);
+
+	// Connect directly from request thread, no default dummy values from us
+	const cleanEmail =
+		explicitEmail && !isGenericAgentIdentity(explicitEmail) && !explicitEmail.endsWith('@a2a.client')
+			? explicitEmail.trim()
+			: undefined;
 
 	return {
 		agentId: finalId,
 		agentName: finalName,
-		clientEmail: explicitEmail ? explicitEmail.trim() : undefined,
-		clientName: finalName,
+		clientEmail: cleanEmail,
+		clientName: finalName || undefined,
 		companyName: companyName ? companyName.trim() : undefined,
 		clientLocation: clientLocation ? clientLocation.trim() : undefined,
+		hasProvidedIdentity,
+		threadId,
+		sessionId,
 	};
 }
 

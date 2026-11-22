@@ -206,7 +206,7 @@ export async function getAgentReachSummary(hitLimit = 100): Promise<AgentReachSu
 				closedDeals: safeInquiries.filter((i) => i.status === 'CLOSED').length,
 				rejected: safeInquiries.filter((i) => i.status === 'REJECTED').length,
 				byChannel: {
-					email: safeInquiries.filter((i) => i.channel === 'gmail' || i.channel === 'zoho_email' || i.channel === 'email').length,
+					email: safeInquiries.filter((i) => i.channel === 'gmail' || i.channel === 'email').length,
 					mcp: safeInquiries.filter((i) => i.channel === 'mcp').length,
 					a2a: safeInquiries.filter((i) => i.channel === 'a2a').length,
 				},

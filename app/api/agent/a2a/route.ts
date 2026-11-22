@@ -8,7 +8,7 @@ import type { PaymentRail } from '@/lib/agent/pricing';
 import { inspectAgentInteraction } from '@/lib/agent/security';
 import { recordAgentHit } from '@/lib/server/agent-audit';
 import { agentJson, agentOptions } from '@/lib/server/agent-http';
-import { resolveAgentIdentity } from '@/lib/server/agent-identity';
+import { hasInquiryIdentity, isGenericAgentIdentity, resolveAgentIdentity } from '@/lib/server/agent-identity';
 import { negotiateWithAgent } from '@/lib/server/agent-negotiator';
 import { createAgentOrder, createAgentQuote } from '@/lib/server/agent-orders';
 import {
@@ -130,18 +130,30 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 	let hitOrderId: string | undefined;
 
 	if (action === 'catalog') {
-		resultData = buildAgentCatalog();
-		summaryText = 'TechFiyr A2A service catalog, pricing guardrails, and supported tech stacks.';
+		if (!hasInquiryIdentity(identity)) {
+			state = 'failed';
+			summaryText = 'Inquiry requires agent identification: name, email, company name, or agent name is required to inquire.';
+			resultData = { ok: false, code: 'IDENTITY_REQUIRED', error: summaryText };
+		} else {
+			resultData = buildAgentCatalog();
+			summaryText = 'TechFiyr A2A service catalog, pricing guardrails, and supported tech stacks.';
+		}
 	} else if (action === 'marketing') {
-		const channel =
-			typeof dataPart?.channel === 'string' ? (dataPart.channel.toLowerCase() as MarketingChannel) : 'a2a';
-		const brief = await buildAgentMarketingBrief({
-			targetQuery: typeof dataPart?.targetQuery === 'string' ? dataPart.targetQuery : textParts || undefined,
-			channel,
-			partnerAgentName: clientAgentId,
-		});
-		resultData = brief;
-		summaryText = brief.canonicalPitch;
+		if (!hasInquiryIdentity(identity)) {
+			state = 'failed';
+			summaryText = 'Inquiry requires agent identification: name, email, company name, or agent name is required to inquire.';
+			resultData = { ok: false, code: 'IDENTITY_REQUIRED', error: summaryText };
+		} else {
+			const channel =
+				typeof dataPart?.channel === 'string' ? (dataPart.channel.toLowerCase() as MarketingChannel) : 'a2a';
+			const brief = await buildAgentMarketingBrief({
+				targetQuery: typeof dataPart?.targetQuery === 'string' ? dataPart.targetQuery : textParts || undefined,
+				channel,
+				partnerAgentName: clientAgentId,
+			});
+			resultData = brief;
+			summaryText = brief.canonicalPitch;
+		}
 	} else if (action === 'quote' && dataPart) {
 		const quoteDesc = typeof dataPart.description === 'string' ? dataPart.description : textParts;
 		const sec = inspectAgentInteraction(`${typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : ''}\n${quoteDesc}`);
@@ -149,6 +161,10 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 			state = 'failed';
 			summaryText = sec.refusalMessage || 'Quote blocked by security guardrails.';
 			resultData = { ok: false, code: 'SECURITY_BLOCKED', error: summaryText };
+		} else if (!hasInquiryIdentity(identity)) {
+			state = 'failed';
+			summaryText = 'Inquiry requires agent identification: name, email, company name, or agent name is required.';
+			resultData = { ok: false, code: 'IDENTITY_REQUIRED', error: summaryText };
 		} else {
 			const { quote, persisted } = await createAgentQuote({
 				projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : undefined,
@@ -170,8 +186,8 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 				integrationsCount: typeof dataPart.integrationsCount === 'number' ? dataPart.integrationsCount : undefined,
 				budgetUSD: typeof dataPart.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
 				requestedDays: typeof dataPart.requestedDays === 'number' ? dataPart.requestedDays : undefined,
-				clientAgentId: typeof dataPart.clientAgentId === 'string' ? dataPart.clientAgentId : 'a2a-client',
-				clientEmail: typeof dataPart.clientEmail === 'string' ? dataPart.clientEmail : undefined,
+				clientAgentId: identity.agentId,
+				clientEmail: identity.clientEmail,
 			});
 			resultData = { quoteId: quote.id, expiresAt: quote.expiresAt, persisted, evaluation: quote.evaluation };
 			summaryText = quote.evaluation.reason;
@@ -179,31 +195,40 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 			else if (quote.evaluation.decision === 'counter_offer') state = 'input-required';
 		}
 	} else if (action === 'order' && dataPart) {
-		const orderRes = await createAgentOrder({
-			quoteId: typeof dataPart.quoteId === 'string' ? dataPart.quoteId : undefined,
-			clientEmail: typeof dataPart.clientEmail === 'string' ? dataPart.clientEmail : '',
-			clientAgentId: typeof dataPart.clientAgentId === 'string' ? dataPart.clientAgentId : 'a2a-client',
-			projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : '',
-			scopeSummary:
-				typeof dataPart.scopeSummary === 'string'
-					? dataPart.scopeSummary
-					: typeof dataPart.description === 'string'
-						? dataPart.description
-						: textParts,
-			techStack: Array.isArray(dataPart.techStack)
-				? dataPart.techStack.filter((x): x is string => typeof x === 'string')
-				: undefined,
-			agreedPriceUSD: typeof dataPart.agreedPriceUSD === 'number' ? dataPart.agreedPriceUSD : undefined,
-			deliveryDays: typeof dataPart.deliveryDays === 'number' ? dataPart.deliveryDays : undefined,
-			paymentPreference:
-				typeof dataPart.paymentPreference === 'string' ? (dataPart.paymentPreference as PaymentRail) : undefined,
-		});
-		resultData = orderRes as Record<string, unknown>;
-		summaryText = orderRes.ok
-			? `Order ${orderRes.order.id} created for $${orderRes.order.agreedPriceUSD} USD (${orderRes.order.deliveryDays}-day SLA).`
-			: orderRes.error;
-		if (orderRes.ok) hitOrderId = orderRes.order.id;
-		if (!orderRes.ok) state = 'failed';
+		const clientEmail = (typeof dataPart.clientEmail === 'string' ? dataPart.clientEmail : identity.clientEmail || '').trim();
+		if (!clientEmail || isGenericAgentIdentity(clientEmail) || clientEmail.endsWith('@a2a.client')) {
+			state = 'failed';
+			summaryText = 'Order verification required: To verify this is a real order rather than a test or fake order, a verified client email address is required before order acceptance.';
+			resultData = { ok: false, code: 'CLIENT_VERIFICATION_REQUIRED', error: summaryText };
+		} else {
+			const orderRes = await createAgentOrder({
+				quoteId: typeof dataPart.quoteId === 'string' ? dataPart.quoteId : undefined,
+				clientEmail,
+				clientAgentId: identity.agentId || (typeof dataPart.clientAgentId === 'string' && !isGenericAgentIdentity(dataPart.clientAgentId) ? dataPart.clientAgentId : undefined),
+				clientName: identity.clientName || (typeof dataPart.clientName === 'string' ? dataPart.clientName : undefined),
+				companyName: identity.companyName || (typeof dataPart.companyName === 'string' ? dataPart.companyName : undefined),
+				projectTitle: typeof dataPart.projectTitle === 'string' ? dataPart.projectTitle : '',
+				scopeSummary:
+					typeof dataPart.scopeSummary === 'string'
+						? dataPart.scopeSummary
+						: typeof dataPart.description === 'string'
+							? dataPart.description
+							: textParts,
+				techStack: Array.isArray(dataPart.techStack)
+					? dataPart.techStack.filter((x): x is string => typeof x === 'string')
+					: undefined,
+				agreedPriceUSD: typeof dataPart.agreedPriceUSD === 'number' ? dataPart.agreedPriceUSD : undefined,
+				deliveryDays: typeof dataPart.deliveryDays === 'number' ? dataPart.deliveryDays : undefined,
+				paymentPreference:
+					typeof dataPart.paymentPreference === 'string' ? (dataPart.paymentPreference as PaymentRail) : undefined,
+			});
+			resultData = orderRes as Record<string, unknown>;
+			summaryText = orderRes.ok
+				? `Order ${orderRes.order.id} placed for $${orderRes.order.agreedPriceUSD} USD (${orderRes.order.deliveryDays}-day SLA). Pending upfront deposit verification.`
+				: orderRes.error;
+			if (orderRes.ok) hitOrderId = orderRes.order.id;
+			if (!orderRes.ok) state = 'failed';
+		}
 	} else if (action === 'status' && typeof dataPart?.orderId === 'string') {
 		const order = await getOrder(dataPart.orderId);
 		if (!order) {
@@ -220,36 +245,42 @@ async function handleA2AMessage(params: Record<string, unknown>, req: Request, s
 			hitOrderId = order.id;
 		}
 	} else {
-		const neg = await negotiateWithAgent({
-			channel: 'a2a',
-			sessionId: contextId,
-			threadId: msg.contextId || undefined,
-			clientAgentId: identity.agentId,
-			clientName: identity.clientName,
-			message: textParts || JSON.stringify(dataPart || {}),
-			description: typeof dataPart?.description === 'string' ? dataPart.description : textParts,
-			projectTitle: typeof dataPart?.projectTitle === 'string' ? dataPart.projectTitle : undefined,
-			techStack: Array.isArray(dataPart?.techStack)
-				? dataPart.techStack.filter((x): x is string => typeof x === 'string')
-				: undefined,
-			budgetUSD: typeof dataPart?.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
-			requestedDays: typeof dataPart?.requestedDays === 'number' ? dataPart.requestedDays : undefined,
-			paymentPreference:
-				typeof dataPart?.paymentPreference === 'string'
-					? (dataPart.paymentPreference as PaymentRail)
+		if (!hasInquiryIdentity(identity)) {
+			state = 'failed';
+			summaryText = 'Inquiry requires agent identification: name, email, company name, or agent name is required to start a consultation or inquiry thread.';
+			resultData = { ok: false, code: 'IDENTITY_REQUIRED', error: summaryText };
+		} else {
+			const neg = await negotiateWithAgent({
+				channel: 'a2a',
+				sessionId: contextId,
+				threadId: msg.contextId || undefined,
+				clientAgentId: identity.agentId,
+				clientName: identity.clientName,
+				message: textParts || JSON.stringify(dataPart || {}),
+				description: typeof dataPart?.description === 'string' ? dataPart.description : textParts,
+				projectTitle: typeof dataPart?.projectTitle === 'string' ? dataPart.projectTitle : undefined,
+				techStack: Array.isArray(dataPart?.techStack)
+					? dataPart.techStack.filter((x): x is string => typeof x === 'string')
 					: undefined,
-			clientEmail: identity.clientEmail,
-			clientLocation: identity.clientLocation,
-			companyName: identity.companyName,
-			acceptOffer: typeof dataPart?.acceptOffer === 'boolean' ? dataPart.acceptOffer : undefined,
-		});
-		resultData = neg as unknown as Record<string, unknown>;
-		summaryText = neg.reply;
-		hitInquiryId = neg.inquiryId;
-		hitOrderId = neg.order?.id;
-		if (neg.status === 'rejected') state = 'failed';
-		else if (neg.dealClosed || neg.workflow.stage === 'meeting_handover') state = 'completed';
-		else state = 'input-required';
+				budgetUSD: typeof dataPart?.budgetUSD === 'number' ? dataPart.budgetUSD : undefined,
+				requestedDays: typeof dataPart?.requestedDays === 'number' ? dataPart.requestedDays : undefined,
+				paymentPreference:
+					typeof dataPart?.paymentPreference === 'string'
+						? (dataPart.paymentPreference as PaymentRail)
+						: undefined,
+				clientEmail: identity.clientEmail,
+				clientLocation: identity.clientLocation,
+				companyName: identity.companyName,
+				acceptOffer: typeof dataPart?.acceptOffer === 'boolean' ? dataPart.acceptOffer : undefined,
+			});
+			resultData = neg as unknown as Record<string, unknown>;
+			summaryText = neg.reply;
+			hitInquiryId = neg.inquiryId;
+			hitOrderId = neg.order?.id;
+			if (neg.status === 'rejected') state = 'failed';
+			else if (neg.dealClosed || neg.workflow.stage === 'meeting_handover') state = 'completed';
+			else state = 'input-required';
+		}
 	}
 
 	const task: A2ATaskRecord = {

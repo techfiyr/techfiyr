@@ -32,7 +32,7 @@ export type InquiryRecord = {
 	subject: string;
 	thread_id: string;
 	status: InquiryStatus;
-	channel: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
+	channel: 'gmail' | 'email' | 'a2a' | 'mcp';
 	messages: InquiryMessage[];
 	order_id?: string;
 	workflowStage?: WorkflowStage;
@@ -50,7 +50,7 @@ export type AgentContactRecord = {
 	email: string;
 	company?: string;
 	location?: string;
-	channel: 'gmail' | 'zoho_email' | 'email' | 'a2a' | 'mcp';
+	channel: 'gmail' |  'email' | 'a2a' | 'mcp';
 	firstSeenAt: string;
 	lastSeenAt: string;
 	totalInquiries: number;
@@ -122,7 +122,10 @@ export type AgentOrderRecord = {
 	milestones: MilestoneItem[];
 	crypto_chain: string;
 	crypto_tx_hash: string;
+	bank_reference?: string;
 	payoneer_reference: string;
+	started_at?: string;
+	deadline?: string;
 	srs_markdown: string;
 	srs_json: AiDeveloperSrs;
 	sow: {
@@ -166,6 +169,7 @@ export type NegotiationSessionRecord = {
 	createdAt: string;
 	updatedAt: string;
 	clientAgentId: string;
+	clientName?: string;
 	clientEmail?: string;
 	clientLocation?: string;
 	companyName?: string;
@@ -339,18 +343,25 @@ export function sanitizeInquiry(raw: unknown): InquiryRecord {
 			}))
 		: [];
 
+	const rawSenderName = d.sender_name ? String(d.sender_name) : undefined;
+	const cleanSenderName = rawSenderName && !isGenericAgentIdentity(rawSenderName) ? rawSenderName : undefined;
+	const rawEmail = String(d.sender_email || '');
+	const cleanEmail = rawEmail && !isGenericAgentIdentity(rawEmail) && !rawEmail.endsWith('@a2a.client') ? rawEmail : '';
+	const rawAgentId = d.clientAgentId ? String(d.clientAgentId) : undefined;
+	const cleanAgentId = rawAgentId && !isGenericAgentIdentity(rawAgentId) ? rawAgentId : undefined;
+
 	return {
 		id: String(d.id || ''),
-		sender_email: String(d.sender_email || ''),
-		sender_name: d.sender_name ? String(d.sender_name) : undefined,
+		sender_email: cleanEmail,
+		sender_name: cleanSenderName,
 		sender_location: d.sender_location ? String(d.sender_location) : undefined,
 		company_name: d.company_name ? String(d.company_name) : undefined,
-		clientAgentId: d.clientAgentId ? String(d.clientAgentId) : undefined,
+		clientAgentId: cleanAgentId,
 		contact_id: d.contact_id ? String(d.contact_id) : undefined,
 		subject: String(d.subject || 'Project Inquiry'),
 		thread_id: String(d.thread_id || d.id || ''),
 		status: (d.status === 'NEGOTIATING' || d.status === 'CLOSED' || d.status === 'REJECTED' ? d.status : 'PENDING'),
-		channel: (d.channel === 'gmail' || d.channel === 'zoho_email' || d.channel === 'a2a' || d.channel === 'mcp' ? d.channel : 'email'),
+		channel: (d.channel === 'gmail' || d.channel === 'a2a' || d.channel === 'mcp' ? d.channel : 'email'),
 		messages: msgs,
 		order_id: d.order_id ? String(d.order_id) : undefined,
 		workflowStage: d.workflowStage,
@@ -369,7 +380,7 @@ export function sanitizeOrder(raw: unknown): AgentOrderRecord {
 		orderTokenHash: String(d.orderTokenHash || ''),
 		inquiry_id: d.inquiry_id ? String(d.inquiry_id) : undefined,
 		quoteId: d.quoteId ? String(d.quoteId) : undefined,
-		clientAgentId: String(d.clientAgentId || 'anonymous-agent'),
+		clientAgentId: String(d.clientAgentId && !isGenericAgentIdentity(d.clientAgentId) ? d.clientAgentId : ''),
 		clientDid: d.clientDid ? String(d.clientDid) : undefined,
 		client_contact: String(d.client_contact || d.clientEmail || ''),
 		clientEmail: String(d.clientEmail || ''),
@@ -387,7 +398,10 @@ export function sanitizeOrder(raw: unknown): AgentOrderRecord {
 		milestones: Array.isArray(d.milestones) ? d.milestones : [],
 		crypto_chain: String(d.crypto_chain || ''),
 		crypto_tx_hash: String(d.crypto_tx_hash || ''),
+		bank_reference: String(d.bank_reference || ''),
 		payoneer_reference: String(d.payoneer_reference || ''),
+		started_at: d.started_at ? String(d.started_at) : undefined,
+		deadline: d.deadline ? String(d.deadline) : undefined,
 		srs_markdown: String(d.srs_markdown || ''),
 		srs_json: (d.srs_json && typeof d.srs_json === 'object' ? d.srs_json : {}) as AiDeveloperSrs,
 		sow: (d.sow && typeof d.sow === 'object' ? d.sow : {
@@ -491,13 +505,19 @@ export async function listInquiries(): Promise<InquiryRecord[]> {
 					}
 				}
 			}
-			// 3. Fallback clarification
+			// 3. Connect identity from request thread without synthetic default values
 			if (isGenericAgentIdentity(inq.sender_name)) {
-				const tag = inq.channel === 'mcp' ? 'MCP' : 'A2A';
-				const label = inq.company_name || (inq.subject ? inq.subject.slice(0, 24) : inq.id.slice(-6));
-				inq.sender_name = `${tag} Agent (${label})`;
+				if (inq.company_name && !isGenericAgentIdentity(inq.company_name)) {
+					inq.sender_name = inq.company_name;
+				} else if (inq.sender_email && !isGenericAgentIdentity(inq.sender_email) && !inq.sender_email.endsWith('@a2a.client')) {
+					inq.sender_name = inq.sender_email;
+				} else if (inq.subject && inq.subject !== 'Project Inquiry') {
+					inq.sender_name = inq.subject;
+				} else {
+					inq.sender_name = undefined;
+				}
 				if (isGenericAgentIdentity(inq.clientAgentId)) {
-					inq.clientAgentId = `${tag.toLowerCase()}-${inq.id.slice(-6)}`;
+					inq.clientAgentId = undefined;
 				}
 			}
 			return inq;
@@ -513,21 +533,14 @@ export async function listInquiries(): Promise<InquiryRecord[]> {
 export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<InquiryRecord[]> {
 	if (!rawList.length) return [];
 
+	// Threads are identified by unique thread_id (or inquiry id).
+	// Never merge different conversation threads or different project topics together!
 	const groups = new Map<string, InquiryRecord[]>();
 	for (const inq of rawList) {
-		const specificCandidate =
-			(inq.clientAgentId && !isGenericAgentIdentity(inq.clientAgentId) ? inq.clientAgentId : '') ||
-			(!inq.sender_email.endsWith('@a2a.client') && inq.sender_email ? inq.sender_email : '') ||
-			(inq.sender_name && !isGenericAgentIdentity(inq.sender_name) ? inq.sender_name : '');
-
-		// Only merge threads if there is a verified specific non-generic agent ID/name, or same thread_id
-		const identityKey = specificCandidate
-			? specificCandidate.trim().toLowerCase()
-			: (inq.thread_id || inq.id).trim().toLowerCase();
-
-		const list = groups.get(identityKey) || [];
+		const threadKey = (inq.thread_id || inq.id).trim().toLowerCase();
+		const list = groups.get(threadKey) || [];
 		list.push(inq);
-		groups.set(identityKey, list);
+		groups.set(threadKey, list);
 	}
 
 	const consolidated: InquiryRecord[] = [];
@@ -537,7 +550,7 @@ export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<In
 			continue;
 		}
 
-		// Multiple fragmented inquiries for the same agent identity -> merge
+		// Multiple fragments with the exact same thread_id -> merge messages
 		const withOrder = inqs.find((i) => i.order_id);
 		const primary = withOrder || inqs.reduce((prev, curr) => (prev.created_at <= curr.created_at ? prev : curr));
 
@@ -603,6 +616,7 @@ export async function findInquiryForAgent(params: {
 	clientAgentId?: string;
 	clientEmail?: string;
 	clientName?: string;
+	projectTitle?: string;
 }): Promise<InquiryRecord | null> {
 	if (params.inquiryId) {
 		const byId = await getInquiry(params.inquiryId.trim());
@@ -616,34 +630,48 @@ export async function findInquiryForAgent(params: {
 		}
 	}
 
-	const all = await listInquiries();
+	const cleanThread = params.threadId?.trim().toLowerCase();
+	if (cleanThread) {
+		const all = await listInquiries();
+		const byThread = all.find(
+			(inq) => inq.thread_id.toLowerCase() === cleanThread || inq.id.toLowerCase() === cleanThread,
+		);
+		if (byThread) return byThread;
+	}
+
+	// If no explicit threadId or sessionId was passed, only match an existing thread if:
+	// 1) The client explicitly identified with a verified non-generic agent ID or email,
+	// 2) AND the inquiry is for the exact same active project topic.
+	// Otherwise, treat as a distinct new conversation thread so queries are never mixed up.
 	const cleanAgentId = params.clientAgentId?.trim().toLowerCase();
 	const cleanEmail = params.clientEmail?.trim().toLowerCase();
-	const cleanName = params.clientName?.trim().toLowerCase();
-	const cleanThread = params.threadId?.trim().toLowerCase();
+	const hasSpecificAgent = cleanAgentId && !isGenericAgentIdentity(cleanAgentId);
+	const hasSpecificEmail = cleanEmail && !isGenericAgentIdentity(cleanEmail) && !cleanEmail.endsWith('@a2a.client');
+
+	if (!hasSpecificAgent && !hasSpecificEmail) {
+		return null;
+	}
+
+	const all = await listInquiries();
+	const cleanTitle = (params.projectTitle || '').trim().toLowerCase();
 
 	const candidates = all.filter((inq) => {
-		if (cleanThread && (inq.thread_id.toLowerCase() === cleanThread || inq.id.toLowerCase() === cleanThread)) {
-			return true;
+		if (inq.status === 'CLOSED' || inq.status === 'REJECTED') return false;
+
+		const idMatches = hasSpecificAgent && (
+			(inq.clientAgentId && inq.clientAgentId.toLowerCase() === cleanAgentId) ||
+			(inq.sender_name && inq.sender_name.toLowerCase() === cleanAgentId)
+		);
+		const emailMatches = hasSpecificEmail && inq.sender_email.toLowerCase() === cleanEmail;
+
+		if (!idMatches && !emailMatches) return false;
+
+		if (cleanTitle) {
+			const inqSubj = (inq.subject || '').toLowerCase();
+			return inqSubj.includes(cleanTitle) || cleanTitle.includes(inqSubj);
 		}
-		if (cleanAgentId && !isGenericAgentIdentity(cleanAgentId)) {
-			if (inq.clientAgentId && inq.clientAgentId.toLowerCase() === cleanAgentId) return true;
-			if (inq.sender_name && inq.sender_name.toLowerCase() === cleanAgentId) return true;
-			if (inq.sender_email && inq.sender_email.toLowerCase().startsWith(`${cleanAgentId}@`)) return true;
-		}
-		if (cleanEmail && !isGenericAgentIdentity(cleanEmail) && !cleanEmail.endsWith('@a2a.client') && inq.sender_email.toLowerCase() === cleanEmail) {
-			return true;
-		}
-		if (cleanName && !isGenericAgentIdentity(cleanName) && inq.sender_name && inq.sender_name.toLowerCase() === cleanName) {
-			return true;
-		}
-		return false;
+		return true;
 	});
-
-	if (candidates.length === 0) return null;
-
-	const active = candidates.find((inq) => inq.status === 'NEGOTIATING' || inq.status === 'PENDING');
-	if (active) return active;
 
 	return candidates[0] || null;
 }
