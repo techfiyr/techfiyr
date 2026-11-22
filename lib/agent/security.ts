@@ -92,6 +92,8 @@ export function isGenericAgentIdentity(nameOrId?: string): boolean {
 		clean === 'a2a-client' ||
 		clean === 'client-agent' ||
 		clean === 'client' ||
+		clean === 'a2a' ||
+		clean === 'mcp' ||
 		clean === 'anonymous-agent' ||
 		clean === 'unknown agent' ||
 		clean === 'agent' ||
@@ -113,6 +115,9 @@ export function isGenericAgentIdentity(nameOrId?: string): boolean {
 		clean.startsWith('mcp agent') ||
 		clean.startsWith('a2a-agent') ||
 		clean.startsWith('mcp-agent') ||
+		clean.includes('autonomous-buyer') ||
+		clean.includes('a2a agent') ||
+		clean.includes('mcp agent') ||
 		clean.endsWith('@a2a.client')
 	);
 }

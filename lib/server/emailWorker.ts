@@ -8,6 +8,7 @@ import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import nodemailer from 'nodemailer';
 import { SALES_AGENT_EMAIL } from '@/lib/agent/catalog';
+import { isGenericAgentIdentity } from '@/lib/agent/security';
 import { updateOrderFulfillment } from './agent-orders';
 import {
 	canPersistAgentStore,
@@ -49,7 +50,7 @@ export function getMailConfig(): MailConfig {
 		return {
 			provider: 'gmail',
 			email,
-			password: (gmailPass || zohoPass).replace(/\s+/g, ''),
+			password: ((gmailPass || zohoPass) ?? '').replace(/\s+/g, ''),
 			imapHost: env('GMAIL_IMAP_HOST') || env('MAIL_IMAP_HOST') || 'imap.gmail.com',
 			imapPort: Number(env('GMAIL_IMAP_PORT') || env('MAIL_IMAP_PORT') || '993'),
 			smtpHost: env('GMAIL_SMTP_HOST') || env('MAIL_SMTP_HOST') || 'smtp.gmail.com',
@@ -60,7 +61,7 @@ export function getMailConfig(): MailConfig {
 	return {
 		provider: 'zoho',
 		email,
-		password: zohoPass || gmailPass,
+		password: ((zohoPass || gmailPass) ?? '').replace(/\s+/g, ''),
 		imapHost: env('ZOHO_IMAP_HOST') || env('MAIL_IMAP_HOST') || 'imap.zoho.com',
 		imapPort: Number(env('ZOHO_IMAP_PORT') || env('MAIL_IMAP_PORT') || '993'),
 		smtpHost: env('ZOHO_SMTP_HOST') || env('MAIL_SMTP_HOST') || 'smtp.zoho.com',
@@ -225,6 +226,8 @@ export async function syncMailInbox(maxMessages = 10): Promise<EmailSyncRun> {
 		secure: true,
 		auth: { user: cfg.email, pass: cfg.password },
 		logger: false,
+		connectionTimeout: 15000,
+		greetingTimeout: 15000,
 	});
 
 	const channelName: InquiryRecord['channel'] = cfg.provider === 'gmail' ? 'gmail' : 'email';
@@ -448,17 +451,29 @@ export async function sendManualInquiryReply(
 	const body = text.trim();
 	if (!body) return { ok: false, error: 'Reply text cannot be empty.' };
 
-	const msgIds = inquiry.messages.map((m) => m.messageId).filter((m): m is string => Boolean(m));
-	const lastMsgId = msgIds[msgIds.length - 1];
-	const sent = await sendThreadedReply({
-		to: inquiry.sender_email,
-		subject: inquiry.subject,
-		bodyText: body,
-		inReplyTo: lastMsgId,
-		references: msgIds,
-	});
+	const hasEmail = Boolean(
+		inquiry.sender_email &&
+			!isGenericAgentIdentity(inquiry.sender_email) &&
+			!inquiry.sender_email.endsWith('@a2a.client'),
+	);
+	let messageId: string | undefined;
 
-	if (!sent.ok) return sent;
+	if (hasEmail) {
+		const msgIds = inquiry.messages.map((m) => m.messageId).filter((m): m is string => Boolean(m));
+		const lastMsgId = msgIds[msgIds.length - 1];
+		const sent = await sendThreadedReply({
+			to: inquiry.sender_email,
+			subject: inquiry.subject,
+			bodyText: body,
+			inReplyTo: lastMsgId,
+			references: msgIds,
+		});
+
+		if (!sent.ok) return sent;
+		messageId = sent.messageId;
+	} else if (inquiry.channel === 'gmail' || inquiry.channel === 'email') {
+		return { ok: false, error: 'Recipient email address is missing or invalid.' };
+	}
 
 	const now = new Date().toISOString();
 	const updated: InquiryRecord = {
@@ -466,7 +481,7 @@ export async function sendManualInquiryReply(
 		status: inquiry.status === 'PENDING' ? 'NEGOTIATING' : inquiry.status,
 		messages: [
 			...inquiry.messages,
-			{ timestamp: now, role: 'sales_agent', text: body, messageId: sent.messageId },
+			{ timestamp: now, role: 'sales_agent', text: body, messageId },
 		],
 		updated_at: now,
 	};

@@ -6,9 +6,9 @@ const env = (k) => ((globalThis.Netlify ? Netlify.env.get(k) : process.env[k]) |
 
 export default async () => {
 	const site = env('URL') || 'https://techfiyr.com';
-	const secret = env('CRON_SECRET');
+	const secret = env('AGENT_SALES_API_KEY') || env('CRON_SECRET');
 	if (!secret) {
-		console.error('email-sync: CRON_SECRET is not set');
+		console.error('email-sync: AGENT_SALES_API_KEY or CRON_SECRET is not set');
 		return;
 	}
 	const res = await fetch(site + '/api/agent/email/sync', {

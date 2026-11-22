@@ -307,17 +307,47 @@ export function extractBearer(req: Request): string {
 }
 
 export function isOperatorAuthorized(req: Request): boolean {
-	const operatorKey = env('AGENT_SALES_API_KEY') || env('CRON_SECRET');
-	if (!operatorKey || operatorKey.length < 16) return false;
 	const token = extractBearer(req);
-	return Boolean(token && safeEqual(token, operatorKey));
+	if (!token) return false;
+
+	const cronSecret = env('CRON_SECRET');
+	if (cronSecret && cronSecret.length >= 16 && safeEqual(token, cronSecret)) {
+		return true;
+	}
+
+	const salesKey = env('AGENT_SALES_API_KEY');
+	if (salesKey && salesKey.length >= 16 && safeEqual(token, salesKey)) {
+		return true;
+	}
+
+	const mktKey = env('AGENT_MARKETING_API_KEY');
+	if (mktKey && mktKey.length >= 16 && safeEqual(token, mktKey)) {
+		return true;
+	}
+
+	return false;
 }
 
 export function isMarketingAuthorized(req: Request): boolean {
-	const marketingKey = env('AGENT_MARKETING_API_KEY') || env('CRON_SECRET');
-	if (!marketingKey || marketingKey.length < 16) return false;
 	const token = extractBearer(req);
-	return Boolean(token && safeEqual(token, marketingKey));
+	if (!token) return false;
+
+	const cronSecret = env('CRON_SECRET');
+	if (cronSecret && cronSecret.length >= 16 && safeEqual(token, cronSecret)) {
+		return true;
+	}
+
+	const mktKey = env('AGENT_MARKETING_API_KEY');
+	if (mktKey && mktKey.length >= 16 && safeEqual(token, mktKey)) {
+		return true;
+	}
+
+	const salesKey = env('AGENT_SALES_API_KEY');
+	if (salesKey && salesKey.length >= 16 && safeEqual(token, salesKey)) {
+		return true;
+	}
+
+	return false;
 }
 
 export function isOrderAuthorized(req: Request, order: AgentOrderRecord, explicitToken?: string): boolean {
@@ -511,8 +541,6 @@ export async function listInquiries(): Promise<InquiryRecord[]> {
 					inq.sender_name = inq.company_name;
 				} else if (inq.sender_email && !isGenericAgentIdentity(inq.sender_email) && !inq.sender_email.endsWith('@a2a.client')) {
 					inq.sender_name = inq.sender_email;
-				} else if (inq.subject && inq.subject !== 'Project Inquiry') {
-					inq.sender_name = inq.subject;
 				} else {
 					inq.sender_name = undefined;
 				}
@@ -598,7 +626,7 @@ export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<In
 			company_name: mergedCompanyName,
 			sender_location: mergedLocation,
 			sender_name: mergedSenderName,
-			clientAgentId: mergedClientAgentId || (primary.sender_email.endsWith('@a2a.client') ? primary.sender_email.split('@')[0] : undefined),
+			clientAgentId: mergedClientAgentId && !isGenericAgentIdentity(mergedClientAgentId) ? mergedClientAgentId : undefined,
 			messages: allMessages,
 			updated_at: latestUpdate,
 		};

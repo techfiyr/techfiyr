@@ -485,8 +485,24 @@ export default function AgentDashboard({
 										const active = selectedInquiry?.id === inq.id;
 										const msgs = Array.isArray(inq.messages) ? inq.messages : [];
 										const lastMsg = msgs[msgs.length - 1];
-										const isAi = isAiPlatformName(inq.sender_name);
-										const avatarInitial = (inq.sender_name || inq.sender_email || 'C')[0]?.toUpperCase() || 'C';
+										const hasValidName = inq.sender_name && !isGenericAgentIdentity(inq.sender_name);
+										const hasValidCompany = inq.company_name && !isGenericAgentIdentity(inq.company_name);
+										const hasValidEmail = inq.sender_email && !isGenericAgentIdentity(inq.sender_email) && !inq.sender_email.endsWith('@a2a.client');
+										const hasValidAgentId = inq.clientAgentId && !isGenericAgentIdentity(inq.clientAgentId);
+										const threadName = hasValidName
+											? inq.sender_name
+											: hasValidCompany
+												? inq.company_name
+												: hasValidAgentId
+													? inq.clientAgentId
+													: hasValidEmail
+														? inq.sender_email
+														: inq.subject && inq.subject !== 'Project Inquiry'
+															? inq.subject
+															: `Thread #${(inq.thread_id || inq.id).slice(-6)}`;
+
+										const isAi = isAiPlatformName(inq.sender_name) || (hasValidAgentId && !hasValidName);
+										const avatarInitial = (threadName || 'C')[0]?.toUpperCase() || 'C';
 
 										return (
 											<li key={inq.id}>
@@ -504,25 +520,7 @@ export default function AgentDashboard({
 													</div>
 													<div className="agent-thread-item-content">
 														<div className="agent-thread-top">
-															<strong>
-																{(() => {
-																	const hasValidName = inq.sender_name && !isGenericAgentIdentity(inq.sender_name);
-																	const hasValidCompany = inq.company_name && !isGenericAgentIdentity(inq.company_name);
-																	const hasValidEmail = inq.sender_email && !isGenericAgentIdentity(inq.sender_email) && !inq.sender_email.endsWith('@a2a.client');
-																	const hasValidAgentId = inq.clientAgentId && !isGenericAgentIdentity(inq.clientAgentId);
-																	return hasValidName
-																		? inq.sender_name
-																		: hasValidCompany
-																			? inq.company_name
-																			: hasValidAgentId
-																				? inq.clientAgentId
-																				: hasValidEmail
-																					? inq.sender_email
-																					: inq.subject && inq.subject !== 'Project Inquiry'
-																						? inq.subject
-																						: `Thread #${(inq.thread_id || inq.id).slice(-6)}`;
-																})()}
-															</strong>
+															<strong>{threadName}</strong>
 															<span className={`admin-chip is-${inquiryTone(inq.status)}`}>{inq.status === 'CLOSED' ? 'ORDER PLACED' : inq.status}</span>
 														</div>
 														<p className="agent-thread-subject">{inq.subject || 'Project Inquiry'}</p>
@@ -721,7 +719,15 @@ export default function AgentDashboard({
 													<strong>
 														<i className={isClient ? 'fa-solid fa-user me-1' : 'fa-solid fa-robot me-1'} aria-hidden="true"></i>
 														{isClient
-															? selectedInquiry.sender_name || selectedInquiry.sender_email
+															? (selectedInquiry.sender_name && !isGenericAgentIdentity(selectedInquiry.sender_name)
+																? selectedInquiry.sender_name
+																: selectedInquiry.company_name && !isGenericAgentIdentity(selectedInquiry.company_name)
+																	? selectedInquiry.company_name
+																	: selectedInquiry.sender_email && !isGenericAgentIdentity(selectedInquiry.sender_email) && !selectedInquiry.sender_email.endsWith('@a2a.client')
+																		? selectedInquiry.sender_email
+																		: selectedInquiry.clientAgentId && !isGenericAgentIdentity(selectedInquiry.clientAgentId)
+																			? selectedInquiry.clientAgentId
+																			: 'Client')
 															: 'TechFiyr Sales Agent'}
 													</strong>
 													<span>{formatTs(m.timestamp)}</span>
