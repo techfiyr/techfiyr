@@ -128,6 +128,28 @@ export default function AgentDashboard({
 
 	const [tab, setTab] = useState<TabId>(initialTab);
 	const [livePolling, setLivePolling] = useState(true);
+	const [activeInquiries, setActiveInquiries] = useState<InquiryRecord[]>(safeInquiries);
+	const [activeOrders, setActiveOrders] = useState<PublicOrder[]>(safeOrders);
+	const [activeReachSummary, setActiveReachSummary] = useState<AgentReachSummary>(safeReachSummary);
+
+	useEffect(() => {
+		if (safeInquiries.length > 0) {
+			setActiveInquiries(safeInquiries);
+		}
+	}, [safeInquiries]);
+
+	useEffect(() => {
+		if (safeOrders.length > 0) {
+			setActiveOrders(safeOrders);
+		}
+	}, [safeOrders]);
+
+	useEffect(() => {
+		if (safeReachSummary.metrics.totalHits > 0 || safeReachSummary.recentHits.length > 0) {
+			setActiveReachSummary(safeReachSummary);
+		}
+	}, [safeReachSummary]);
+
 	const [inboxViewMode, setInboxViewMode] = useState<'agents' | 'threads'>('agents');
 	const [selectedInquiryId, setSelectedInquiryId] = useState<string>(initialInquiryId || safeInquiries[0]?.id || '');
 	const [mobileChatOpen, setMobileChatOpen] = useState<boolean>(Boolean(initialInquiryId));
@@ -145,9 +167,9 @@ export default function AgentDashboard({
 		setReplyText((prev) => (prev ? `${prev}\n\n${snippet}` : snippet));
 	}
 
-	const selectedInquiry = safeInquiries.find((i) => i.id === selectedInquiryId) || safeInquiries[0] || null;
-	const selectedOrder = safeOrders.find((o) => o.id === selectedOrderId) || safeOrders[0] || null;
-	const recentHits = safeReachSummary.recentHits || [];
+	const selectedInquiry = activeInquiries.find((i) => i.id === selectedInquiryId) || activeInquiries[0] || null;
+	const selectedOrder = activeOrders.find((o) => o.id === selectedOrderId) || activeOrders[0] || null;
+	const recentHits = activeReachSummary.recentHits || [];
 	const filteredHits =
 		auditFilter === 'all'
 			? recentHits
@@ -155,13 +177,13 @@ export default function AgentDashboard({
 
 	const agentGroups = useMemo(() => {
 		const hitMap = new Map<string, string>();
-		for (const h of safeReachSummary.recentHits || []) {
+		for (const h of activeReachSummary.recentHits || []) {
 			if (h.inquiry_id && h.agent_name) hitMap.set(h.inquiry_id, h.agent_name);
 			if (h.order_id && h.agent_name) hitMap.set(h.order_id, h.agent_name);
 		}
 
 		const map = new Map<string, InquiryRecord[]>();
-		for (const inq of safeInquiries) {
+		for (const inq of activeInquiries) {
 			const hitName = hitMap.get(inq.id) || (inq.order_id ? hitMap.get(inq.order_id) : undefined);
 			const rawName = inq.sender_name || '';
 			const displayName =
@@ -225,7 +247,7 @@ export default function AgentDashboard({
 		}
 
 		return list.sort((a, b) => (a.lastUpdated < b.lastUpdated ? 1 : -1));
-	}, [safeInquiries, safeReachSummary.recentHits]);
+	}, [activeInquiries, activeReachSummary.recentHits]);
 
 	const activeGroup = useMemo(() => {
 		if (!selectedInquiry) return null;
@@ -282,7 +304,7 @@ export default function AgentDashboard({
 						onClick={() => setTab('inquiries')}
 					>
 						<i className="fa-solid fa-comments" aria-hidden="true"></i> Inquiries
-						<span>{inquiries.length}</span>
+						<span>{activeInquiries.length}</span>
 					</button>
 					<button
 						type="button"
@@ -292,7 +314,7 @@ export default function AgentDashboard({
 						onClick={() => setTab('orders')}
 					>
 						<i className="fa-solid fa-coins" aria-hidden="true"></i> Orders
-						<span>{orders.length}</span>
+						<span>{activeOrders.length}</span>
 					</button>
 					<button
 						type="button"
@@ -302,7 +324,7 @@ export default function AgentDashboard({
 						onClick={() => setTab('specs')}
 					>
 						<i className="fa-solid fa-clipboard-check" aria-hidden="true"></i> AI-Ready SRS
-						<span>{orders.length}</span>
+						<span>{activeOrders.length}</span>
 					</button>
 					<button
 						type="button"
@@ -349,7 +371,7 @@ export default function AgentDashboard({
 							<div className="agent-inbox-header-top">
 								<h2>Agent Inquiries</h2>
 								<span className="agent-inbox-count">
-									{agentGroups.length} unique agents · {safeInquiries.length} threads · {safeReachSummary.inquiries.totalMessagesExchanged} msgs
+									{agentGroups.length} unique agents · {activeInquiries.length} threads · {activeReachSummary.inquiries.totalMessagesExchanged} msgs
 								</span>
 							</div>
 							<div className="agent-inbox-views">
@@ -365,12 +387,12 @@ export default function AgentDashboard({
 									className={inboxViewMode === 'threads' ? 'agent-view-tab is-active' : 'agent-view-tab'}
 									onClick={() => setInboxViewMode('threads')}
 								>
-									<i className="fa-solid fa-comments me-1" aria-hidden="true"></i> All Threads ({safeInquiries.length})
+									<i className="fa-solid fa-comments me-1" aria-hidden="true"></i> All Threads ({activeInquiries.length})
 								</button>
 							</div>
 						</div>
 						<div className="agent-inbox-scroll">
-							{safeInquiries.length === 0 ? (
+							{activeInquiries.length === 0 ? (
 								<div className="admin-empty is-compact">
 									<p className="admin-empty_title">No agent inquiries yet</p>
 									<p className="admin-muted">
@@ -429,7 +451,7 @@ export default function AgentDashboard({
 								</ul>
 							) : (
 								<ul className="agent-threads">
-									{safeInquiries.map((inq) => {
+									{activeInquiries.map((inq) => {
 										const active = selectedInquiry?.id === inq.id;
 										const msgs = Array.isArray(inq.messages) ? inq.messages : [];
 										const lastMsg = msgs[msgs.length - 1];
@@ -681,7 +703,7 @@ export default function AgentDashboard({
 			{/* TAB 2: ORDERS & PIPELINE */}
 			{tab === 'orders' && (
 				<div className="agent-orders-wrap">
-					{orders.length === 0 ? (
+					{activeOrders.length === 0 ? (
 						<div className="admin-empty is-wide">
 							<p className="admin-empty_title">No orders closed yet</p>
 							<p className="admin-muted">
@@ -692,7 +714,7 @@ export default function AgentDashboard({
 						<div className="agent-orders-split">
 							<div className="agent-orders-list-col">
 								<div className="agent-orders-stack">
-									{orders.map((order) => {
+									{activeOrders.map((order) => {
 										const prog = milestoneProgress(order.milestone_status);
 										const countdown = formatCountdown(order.created_at || order.createdAt, order.timeline_days || order.deliveryDays || 7);
 										const verified = Boolean(order.crypto_tx_hash || order.payoneer_reference || order.milestone_status !== 'AWAITING_DEPOSIT');
@@ -864,7 +886,7 @@ export default function AgentDashboard({
 			{/* TAB 3: AI-READY SPECS & HANDOFF */}
 			{tab === 'specs' && (
 				<div className="agent-specs-wrap">
-					{orders.length === 0 || !selectedOrder ? (
+					{activeOrders.length === 0 || !selectedOrder ? (
 						<div className="admin-empty is-wide">
 							<p className="admin-empty_title">No AI-Developer-Ready SRS specs generated yet</p>
 							<p className="admin-muted">
@@ -882,7 +904,7 @@ export default function AgentDashboard({
 										value={selectedOrder.id}
 										onChange={(e) => setSelectedOrderId(e.target.value)}
 									>
-										{orders.map((o) => (
+										{activeOrders.map((o) => (
 											<option key={o.id} value={o.id}>
 												{o.id} — {o.projectTitle} (${o.total_price_usd || o.agreedPriceUSD})
 											</option>
@@ -958,8 +980,8 @@ export default function AgentDashboard({
 												<div key={m.table_name} className="agent-srs-sub">
 													<strong>{m.table_name}</strong> — <span className="admin-muted">{m.description}</span>
 													<ul>
-														{m.columns.map((c) => (
-															<li key={c.name}>
+														{m.columns.map((c, cIdx) => (
+															<li key={`${c.name || 'col'}-${cIdx}`}>
 																<code>{c.name}</code>: {c.data_type} {c.primary_key ? 'PK' : ''}
 															</li>
 														))}

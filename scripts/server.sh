@@ -81,9 +81,9 @@ start() {
 			tail -20 "$LOG_FILE" >&2
 			exit 1
 		}
-		nohup npx next start -p "$port" >>"$LOG_FILE" 2>&1 &
+		nohup ./node_modules/.bin/next start -p "$port" < /dev/null >>"$LOG_FILE" 2>&1 &
 	else
-		nohup npx next dev -p "$port" >"$LOG_FILE" 2>&1 &
+		nohup ./node_modules/.bin/next dev -p "$port" < /dev/null >"$LOG_FILE" 2>&1 &
 	fi
 
 	echo $! >"$PID_FILE"

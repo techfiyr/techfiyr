@@ -106,46 +106,163 @@ function isValidDocId(id: string): boolean {
 	return typeof id === 'string' && /^[a-zA-Z0-9_\-\.:]{1,128}$/.test(id) && !id.includes('..');
 }
 
+// ---------- In-memory cache & disk snapshot fallback ----------
+type MemCacheEntry = {
+	docs: Doc[];
+	expiresAt: number;
+};
+
+const memCache = new Map<string, MemCacheEntry>();
+const CACHE_TTL_MS = 60_000; // 60s in-memory TTL to avoid exhausting daily quota
+
+async function writeLocalSnapshot(collection: string, docs: Doc[]) {
+	try {
+		const all: Record<string, Data> = {};
+		for (const d of docs) {
+			const { id, ...rest } = d;
+			all[id] = rest;
+		}
+		await writeLocal(collection, all);
+	} catch (err) {
+		console.warn(`[store] writeLocalSnapshot failed for ${collection}:`, err instanceof Error ? err.message : err);
+	}
+}
+
 const firestore = {
 	async list(collection: string): Promise<Doc[]> {
 		if (!isValidCollection(collection)) return [];
+		const now = Date.now();
+		const cached = memCache.get(collection);
+		if (cached && now < cached.expiresAt) {
+			return cached.docs;
+		}
+
 		const docs: Doc[] = [];
 		let pageToken = '';
-		do {
-			const url = `${API}${root()}/${collection}?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
-			const res = await fsFetch(url);
-			if (res.status === 404) return [];
-			if (!res.ok) throw new GoogleError('list', res.status, await googleError(res));
-			const body = (await res.json()) as { documents?: { name: string; fields?: Record<string, FsValue> }[]; nextPageToken?: string };
-			for (const d of body.documents || []) docs.push({ ...decodeFields(d.fields || {}), id: docId(d.name) });
-			pageToken = body.nextPageToken || '';
-		} while (pageToken);
-		return docs;
+		try {
+			do {
+				const url = `${API}${root()}/${collection}?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+				const res = await fsFetch(url);
+				if (res.status === 404) {
+					memCache.set(collection, { docs: [], expiresAt: now + CACHE_TTL_MS });
+					return [];
+				}
+				if (!res.ok) throw new GoogleError('list', res.status, await googleError(res));
+				const body = (await res.json()) as { documents?: { name: string; fields?: Record<string, FsValue> }[]; nextPageToken?: string };
+				for (const d of body.documents || []) docs.push({ ...decodeFields(d.fields || {}), id: docId(d.name) });
+				pageToken = body.nextPageToken || '';
+			} while (pageToken);
+
+			memCache.set(collection, { docs, expiresAt: now + CACHE_TTL_MS });
+			writeLocalSnapshot(collection, docs).catch(() => {});
+			return docs;
+		} catch (err) {
+			if (cached && cached.docs.length > 0) {
+				console.warn(`[store] Firestore list failed for "${collection}" (${err instanceof Error ? err.message : err}); serving in-memory cache.`);
+				cached.expiresAt = now + CACHE_TTL_MS;
+				return cached.docs;
+			}
+			try {
+				const localDocs = await local.list(collection);
+				if (localDocs.length > 0) {
+					console.warn(`[store] Firestore list failed for "${collection}" (${err instanceof Error ? err.message : err}); serving ${localDocs.length} items from local disk snapshot.`);
+					memCache.set(collection, { docs: localDocs, expiresAt: now + CACHE_TTL_MS });
+					return localDocs;
+				}
+			} catch {}
+			if (err instanceof GoogleError && (err.status === 429 || err.status >= 500)) {
+				memCache.set(collection, { docs: [], expiresAt: now + CACHE_TTL_MS });
+				return [];
+			}
+			throw err;
+		}
 	},
 
 	async get(collection: string, id: string): Promise<Doc | null> {
 		if (!isValidCollection(collection) || !isValidDocId(id)) return null;
-		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`);
-		if (res.status === 404) return null;
-		if (!res.ok) throw new GoogleError('get', res.status, await googleError(res));
-		const d = (await res.json()) as { name: string; fields?: Record<string, FsValue> };
-		return { ...decodeFields(d.fields || {}), id: docId(d.name) };
+		const cached = memCache.get(collection);
+		if (cached && Date.now() < cached.expiresAt) {
+			const found = cached.docs.find((d) => d.id === id);
+			if (found) return found;
+		}
+
+		try {
+			const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`);
+			if (res.status === 404) return null;
+			if (!res.ok) throw new GoogleError('get', res.status, await googleError(res));
+			const d = (await res.json()) as { name: string; fields?: Record<string, FsValue> };
+			const doc = { ...decodeFields(d.fields || {}), id: docId(d.name) };
+			return doc;
+		} catch (err) {
+			if (cached) {
+				const found = cached.docs.find((d) => d.id === id);
+				if (found) return found;
+			}
+			try {
+				const localDoc = await local.get(collection, id);
+				if (localDoc) {
+					console.warn(`[store] Firestore get failed for "${collection}/${id}" (${err instanceof Error ? err.message : err}); serving local disk copy.`);
+					return localDoc;
+				}
+			} catch {}
+			if (err instanceof GoogleError && (err.status === 429 || err.status >= 500)) {
+				return null;
+			}
+			throw err;
+		}
 	},
 
 	async put(collection: string, id: string, data: Data): Promise<void> {
 		if (!isValidCollection(collection) || !isValidDocId(id)) throw new Error('Invalid collection name or document ID');
-		// PATCH without an update mask replaces the whole document and creates it when missing
-		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, {
-			method: 'PATCH',
-			body: JSON.stringify({ fields: encodeFields(data) }),
+		// Always update local disk snapshot immediately
+		await local.put(collection, id, data).catch((err) => {
+			console.warn(`[store] local.put backup failed for ${collection}/${id}:`, err);
 		});
-		if (!res.ok) throw new GoogleError('put', res.status, await googleError(res));
+		// Update memory cache
+		const cached = memCache.get(collection);
+		if (cached) {
+			const existingIndex = cached.docs.findIndex((d) => d.id === id);
+			const updatedDoc = { ...data, id };
+			if (existingIndex >= 0) {
+				cached.docs[existingIndex] = updatedDoc;
+			} else {
+				cached.docs.push(updatedDoc);
+			}
+		}
+
+		try {
+			// PATCH without an update mask replaces the whole document and creates it when missing
+			const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, {
+				method: 'PATCH',
+				body: JSON.stringify({ fields: encodeFields(data) }),
+			});
+			if (!res.ok) throw new GoogleError('put', res.status, await googleError(res));
+		} catch (err) {
+			console.warn(`[store] Firestore put failed for "${collection}/${id}" (${err instanceof Error ? err.message : err}); saved locally on disk.`);
+			if (err instanceof GoogleError && (err.status === 429 || err.status >= 500)) {
+				return;
+			}
+			throw err;
+		}
 	},
 
 	async remove(collection: string, id: string): Promise<void> {
 		if (!isValidCollection(collection) || !isValidDocId(id)) throw new Error('Invalid collection name or document ID');
-		const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, { method: 'DELETE' });
-		if (!res.ok && res.status !== 404) throw new GoogleError('delete', res.status, await googleError(res));
+		await local.remove(collection, id).catch(() => {});
+		const cached = memCache.get(collection);
+		if (cached) {
+			cached.docs = cached.docs.filter((d) => d.id !== id);
+		}
+		try {
+			const res = await fsFetch(`${API}${root()}/${collection}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+			if (!res.ok && res.status !== 404) throw new GoogleError('delete', res.status, await googleError(res));
+		} catch (err) {
+			console.warn(`[store] Firestore delete failed for "${collection}/${id}" (${err instanceof Error ? err.message : err}); removed locally.`);
+			if (err instanceof GoogleError && (err.status === 429 || err.status >= 500)) {
+				return;
+			}
+			throw err;
+		}
 	},
 };
 
@@ -200,6 +317,10 @@ export const store = {
 			return await backend().list(collection);
 		} catch (err) {
 			if (err instanceof StoreUnavailable) return [];
+			try {
+				const localDocs = await local.list(collection);
+				if (localDocs.length > 0) return localDocs;
+			} catch {}
 			throw err;
 		}
 	},
@@ -208,6 +329,10 @@ export const store = {
 			return await backend().get(collection, id);
 		} catch (err) {
 			if (err instanceof StoreUnavailable) return null;
+			try {
+				const localDoc = await local.get(collection, id);
+				if (localDoc) return localDoc;
+			} catch {}
 			throw err;
 		}
 	},

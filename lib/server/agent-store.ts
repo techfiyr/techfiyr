@@ -590,19 +590,6 @@ export async function consolidateInquiries(rawList: InquiryRecord[]): Promise<In
 			updated_at: latestUpdate,
 		};
 
-		if (canPersistAgentStore()) {
-			await store.put(COLLECTIONS.inquiries, updatedPrimary.id, cleanDoc(updatedPrimary));
-			for (const inq of inqs) {
-				if (inq.id !== primary.id) {
-					try {
-						await store.remove(COLLECTIONS.inquiries, inq.id);
-					} catch {
-						// Ignore deletion failure in read-only / test mode
-					}
-				}
-			}
-		}
-
 		consolidated.push(updatedPrimary);
 	}
 
