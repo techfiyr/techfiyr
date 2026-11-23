@@ -487,36 +487,11 @@ export async function getInquiry(id: string): Promise<InquiryRecord | null> {
 export async function listInquiries(): Promise<InquiryRecord[]> {
 	if (!canPersistAgentStore()) return [];
 	try {
-		const [docs, rawAudit] = await Promise.all([
-			store.list(COLLECTIONS.inquiries),
-			store.list(COLLECTIONS.audit).catch(() => []),
-		]);
-		const hitMap = new Map<string, string>();
-		for (const h of rawAudit) {
-			const inqId = h.inquiry_id ? String(h.inquiry_id) : '';
-			const agentName = h.agent_name ? String(h.agent_name) : '';
-			if (inqId && agentName && !isGenericAgentIdentity(agentName)) {
-				hitMap.set(inqId, agentName);
-			}
-			const ordId = h.order_id ? String(h.order_id) : '';
-			if (ordId && agentName && !isGenericAgentIdentity(agentName)) {
-				hitMap.set(ordId, agentName);
-			}
-		}
+		const docs = await store.list(COLLECTIONS.inquiries);
 
 		const sanitized = docs.map((d) => {
 			const inq = sanitizeInquiry(d);
-			// 1. Audit trail hit lookup
-			if (isGenericAgentIdentity(inq.sender_name)) {
-				const auditMatch = hitMap.get(inq.id) || (inq.order_id ? hitMap.get(inq.order_id) : undefined);
-				if (auditMatch) {
-					inq.sender_name = auditMatch;
-					if (isGenericAgentIdentity(inq.clientAgentId)) {
-						inq.clientAgentId = auditMatch.toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
-					}
-				}
-			}
-			// 2. Message extraction
+			// 1. Message extraction
 			if (isGenericAgentIdentity(inq.sender_name) && inq.messages?.length) {
 				for (const m of inq.messages) {
 					if (m.role === 'client') {
@@ -913,7 +888,7 @@ export async function saveAuditHit(hit: AgentAuditHit): Promise<void> {
 export async function listAuditHits(limit = 100): Promise<AgentAuditHit[]> {
 	if (!canPersistAgentStore()) return [];
 	try {
-		const docs = await store.list(COLLECTIONS.audit);
+		const docs = await store.list(COLLECTIONS.audit, limit);
 		return docs
 			.map((d) => d as unknown as AgentAuditHit)
 			.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))

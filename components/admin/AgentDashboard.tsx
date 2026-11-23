@@ -295,7 +295,7 @@ export default function AgentDashboard({
 		const timer = setInterval(() => {
 			if (typeof document !== 'undefined' && document.hidden) return;
 			router.refresh();
-		}, 30000);
+		}, 60000);
 		return () => clearInterval(timer);
 	}, [livePolling, router]);
 

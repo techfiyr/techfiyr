@@ -1,0 +1,38 @@
+{
+	"ba1149b6-c4fc-4d5b-9e82-bc62df619ca9": {
+		"slug": "school-management-system",
+		"links": [
+			{
+				"label": "Website",
+				"url": "https://schoolcollege.com.bd/"
+			}
+		],
+		"price": "",
+		"seoDescription": "",
+		"features": [],
+		"name": "School management system and an AI learning LMS for schools",
+		"seoTitle": "School management system",
+		"platforms": [
+			"Java",
+			"Spring AI",
+			"Angular",
+			"Android"
+		],
+		"category": "Web app",
+		"createdAt": "2026-11-01T14:44:44.875Z",
+		"updatedAt": "2026-11-01T14:46:42.256Z",
+		"tagline": "school-management-system, school-erp, AI tutor",
+		"description": "**SchoolCollege** is a school management system and an AI learning LMS for schools, colleges and madrasahs in Bangladesh. Attendance, routine, exams, results and fees sit in one record, with an AI tutor that teaches from the official NCTB textbook.\r\n\r\nSchool Implementation:\r\n[https://modern.wibpo.com](https://modern.wibpo.com)",
+		"status": "published",
+		"coverUrl": "/media/products/screenshot-2026-11-01-at-8-37-51-pm-ed40b806.png",
+		"gallery": [
+			"/media/products/screenshot-2026-11-01-at-8-38-02-pm-8c29ea3b.png",
+			"/media/products/screenshot-2026-11-01-at-8-38-50-pm-4449e987.png",
+			"/media/products/screenshot-2026-11-01-at-8-38-41-pm-3b1515e8.png",
+			"/media/products/screenshot-2026-11-01-at-8-38-19-pm-a106dc51.png",
+			"/media/products/screenshot-2026-11-01-at-8-38-11-pm-0f6b9a7c.png"
+		],
+		"coverAlt": "School management system and an AI learning LMS for schools",
+		"order": 100
+	}
+}

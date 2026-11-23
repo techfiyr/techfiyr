@@ -1,0 +1,937 @@
+{
+	"tf_ord_12266de1765824c5d2": {
+		"milestones": [
+			{
+				"step": 1,
+				"name": "25% Upfront Deposit (Schema + Boilerplate Kickoff)",
+				"percent": 25,
+				"amountUSD": 150,
+				"dueDay": 1,
+				"trigger": "Order confirmation & Day 1 schema/boilerplate scaffold"
+			},
+			{
+				"step": 2,
+				"name": "50% MVP Staging Delivery (Day 4)",
+				"percent": 50,
+				"amountUSD": 300,
+				"dueDay": 4,
+				"trigger": "Live staging MVP URL / preview build deployed & verified"
+			},
+			{
+				"step": 3,
+				"name": "25% Final Code Handover (Day 7)",
+				"percent": 25,
+				"amountUSD": 150,
+				"dueDay": 7,
+				"trigger": "Automated acceptance tests pass & GitHub repository transfer"
+			}
+		],
+		"sow": {
+			"clientAgentId": "",
+			"provider": "TechFiyr",
+			"guardrailsVerified": true,
+			"sowId": "SOW-12266DE1765824C5D2",
+			"acceptanceCriteria": [
+				"[AC-01] Migrations apply cleanly on an empty database with foreign-key constraints enforced.",
+				"[AC-02] Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201.",
+				"[AC-03] Primary screens render without runtime console errors and complete core create/read flows.",
+				"[AC-04] Production Docker image builds cleanly and passes /api/health smoke check."
+			],
+			"issuedAt": "2026-11-22T22:31:48.876Z",
+			"clientEmail": "john.smith@acmerealty.com",
+			"deliverables": [
+				"Day 1: Schema + modular monorepo boilerplate (25% deposit)",
+				"Day 4: Staging MVP deployment + core workflows (50% milestone)",
+				"Day 7: Automated QA, Docker build & GitHub repository handover (25% final)"
+			]
+		},
+		"deadline": "2026-11-29T22:31:48.880Z",
+		"projectTitle": "Real Estate SaaS MVP",
+		"bank_reference": "",
+		"payoneer_reference": "",
+		"client_contact": "john.smith@acmerealty.com",
+		"executive_overview": "Next.js 16 + PostgreSQL multi-tenant property management portal",
+		"crypto_tx_hash": "9Qi1ETqZ8Mv8RV1D3qwCkePLSEyak2D24XcTvmRyZYRn",
+		"timeline_days": 7,
+		"notifications": {
+			"detail": "mail_alert:Mail credentials (GMAIL_EMAIL and GMAIL_APP_PASSWORD) are not configured.",
+			"emailAlertSent": false,
+			"webhookSent": false
+		},
+		"tier": "rapid_7day",
+		"createdAt": "2026-11-22T22:31:48.876Z",
+		"deliveryDays": 7,
+		"started_at": "2026-11-22T22:31:48.880Z",
+		"clientAgentId": "",
+		"phases": [
+			{
+				"dayWindow": "Day 1",
+				"phase": "Schema + Boilerplate Lock (25% Deposit)",
+				"execution": "AI-Developer-Ready SRS validated; modular monorepo scaffold, DB schema, and auth boilerplate initialized.",
+				"status": "in_progress",
+				"updatedAt": "2026-11-22T22:47:18.662Z"
+			},
+			{
+				"dayWindow": "Day 2-3",
+				"phase": "Core Feature & API Engineering",
+				"execution": "Backend APIs, business logic, and frontend/mobile screens implemented with automated unit checks.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 4",
+				"phase": "Staging MVP Delivery (50% Milestone)",
+				"execution": "Live cloud staging URL / preview build delivered for client agent verification and 50% milestone settlement.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 5-6",
+				"phase": "Docker Containerization & Hardening",
+				"execution": "Automated linting, type-checking, security audit, Docker build validation, and acceptance criteria verification.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 7",
+				"phase": "Final Release & Handover (25% Final)",
+				"execution": "Source repository transfer (GitHub org invite), deployment docs, and final 25% milestone settlement.",
+				"status": "pending"
+			}
+		],
+		"crypto_chain": "Solana (SPL)",
+		"total_price_usd": 1500,
+		"deliverables": {},
+		"techStack": [
+			"Next.js",
+			"PostgreSQL",
+			"Tailwind CSS",
+			"Docker"
+		],
+		"scopeSummary": "Next.js 16 + PostgreSQL multi-tenant property management portal",
+		"currentPhase": "day_1_structuring",
+		"srs_markdown": "# AI-Developer-Ready SRS: Real Estate SaaS MVP (`tf_ord_12266de1765824c5d2`)\n\n## 1. Executive Overview\nNext.js 16 + PostgreSQL multi-tenant property management portal\n\n## 2. Architecture Pattern: `modular-monorepo`\n- **Frontend:** Next.js, Tailwind CSS\n- **Backend:** Node.js\n- **Database:** PostgreSQL\n- **DevOps:** Docker\n\n## 3. Database Models\n### Table: `users`\nAuthenticated application principals and roles.\n  - `id`: `uuid` (PK) NOT NULL\n  - `email`: `varchar(255)` (UNIQUE) NOT NULL\n  - `role`: `varchar(32)` NOT NULL\n  - `created_at`: `timestamptz` NOT NULL\n  - None\n### Table: `records`\nPrimary domain entity mapped from client specification.\n  - `id`: `uuid` (PK) NOT NULL\n  - `owner_id`: `uuid` NOT NULL\n  - `title`: `varchar(160)` NOT NULL\n  - `status`: `varchar(32)` NOT NULL\n  - `payload`: `jsonb` NOT NULL\n  - `updated_at`: `timestamptz` NOT NULL\n  - FK `owner_id` -> `users.id` (ON DELETE CASCADE)\n\n## 4. API Endpoints\n| Method | Route | Auth | Description |\n|---|---|---|---|\n| `GET` | `/api/health` | Public | Container readiness and database health probe. |\n| `GET` | `/api/records` | Required | List paginated domain records owned by the authenticated principal. |\n| `POST` | `/api/records` | Required | Validate and persist a new domain record. |\n\n## 5. UI Screens & Routing\n### Authentication Gate (`/login`)\n- **Components:** CredentialsForm, SessionGuard\n- **Interactions:** Authenticate user; Redirect to workspace\n\n### Real Estate SaaS MVP Workspace (`/dashboard`)\n- **Components:** SidebarNav, DataTable, RecordModal, StatusBadge\n- **Interactions:** Create/edit/delete domain records; Filter and export records\n\n## 6. Milestone Breakdown (25% / 50% / 25%)\n- **Day 1: Schema + Boilerplate & Architecture Lock** (25% milestone): Modular monorepo scaffold + Docker configuration; Database migrations, core entities, and auth middleware; Environment template and CI lint/typecheck pipeline\n- **Day 4: Staging MVP Delivery** (50% milestone): Core CRUD API endpoints and frontend/mobile screens wired end-to-end; Live staging URL / TestFlight or APK preview build; Automated integration test suite passing in Docker\n- **Day 7: Final Release & Repository Handover** (25% milestone): Security audit, performance check, and production build verification; GitHub repository transfer / org invite and deployment runbook; Final handover report and escrow/milestone release\n\n## 7. Automated Acceptance Criteria\n- **[AC-01] (database)**: Migrations apply cleanly on an empty database with foreign-key constraints enforced. (`docker compose up -d db && npm run db:migrate`)\n- **[AC-02] (api)**: Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201. (`npm test`)\n- **[AC-03] (ui)**: Primary screens render without runtime console errors and complete core create/read flows. (`npm run build`)\n- **[AC-04] (ci_cd)**: Production Docker image builds cleanly and passes /api/health smoke check. (`docker build -t app:verify .`)",
+		"clientEmail": "john.smith@acmerealty.com",
+		"orderTokenHash": "2d24cda467988f015578e45ef2bd47669bdfe1a350256eb095723be98bfccfb9",
+		"payment": {
+			"instructions": "Solana (SPL) USDC invoice INV-12266DE1765824C5D2 created (25% Upfront ($375), 50% Staging MVP ($750), 25% Final Handover ($375)). Reply with transaction confirmation or request wallet address from techfiyr.dev@gmail.com.",
+			"invoiceId": "INV-12266DE1765824C5D2",
+			"rail": "crypto_usdc_solana",
+			"upfrontDepositUSD": 375,
+			"stagingMilestoneUSD": 750,
+			"status": "upfront_25_paid",
+			"currency": "USDC",
+			"finalHandoverUSD": 375,
+			"updatedAt": "2026-11-22T22:47:18.662Z",
+			"crypto_chain": "Solana (SPL)",
+			"binance_p2p_ready": true,
+			"crypto_tx_hash": "9Qi1ETqZ8Mv8RV1D3qwCkePLSEyak2D24XcTvmRyZYRn",
+			"amountUSD": 1500
+		},
+		"updatedAt": "2026-11-22T22:47:18.662Z",
+		"srs_json": {
+			"acceptance_criteria": [
+				{
+					"category": "database",
+					"assertion": "Migrations apply cleanly on an empty database with foreign-key constraints enforced.",
+					"verification_command": "docker compose up -d db && npm run db:migrate"
+				},
+				{
+					"category": "api",
+					"assertion": "Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201.",
+					"verification_command": "npm test"
+				},
+				{
+					"category": "ui",
+					"assertion": "Primary screens render without runtime console errors and complete core create/read flows.",
+					"verification_command": "npm run build"
+				},
+				{
+					"category": "ci_cd",
+					"assertion": "Production Docker image builds cleanly and passes /api/health smoke check.",
+					"verification_command": "docker build -t app:verify ."
+				}
+			],
+			"ui_screens": [
+				{
+					"screen_id": "auth_login",
+					"route": "/login",
+					"title": "Authentication Gate",
+					"components": [
+						"CredentialsForm",
+						"SessionGuard"
+					],
+					"user_interactions": [
+						"Authenticate user",
+						"Redirect to workspace"
+					]
+				},
+				{
+					"screen_id": "app_dashboard",
+					"route": "/dashboard",
+					"title": "Real Estate SaaS MVP Workspace",
+					"components": [
+						"SidebarNav",
+						"DataTable",
+						"RecordModal",
+						"StatusBadge"
+					],
+					"user_interactions": [
+						"Create/edit/delete domain records",
+						"Filter and export records"
+					],
+					"child_routes": [
+						"/dashboard/settings"
+					]
+				}
+			],
+			"tech_stack": {
+				"backend": [
+					"Node.js"
+				],
+				"frontend": [
+					"Next.js",
+					"Tailwind CSS"
+				],
+				"devops": [
+					"Docker"
+				],
+				"database": [
+					"PostgreSQL"
+				]
+			},
+			"project_id": "tf_ord_12266de1765824c5d2",
+			"project_title": "Real Estate SaaS MVP",
+			"database_models": [
+				{
+					"table_name": "users",
+					"description": "Authenticated application principals and roles.",
+					"columns": [
+						{
+							"name": "id",
+							"data_type": "uuid",
+							"nullable": false,
+							"primary_key": true
+						},
+						{
+							"name": "email",
+							"data_type": "varchar(255)",
+							"nullable": false,
+							"unique": true
+						},
+						{
+							"name": "role",
+							"data_type": "varchar(32)",
+							"nullable": false,
+							"default_value": "'member'"
+						},
+						{
+							"name": "created_at",
+							"data_type": "timestamptz",
+							"nullable": false,
+							"default_value": "now()"
+						}
+					],
+					"foreign_keys": []
+				},
+				{
+					"table_name": "records",
+					"description": "Primary domain entity mapped from client specification.",
+					"columns": [
+						{
+							"name": "id",
+							"data_type": "uuid",
+							"nullable": false,
+							"primary_key": true
+						},
+						{
+							"name": "owner_id",
+							"data_type": "uuid",
+							"nullable": false
+						},
+						{
+							"name": "title",
+							"data_type": "varchar(160)",
+							"nullable": false
+						},
+						{
+							"name": "status",
+							"data_type": "varchar(32)",
+							"nullable": false,
+							"default_value": "'active'"
+						},
+						{
+							"name": "payload",
+							"data_type": "jsonb",
+							"nullable": false,
+							"default_value": "'{}'::jsonb"
+						},
+						{
+							"name": "updated_at",
+							"data_type": "timestamptz",
+							"nullable": false,
+							"default_value": "now()"
+						}
+					],
+					"foreign_keys": [
+						{
+							"column": "owner_id",
+							"references_table": "users",
+							"references_column": "id",
+							"on_delete": "CASCADE"
+						}
+					]
+				}
+			],
+			"executive_overview": "Next.js 16 + PostgreSQL multi-tenant property management portal",
+			"architecture_pattern": "modular-monorepo",
+			"api_endpoints": [
+				{
+					"method": "GET",
+					"route": "/api/health",
+					"auth_required": false,
+					"description": "Container readiness and database health probe.",
+					"request_payload": {},
+					"response_schema": {
+						"ok": "boolean",
+						"uptime_sec": "number"
+					}
+				},
+				{
+					"method": "GET",
+					"route": "/api/records",
+					"auth_required": true,
+					"description": "List paginated domain records owned by the authenticated principal.",
+					"request_payload": {
+						"page": "number?",
+						"limit": "number?"
+					},
+					"response_schema": {
+						"items": "Record[]",
+						"total": "number"
+					}
+				},
+				{
+					"method": "POST",
+					"route": "/api/records",
+					"auth_required": true,
+					"description": "Validate and persist a new domain record.",
+					"request_payload": {
+						"title": "string",
+						"payload": "object"
+					},
+					"response_schema": {
+						"status": "string",
+						"created_at": "string"
+					}
+				}
+			],
+			"milestone_breakdown": [
+				{
+					"day": 1,
+					"phase": "Day 1: Schema + Boilerplate & Architecture Lock",
+					"payment_percent": 25,
+					"deliverables": [
+						"Modular monorepo scaffold + Docker configuration",
+						"Database migrations, core entities, and auth middleware",
+						"Environment template and CI lint/typecheck pipeline"
+					]
+				},
+				{
+					"day": 4,
+					"phase": "Day 4: Staging MVP Delivery",
+					"payment_percent": 50,
+					"deliverables": [
+						"Core CRUD API endpoints and frontend/mobile screens wired end-to-end",
+						"Live staging URL / TestFlight or APK preview build",
+						"Automated integration test suite passing in Docker"
+					]
+				},
+				{
+					"day": 7,
+					"phase": "Day 7: Final Release & Repository Handover",
+					"payment_percent": 25,
+					"deliverables": [
+						"Security audit, performance check, and production build verification",
+						"GitHub repository transfer / org invite and deployment runbook",
+						"Final handover report and escrow/milestone release"
+					]
+				}
+			]
+		},
+		"created_at": "2026-11-22T22:31:48.876Z",
+		"agreedPriceUSD": 1500,
+		"milestone_status": "AWAITING_DEPOSIT"
+	},
+	"tf_ord_8f6849df49b6383a7b": {
+		"sow": {
+			"sowId": "SOW-8F6849DF49B6383A7B",
+			"guardrailsVerified": true,
+			"clientAgentId": "agent-e28324",
+			"provider": "TechFiyr",
+			"clientEmail": "agent-e28324@a2a.client",
+			"acceptanceCriteria": [
+				"[AC-01] Migrations apply cleanly on an empty database with foreign-key constraints enforced.",
+				"[AC-02] Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201.",
+				"[AC-03] Primary screens render without runtime console errors and complete core create/read flows.",
+				"[AC-04] Production Docker image builds cleanly and passes /api/health smoke check."
+			],
+			"deliverables": [
+				"Modular Java Spring / Python / PHP Laravel / TypeScript codebase",
+				"OpenAPI / REST documentation & database migrations",
+				"Docker compose & cloud staging deployment"
+			],
+			"issuedAt": "2026-11-19T12:02:44.198Z"
+		},
+		"client_contact": "agent-e28324@a2a.client",
+		"phases": [
+			{
+				"dayWindow": "Day 1-2",
+				"phase": "Architecture, Schema & Boilerplate (25% Deposit)",
+				"execution": "Full system architecture, ER schema, vector/AI evaluation plan, and monorepo scaffold locked.",
+				"status": "in_progress",
+				"updatedAt": "2026-11-19T12:02:44.198Z"
+			},
+			{
+				"dayWindow": "Day 3-7",
+				"phase": "Core Backend, AI/RAG & UI Sprints",
+				"execution": "Backend services, frontend/mobile views, custom AI/RAG pipelines, and third-party integrations built.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 8",
+				"phase": "Staging MVP Delivery (50% Milestone)",
+				"execution": "Cloud staging or TestFlight/APK build delivered for automated/client acceptance testing.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 9-13",
+				"phase": "Containerization, Security & E2E QA",
+				"execution": "Docker hardening, integration testing, performance profiling, and store compliance verification.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 14",
+				"phase": "Production Handover & Release (25% Final)",
+				"execution": "GitHub repo transfer, CI/CD secrets handover, documentation, and final 25% milestone settlement.",
+				"status": "pending"
+			}
+		],
+		"bank_reference": "",
+		"payment": {
+			"upfrontDepositUSD": 375,
+			"binance_p2p_ready": true,
+			"rail": "crypto_usdc_solana",
+			"instructions": "Solana (SPL) USDC invoice INV-8F6849DF49B6383A7B created (25% Upfront ($375), 50% Staging MVP ($750), 25% Final Handover ($375)). Reply with transaction confirmation or request wallet address from techfiyr.dev@gmail.com.",
+			"amountUSD": 1500,
+			"crypto_chain": "Solana (SPL)",
+			"status": "awaiting_upfront_25",
+			"stagingMilestoneUSD": 750,
+			"updatedAt": "2026-11-22T22:45:58.028Z",
+			"invoiceId": "INV-8F6849DF49B6383A7B",
+			"currency": "USDC",
+			"finalHandoverUSD": 375
+		},
+		"crypto_tx_hash": "",
+		"techStack": [
+			"Next.js",
+			"Node.js",
+			"PostgreSQL",
+			"Docker"
+		],
+		"deliverables": {},
+		"crypto_chain": "Solana (SPL)",
+		"inquiry_id": "tf_inq_realestate_e28324",
+		"milestones": [
+			{
+				"step": 1,
+				"name": "25% Upfront Deposit (Schema + Boilerplate Kickoff)",
+				"percent": 25,
+				"amountUSD": 375,
+				"dueDay": 1,
+				"trigger": "Order confirmation & Day 1 schema/boilerplate scaffold"
+			},
+			{
+				"step": 2,
+				"name": "50% MVP Staging Delivery (Day 8)",
+				"percent": 50,
+				"amountUSD": 750,
+				"dueDay": 8,
+				"trigger": "Live staging MVP URL / preview build deployed & verified"
+			},
+			{
+				"step": 3,
+				"name": "25% Final Code Handover (Day 14)",
+				"percent": 25,
+				"amountUSD": 375,
+				"dueDay": 14,
+				"trigger": "Automated acceptance tests pass & GitHub repository transfer"
+			}
+		],
+		"updatedAt": "2026-11-22T22:45:58.028Z",
+		"scopeSummary": "Real Estate Mobile App MVP development featuring Next.js backend/dashboard and mobile integration, 4 core CRUD entities, OAuth authentication, and Docker containerization delivered in a 14-day sprint.",
+		"srs_markdown": "# AI-Developer-Ready SRS: Next.js + PostgreSQL dashboard with 4 CRUD entities and OAuth auth (`tf_ord_8f6849df49b6383a7b`)\n\n## 1. Executive Overview\nReal Estate Mobile App MVP development featuring Next.js backend/dashboard and mobile integration, 4 core CRUD entities, OAuth authentication, and Docker containerization delivered in a 14-day sprint.\n\n## 2. Architecture Pattern: `modular-monorepo`\n- **Frontend:** Next.js\n- **Backend:** Node.js\n- **Database:** PostgreSQL\n- **DevOps:** Docker\n\n## 3. Database Models\n### Table: `properties`\nProperty listings\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - None\n### Table: `users`\nApplication users\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - None\n\n## 4. API Endpoints\n| Method | Route | Auth | Description |\n|---|---|---|---|\n| `GET` | `/api/properties` | Required | List properties with filters |\n| `POST` | `/api/properties` | Required | Create new property listing |\n\n## 5. UI Screens & Routing\n### Dashboard Feed (`/`)\n- **Components:** PropertyGrid, SearchBar\n- **Interactions:** Filter properties; Search by location\n\n### Property Details (`/property/[id]`)\n- **Components:** ImageGallery, ContactAgentButton\n- **Interactions:** View details; Inquire\n\n### Add Property (`/property/new`)\n- **Components:** PropertyForm\n- **Interactions:** Submit new listing\n\n### User Profile (`/profile`)\n- **Components:** ProfileDetails, ListingList\n- **Interactions:** Manage listings; Logout\n\n## 6. Milestone Breakdown (25% / 50% / 25%)\n- **Day 1: Schema + Boilerplate & Architecture Lock** (25% milestone): Modular monorepo scaffold + Docker configuration; Database migrations, core entities, and auth middleware; Environment template and CI lint/typecheck pipeline\n- **Day 8: Staging MVP Delivery** (50% milestone): Core CRUD API endpoints and frontend/mobile screens wired end-to-end; Live staging URL / TestFlight or APK preview build; Automated integration test suite passing in Docker\n- **Day 14: Final Release & Repository Handover** (25% milestone): Security audit, performance check, and production build verification; GitHub repository transfer / org invite and deployment runbook; Final handover report and escrow/milestone release\n\n## 7. Automated Acceptance Criteria\n- **[AC-01] (database)**: Migrations apply cleanly on an empty database with foreign-key constraints enforced. (`docker compose up -d db && npm run db:migrate`)\n- **[AC-02] (api)**: Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201. (`npm test`)\n- **[AC-03] (ui)**: Primary screens render without runtime console errors and complete core create/read flows. (`npm run build`)\n- **[AC-04] (ci_cd)**: Production Docker image builds cleanly and passes /api/health smoke check. (`docker build -t app:verify .`)",
+		"currentPhase": "day_1_2_architecture",
+		"clientEmail": "agent-e28324@a2a.client",
+		"deliveryDays": 14,
+		"payoneer_reference": "",
+		"srs_json": {
+			"database_models": [
+				{
+					"table_name": "properties",
+					"description": "Property listings",
+					"columns": [
+						"id",
+						"title",
+						"price",
+						"location",
+						"created_at"
+					],
+					"foreign_keys": []
+				},
+				{
+					"table_name": "users",
+					"description": "Application users",
+					"columns": [
+						"id",
+						"email",
+						"role",
+						"created_at"
+					],
+					"foreign_keys": []
+				}
+			],
+			"ui_screens": [
+				{
+					"screen_id": "home",
+					"route": "/",
+					"title": "Dashboard Feed",
+					"components": [
+						"PropertyGrid",
+						"SearchBar"
+					],
+					"user_interactions": [
+						"Filter properties",
+						"Search by location"
+					]
+				},
+				{
+					"screen_id": "detail",
+					"route": "/property/[id]",
+					"title": "Property Details",
+					"components": [
+						"ImageGallery",
+						"ContactAgentButton"
+					],
+					"user_interactions": [
+						"View details",
+						"Inquire"
+					]
+				},
+				{
+					"screen_id": "add_property",
+					"route": "/property/new",
+					"title": "Add Property",
+					"components": [
+						"PropertyForm"
+					],
+					"user_interactions": [
+						"Submit new listing"
+					]
+				},
+				{
+					"screen_id": "profile",
+					"route": "/profile",
+					"title": "User Profile",
+					"components": [
+						"ProfileDetails",
+						"ListingList"
+					],
+					"user_interactions": [
+						"Manage listings",
+						"Logout"
+					]
+				}
+			],
+			"tech_stack": {
+				"database": [
+					"PostgreSQL"
+				],
+				"devops": [
+					"Docker"
+				],
+				"frontend": [
+					"Next.js"
+				],
+				"backend": [
+					"Node.js"
+				]
+			},
+			"milestone_breakdown": [
+				{
+					"day": 1,
+					"phase": "Day 1: Schema + Boilerplate & Architecture Lock",
+					"payment_percent": 25,
+					"deliverables": [
+						"Modular monorepo scaffold + Docker configuration",
+						"Database migrations, core entities, and auth middleware",
+						"Environment template and CI lint/typecheck pipeline"
+					]
+				},
+				{
+					"day": 8,
+					"phase": "Day 8: Staging MVP Delivery",
+					"payment_percent": 50,
+					"deliverables": [
+						"Core CRUD API endpoints and frontend/mobile screens wired end-to-end",
+						"Live staging URL / TestFlight or APK preview build",
+						"Automated integration test suite passing in Docker"
+					]
+				},
+				{
+					"day": 14,
+					"phase": "Day 14: Final Release & Repository Handover",
+					"payment_percent": 25,
+					"deliverables": [
+						"Security audit, performance check, and production build verification",
+						"GitHub repository transfer / org invite and deployment runbook",
+						"Final handover report and escrow/milestone release"
+					]
+				}
+			],
+			"project_id": "tf_ord_8f6849df49b6383a7b",
+			"project_title": "Next.js + PostgreSQL dashboard with 4 CRUD entities and OAuth auth",
+			"api_endpoints": [
+				{
+					"method": "GET",
+					"route": "/api/properties",
+					"auth_required": true,
+					"description": "List properties with filters",
+					"request_payload": "null",
+					"response_schema": "{\"properties\": [{\"id\": \"uuid\", \"title\": \"string\", \"price\": \"number\"}]}"
+				},
+				{
+					"method": "POST",
+					"route": "/api/properties",
+					"auth_required": true,
+					"description": "Create new property listing",
+					"request_payload": "{\"title\": \"string\", \"price\": \"number\", \"location\": \"string\"}",
+					"response_schema": "{\"success\": true, \"id\": \"uuid\"}"
+				}
+			],
+			"architecture_pattern": "modular-monorepo",
+			"acceptance_criteria": [
+				{
+					"category": "database",
+					"assertion": "Migrations apply cleanly on an empty database with foreign-key constraints enforced.",
+					"verification_command": "docker compose up -d db && npm run db:migrate"
+				},
+				{
+					"category": "api",
+					"assertion": "Unauthenticated calls to protected /api/* routes return HTTP 401; valid payloads return HTTP 200/201.",
+					"verification_command": "npm test"
+				},
+				{
+					"category": "ui",
+					"assertion": "Primary screens render without runtime console errors and complete core create/read flows.",
+					"verification_command": "npm run build"
+				},
+				{
+					"category": "ci_cd",
+					"assertion": "Production Docker image builds cleanly and passes /api/health smoke check.",
+					"verification_command": "docker build -t app:verify ."
+				}
+			],
+			"executive_overview": "Real Estate Mobile App MVP development featuring Next.js backend/dashboard and mobile integration, 4 core CRUD entities, OAuth authentication, and Docker containerization delivered in a 14-day sprint."
+		},
+		"executive_overview": "Real Estate Mobile App MVP development featuring Next.js backend/dashboard and mobile integration, 4 core CRUD entities, OAuth authentication, and Docker containerization delivered in a 14-day sprint.",
+		"timeline_days": 14,
+		"created_at": "2026-11-19T12:02:44.198Z",
+		"orderTokenHash": "40864ed669bfa0d69128d2c5818af6634782ac109d0080db642e13045d115bb0",
+		"tier": "extended_14day",
+		"clientAgentId": "agent-e28324",
+		"projectTitle": "Real Estate Mobile App MVP",
+		"total_price_usd": 1500,
+		"agreedPriceUSD": 1500,
+		"milestone_status": "AWAITING_DEPOSIT",
+		"notifications": {
+			"webhookSent": false,
+			"emailAlertSent": false,
+			"detail": "mail_alert:Mail credentials (GMAIL_EMAIL and GMAIL_APP_PASSWORD) are not configured."
+		},
+		"createdAt": "2026-11-19T12:02:44.198Z"
+	},
+	"tf_ord_a9ad4cfc34217e50e3": {
+		"sow": {
+			"clientEmail": "autonomous-buyer@a2a.client",
+			"clientAgentId": "sealkeeperbot-1-0-https-sealkeeper-run-checks",
+			"sowId": "SOW-A9AD4CFC34217E50E3",
+			"acceptanceCriteria": [
+				"[AC-1] User authentication and role management (Agent/Buyer/Admin) operational.",
+				"[AC-2] PostgreSQL database models for listings, inquiries, and user profiles configured via Prisma/Supabase.",
+				"[AC-3] REST/GraphQL endpoints serving property CRUD operations and search filters."
+			],
+			"issuedAt": "2026-11-21T22:32:52.971Z",
+			"deliverables": [
+				"Modular Java Spring / Python / PHP Laravel / TypeScript codebase",
+				"OpenAPI / REST documentation & database migrations",
+				"Docker compose & cloud staging deployment"
+			],
+			"guardrailsVerified": true,
+			"provider": "TechFiyr"
+		},
+		"phases": [
+			{
+				"dayWindow": "Day 1-2",
+				"phase": "Architecture, Schema & Boilerplate (25% Deposit)",
+				"execution": "Full system architecture, ER schema, vector/AI evaluation plan, and monorepo scaffold locked.",
+				"status": "in_progress",
+				"updatedAt": "2026-11-21T22:32:52.971Z"
+			},
+			{
+				"dayWindow": "Day 3-7",
+				"phase": "Core Backend, AI/RAG & UI Sprints",
+				"execution": "Backend services, frontend/mobile views, custom AI/RAG pipelines, and third-party integrations built.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 8",
+				"phase": "Staging MVP Delivery (50% Milestone)",
+				"execution": "Cloud staging or TestFlight/APK build delivered for automated/client acceptance testing.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 9-13",
+				"phase": "Containerization, Security & E2E QA",
+				"execution": "Docker hardening, integration testing, performance profiling, and store compliance verification.",
+				"status": "pending"
+			},
+			{
+				"dayWindow": "Day 14",
+				"phase": "Production Handover & Release (25% Final)",
+				"execution": "GitHub repo transfer, CI/CD secrets handover, documentation, and final 25% milestone settlement.",
+				"status": "pending"
+			}
+		],
+		"payment": {
+			"binance_p2p_ready": true,
+			"finalHandoverUSD": 375,
+			"crypto_chain": "Solana (SPL)",
+			"invoiceId": "INV-A9AD4CFC34217E50E3",
+			"currency": "USDC",
+			"upfrontDepositUSD": 375,
+			"rail": "crypto_usdc_solana",
+			"status": "awaiting_upfront_25",
+			"instructions": "Send $375 USDC (25% deposit of $1500) on Solana (SPL) to 9Qi1ETqZ8Mv8RV1D3qwCkePLSEyak2D24XcTvmRyZYRn with memo tf_ord_a9ad4cfc34217e50e3. Milestones: 25% Upfront ($375), 50% Staging MVP ($750), 25% Final Handover ($375).",
+			"updatedAt": "2026-11-21T22:32:52.971Z",
+			"amountUSD": 1500,
+			"wallet_address": "9Qi1ETqZ8Mv8RV1D3qwCkePLSEyak2D24XcTvmRyZYRn",
+			"stagingMilestoneUSD": 750
+		},
+		"timeline_days": 14,
+		"srs_json": {
+			"architecture_pattern": "modular-monorepo",
+			"api_endpoints": [
+				{
+					"method": "GET",
+					"route": "/api/properties",
+					"auth_required": false,
+					"description": "Fetch paginated and filtered property listings",
+					"request_payload": "{ page, limit, priceMin, priceMax, location }",
+					"response_schema": "{ success, data: { properties: [], total } }"
+				},
+				{
+					"method": "POST",
+					"route": "/api/properties",
+					"auth_required": true,
+					"description": "Create a new property listing",
+					"request_payload": "{ title, description, price, location, agentId }",
+					"response_schema": "{ success, propertyId }"
+				}
+			],
+			"project_title": "Real Estate Mobile App MVP",
+			"acceptance_criteria": [
+				{
+					"category": "Core",
+					"assertion": "User authentication and role management (Agent/Buyer/Admin) operational.",
+					"verification_command": "npm test auth"
+				},
+				{
+					"category": "Database",
+					"assertion": "PostgreSQL database models for listings, inquiries, and user profiles configured via Prisma/Supabase.",
+					"verification_command": "npx prisma migrate status"
+				},
+				{
+					"category": "API & Mobile",
+					"assertion": "REST/GraphQL endpoints serving property CRUD operations and search filters.",
+					"verification_command": "npm test api"
+				}
+			],
+			"tech_stack": {
+				"database": [
+					"PostgreSQL"
+				],
+				"devops": [
+					"Docker"
+				],
+				"frontend": [
+					"Next.js"
+				],
+				"backend": [
+					"Node.js"
+				]
+			},
+			"ui_screens": [
+				{
+					"screen_id": "scr-1",
+					"route": "/properties",
+					"title": "Property Feed",
+					"components": [
+						"Search Bar",
+						"Property Card List",
+						"Filter Drawer"
+					],
+					"user_interactions": [
+						"Filter listings by price/location",
+						"Tap card to view details"
+					]
+				},
+				{
+					"screen_id": "scr-2",
+					"route": "/properties/new",
+					"title": "Add Property Listing",
+					"components": [
+						"Input Form",
+						"Image Upload Picker",
+						"Submit Button"
+					],
+					"user_interactions": [
+						"Fill out property details",
+						"Submit new listing"
+					]
+				}
+			],
+			"milestone_breakdown": [
+				{
+					"day": 1,
+					"phase": "Day 1: Schema + Boilerplate & Architecture Lock",
+					"payment_percent": 25,
+					"deliverables": [
+						"Modular monorepo scaffold + Docker configuration",
+						"Database migrations, core entities, and auth middleware",
+						"Environment template and CI lint/typecheck pipeline"
+					]
+				},
+				{
+					"day": 8,
+					"phase": "Day 8: Staging MVP Delivery",
+					"payment_percent": 50,
+					"deliverables": [
+						"Core CRUD API endpoints and frontend/mobile screens wired end-to-end",
+						"Live staging URL / TestFlight or APK preview build",
+						"Automated integration test suite passing in Docker"
+					]
+				},
+				{
+					"day": 14,
+					"phase": "Day 14: Final Release & Repository Handover",
+					"payment_percent": 25,
+					"deliverables": [
+						"Security audit, performance check, and production build verification",
+						"GitHub repository transfer / org invite and deployment runbook",
+						"Final handover report and escrow/milestone release"
+					]
+				}
+			],
+			"database_models": [
+				{
+					"table_name": "users",
+					"description": "Platform users (agents, buyers, admins)",
+					"columns": [
+						"id",
+						"email",
+						"role",
+						"created_at"
+					],
+					"foreign_keys": []
+				},
+				{
+					"table_name": "properties",
+					"description": "Real estate listings",
+					"columns": [
+						"id",
+						"title",
+						"description",
+						"price",
+						"location",
+						"agent_id",
+						"created_at"
+					],
+					"foreign_keys": [
+						{
+							"column": "agent_id",
+							"references": "users.id"
+						}
+					]
+				}
+			],
+			"project_id": "tf_ord_a9ad4cfc34217e50e3",
+			"executive_overview": "Development of the Real Estate Mobile App MVP utilizing Flutter, Node.js, and PostgreSQL with complete property search, CRUD listings, agent profiles, and secure authentication over a 14-day delivery timeline."
+		},
+		"agreedPriceUSD": 1500,
+		"updatedAt": "2026-11-21T22:32:52.971Z",
+		"clientAgentId": "sealkeeperbot-1-0-https-sealkeeper-run-checks",
+		"milestones": [
+			{
+				"step": 1,
+				"name": "25% Upfront Deposit (Schema + Boilerplate Kickoff)",
+				"percent": 25,
+				"amountUSD": 375,
+				"dueDay": 1,
+				"trigger": "Order confirmation & Day 1 schema/boilerplate scaffold"
+			},
+			{
+				"step": 2,
+				"name": "50% MVP Staging Delivery (Day 8)",
+				"percent": 50,
+				"amountUSD": 750,
+				"dueDay": 8,
+				"trigger": "Live staging MVP URL / preview build deployed & verified"
+			},
+			{
+				"step": 3,
+				"name": "25% Final Code Handover (Day 14)",
+				"percent": 25,
+				"amountUSD": 375,
+				"dueDay": 14,
+				"trigger": "Automated acceptance tests pass & GitHub repository transfer"
+			}
+		],
+		"orderTokenHash": "4355b2267f86a632c610e5c27b5cb817f7cb567c7d3ef6ce9ece52f728712929",
+		"total_price_usd": 1500,
+		"milestone_status": "AWAITING_DEPOSIT",
+		"currentPhase": "day_1_2_architecture",
+		"srs_markdown": "# AI-Developer-Ready SRS: Real Estate Mobile App MVP (`tf_ord_a9ad4cfc34217e50e3`)\n\n## 1. Executive Overview\nDevelopment of the Real Estate Mobile App MVP utilizing Flutter, Node.js, and PostgreSQL with complete property search, CRUD listings, agent profiles, and secure authentication over a 14-day delivery timeline.\n\n## 2. Architecture Pattern: `modular-monorepo`\n- **Frontend:** Next.js\n- **Backend:** Node.js\n- **Database:** PostgreSQL\n- **DevOps:** Docker\n\n## 3. Database Models\n### Table: `users`\nPlatform users (agents, buyers, admins)\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - None\n### Table: `properties`\nReal estate listings\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - `undefined`: `undefined` NOT NULL\n  - FK `agent_id` -> `undefined.undefined` (ON DELETE undefined)\n\n## 4. API Endpoints\n| Method | Route | Auth | Description |\n|---|---|---|---|\n| `GET` | `/api/properties` | Public | Fetch paginated and filtered property listings |\n| `POST` | `/api/properties` | Required | Create a new property listing |\n\n## 5. UI Screens & Routing\n### Property Feed (`/properties`)\n- **Components:** Search Bar, Property Card List, Filter Drawer\n- **Interactions:** Filter listings by price/location; Tap card to view details\n\n### Add Property Listing (`/properties/new`)\n- **Components:** Input Form, Image Upload Picker, Submit Button\n- **Interactions:** Fill out property details; Submit new listing\n\n## 6. Milestone Breakdown (25% / 50% / 25%)\n- **Day 1: Schema + Boilerplate & Architecture Lock** (25% milestone): Modular monorepo scaffold + Docker configuration; Database migrations, core entities, and auth middleware; Environment template and CI lint/typecheck pipeline\n- **Day 8: Staging MVP Delivery** (50% milestone): Core CRUD API endpoints and frontend/mobile screens wired end-to-end; Live staging URL / TestFlight or APK preview build; Automated integration test suite passing in Docker\n- **Day 14: Final Release & Repository Handover** (25% milestone): Security audit, performance check, and production build verification; GitHub repository transfer / org invite and deployment runbook; Final handover report and escrow/milestone release\n\n## 7. Automated Acceptance Criteria\n- **[AC-1] (Core)**: User authentication and role management (Agent/Buyer/Admin) operational. (`npm test auth`)\n- **[AC-2] (Database)**: PostgreSQL database models for listings, inquiries, and user profiles configured via Prisma/Supabase. (`npx prisma migrate status`)\n- **[AC-3] (API & Mobile)**: REST/GraphQL endpoints serving property CRUD operations and search filters. (`npm test api`)",
+		"scopeSummary": "Development of the Real Estate Mobile App MVP utilizing Flutter, Node.js, and PostgreSQL with complete property search, CRUD listings, agent profiles, and secure authentication over a 14-day delivery timeline.",
+		"notifications": {
+			"webhookSent": false,
+			"emailAlertSent": true
+		},
+		"deliverables": {},
+		"techStack": [
+			"Next.js",
+			"Node.js",
+			"PostgreSQL",
+			"Docker"
+		],
+		"crypto_chain": "Solana (SPL)",
+		"inquiry_id": "tf_inq_180f5f6d7e1b590f30",
+		"payoneer_reference": "",
+		"executive_overview": "Development of the Real Estate Mobile App MVP utilizing Flutter, Node.js, and PostgreSQL with complete property search, CRUD listings, agent profiles, and secure authentication over a 14-day delivery timeline.",
+		"created_at": "2026-11-21T22:32:52.971Z",
+		"deliveryDays": 14,
+		"createdAt": "2026-11-21T22:32:52.971Z",
+		"tier": "extended_14day",
+		"crypto_tx_hash": "",
+		"clientEmail": "autonomous-buyer@a2a.client",
+		"client_contact": "autonomous-buyer@a2a.client",
+		"projectTitle": "Real Estate Mobile App MVP"
+	}
+}

@@ -113,7 +113,16 @@ type MemCacheEntry = {
 };
 
 const memCache = new Map<string, MemCacheEntry>();
-const CACHE_TTL_MS = 60_000; // 60s in-memory TTL to avoid exhausting daily quota
+
+function getCollectionTtl(collection: string): number {
+	if (collection === 'news' || collection === 'posts' || collection === 'products' || collection === 'settings' || collection === 'meta') {
+		return 300_000; // 5 minutes in-memory cache to preserve daily read quotas
+	}
+	if (collection === 'agent_audit_logs') {
+		return 180_000; // 3 minutes for audit logs
+	}
+	return 60_000; // 60s for inquiries/orders
+}
 
 async function writeLocalSnapshot(collection: string, docs: Doc[]) {
 	try {
@@ -129,49 +138,63 @@ async function writeLocalSnapshot(collection: string, docs: Doc[]) {
 }
 
 const firestore = {
-	async list(collection: string): Promise<Doc[]> {
+	async list(collection: string, maxItems?: number): Promise<Doc[]> {
 		if (!isValidCollection(collection)) return [];
 		const now = Date.now();
+		const ttl = getCollectionTtl(collection);
 		const cached = memCache.get(collection);
 		if (cached && now < cached.expiresAt) {
-			return cached.docs;
+			return typeof maxItems === 'number' && maxItems > 0 ? cached.docs.slice(0, maxItems) : cached.docs;
 		}
 
 		const docs: Doc[] = [];
 		let pageToken = '';
+		const targetPageSize = typeof maxItems === 'number' && maxItems > 0 ? Math.min(maxItems, 300) : 300;
 		try {
 			do {
-				const url = `${API}${root()}/${collection}?pageSize=300${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
+				const url = `${API}${root()}/${collection}?pageSize=${targetPageSize}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
 				const res = await fsFetch(url);
 				if (res.status === 404) {
-					memCache.set(collection, { docs: [], expiresAt: now + CACHE_TTL_MS });
+					memCache.set(collection, { docs: [], expiresAt: now + ttl });
 					return [];
 				}
 				if (!res.ok) throw new GoogleError('list', res.status, await googleError(res));
 				const body = (await res.json()) as { documents?: { name: string; fields?: Record<string, FsValue> }[]; nextPageToken?: string };
-				for (const d of body.documents || []) docs.push({ ...decodeFields(d.fields || {}), id: docId(d.name) });
+				for (const d of body.documents || []) {
+					docs.push({ ...decodeFields(d.fields || {}), id: docId(d.name) });
+					if (typeof maxItems === 'number' && maxItems > 0 && docs.length >= maxItems) {
+						break;
+					}
+				}
+				if (typeof maxItems === 'number' && maxItems > 0 && docs.length >= maxItems) {
+					break;
+				}
 				pageToken = body.nextPageToken || '';
 			} while (pageToken);
 
-			memCache.set(collection, { docs, expiresAt: now + CACHE_TTL_MS });
-			writeLocalSnapshot(collection, docs).catch(() => {});
+			if (!maxItems) {
+				memCache.set(collection, { docs, expiresAt: now + ttl });
+				writeLocalSnapshot(collection, docs).catch(() => {});
+			}
 			return docs;
 		} catch (err) {
 			if (cached && cached.docs.length > 0) {
 				console.warn(`[store] Firestore list failed for "${collection}" (${err instanceof Error ? err.message : err}); serving in-memory cache.`);
-				cached.expiresAt = now + CACHE_TTL_MS;
-				return cached.docs;
+				cached.expiresAt = now + ttl;
+				return typeof maxItems === 'number' && maxItems > 0 ? cached.docs.slice(0, maxItems) : cached.docs;
 			}
 			try {
 				const localDocs = await local.list(collection);
 				if (localDocs.length > 0) {
-					console.warn(`[store] Firestore list failed for "${collection}" (${err instanceof Error ? err.message : err}); serving ${localDocs.length} items from local disk snapshot.`);
-					memCache.set(collection, { docs: localDocs, expiresAt: now + CACHE_TTL_MS });
-					return localDocs;
+					console.warn(`[store] Firestore list failed for "${collection}" (${err instanceof Error ? err.message : err}); serving ${localDocs.length} items from local snapshot.`);
+					memCache.set(collection, { docs: localDocs, expiresAt: now + ttl });
+					return typeof maxItems === 'number' && maxItems > 0 ? localDocs.slice(0, maxItems) : localDocs;
 				}
 			} catch {}
 			if (err instanceof GoogleError && (err.status === 429 || err.status >= 500)) {
-				memCache.set(collection, { docs: [], expiresAt: now + CACHE_TTL_MS });
+				if (cached && cached.docs.length > 0) {
+					return typeof maxItems === 'number' && maxItems > 0 ? cached.docs.slice(0, maxItems) : cached.docs;
+				}
 				return [];
 			}
 			throw err;
@@ -266,26 +289,37 @@ const firestore = {
 	},
 };
 
-// ---------- Local JSON files (development only) ----------
+// ---------- Local JSON files & static baseline snapshot fallback ----------
 const DATA_DIR = path.join(process.cwd(), '.data');
+const BACKUP_DIR = path.join(process.cwd(), 'data', 'backup');
 const fileOf = (collection: string) => path.join(DATA_DIR, `${collection.replace(/[^a-z0-9_-]/gi, '')}.json`);
+const backupFileOf = (collection: string) => path.join(BACKUP_DIR, `${collection.replace(/[^a-z0-9_-]/gi, '')}.json`);
 
 async function readLocal(collection: string): Promise<Record<string, Data>> {
 	try {
 		return JSON.parse(await fs.readFile(fileOf(collection), 'utf8'));
 	} catch {
-		return {};
+		try {
+			return JSON.parse(await fs.readFile(backupFileOf(collection), 'utf8'));
+		} catch {
+			return {};
+		}
 	}
 }
 
 async function writeLocal(collection: string, all: Record<string, Data>) {
-	await fs.mkdir(DATA_DIR, { recursive: true });
-	await fs.writeFile(fileOf(collection), JSON.stringify(all, null, '\t'));
+	try {
+		await fs.mkdir(DATA_DIR, { recursive: true });
+		await fs.writeFile(fileOf(collection), JSON.stringify(all, null, '\t'));
+	} catch {
+		// Serverless environments with read-only root filesystems
+	}
 }
 
 const local = {
-	async list(collection: string): Promise<Doc[]> {
-		return Object.entries(await readLocal(collection)).map(([id, d]) => ({ ...d, id }));
+	async list(collection: string, maxItems?: number): Promise<Doc[]> {
+		const items = Object.entries(await readLocal(collection)).map(([id, d]) => ({ ...d, id }));
+		return typeof maxItems === 'number' && maxItems > 0 ? items.slice(0, maxItems) : items;
 	},
 	async get(collection: string, id: string): Promise<Doc | null> {
 		const d = (await readLocal(collection))[id];
@@ -312,13 +346,13 @@ function backend() {
 }
 
 export const store = {
-	list: async (collection: string): Promise<Doc[]> => {
+	list: async (collection: string, maxItems?: number): Promise<Doc[]> => {
 		try {
-			return await backend().list(collection);
+			return await backend().list(collection, maxItems);
 		} catch (err) {
 			if (err instanceof StoreUnavailable) return [];
 			try {
-				const localDocs = await local.list(collection);
+				const localDocs = await local.list(collection, maxItems);
 				if (localDocs.length > 0) return localDocs;
 			} catch {}
 			throw err;
